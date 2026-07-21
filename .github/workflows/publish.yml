@@ -2,7 +2,7 @@
 #
 # The SDK factory pushes generated source + an annotated `vX.Y.Z` tag to this repo;
 # that tag triggers this workflow. PyPI must have a Trusted Publisher configured for
-# project `everos-cloud-sdk-python` pointing at this repo + workflow (`publish.yml`).
+# project `everos-cloud-sdk` pointing at this repo + workflow (`publish.yml`).
 name: publish
 
 on:

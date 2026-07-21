@@ -9,7 +9,7 @@ Official Python client for the **EverOS Cloud Memory API** (v2).
 ## Install
 
 ```sh
-pip install everos-cloud-sdk-python
+pip install everos-cloud-sdk
 ```
 
 ## Authentication
@@ -17,7 +17,7 @@ pip install everos-cloud-sdk-python
 All requests use your EverOS API key as a bearer token:
 
 ```python
-from everos_cloud_sdk_python import Configuration
+from everos_cloud_sdk import Configuration
 config = Configuration(access_token="sk-...")   # sent as: Authorization: Bearer sk-...
 ```
 
@@ -26,8 +26,8 @@ The default host is `https://api.evermind.ai`; override with `Configuration(host
 ## Quickstart
 
 ```python
-from everos_cloud_sdk_python import ApiClient, Configuration, MemoryApi
-from everos_cloud_sdk_python.models import AddInput, MessageItem, Content, SearchInput
+from everos_cloud_sdk import ApiClient, Configuration, MemoryApi
+from everos_cloud_sdk.models import AddInput, MessageItem, Content, SearchInput
 
 config = Configuration(access_token="sk-...")
 

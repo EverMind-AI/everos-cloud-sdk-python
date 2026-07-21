@@ -41,7 +41,7 @@ jobs:
         if: steps.detect.outputs.has_pkg == 'true'
         run: |
           python - <<'PY'
-          from everos_cloud_sdk_python import ApiClient, Configuration, MemoryApi
+          from everos_cloud_sdk import ApiClient, Configuration, MemoryApi
           cfg = Configuration(access_token="sk-test")
           assert cfg.host == "https://api.evermind.ai", cfg.host
           assert cfg.auth_settings()["BearerAuth"]["value"] == "Bearer sk-test"
