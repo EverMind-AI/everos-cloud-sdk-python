@@ -1,0 +1,41 @@
+# Publish to PyPI on a version tag, via OIDC trusted publishing (no stored token).
+#
+# The SDK factory pushes generated source + an annotated `vX.Y.Z` tag to this repo;
+# that tag triggers this workflow. PyPI must have a Trusted Publisher configured for
+# project `everos-cloud-sdk-python` pointing at this repo + workflow (`publish.yml`).
+name: publish
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for OIDC → PyPI trusted publishing
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Guard — tag matches package version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(grep -m1 -E '^version *= *' pyproject.toml | sed -E 's/.*"([^"]+)".*/\1/')"
+          echo "tag=$TAG pyproject=$PKG"
+          test "$TAG" = "$PKG" || { echo "::error::tag $TAG != pyproject version $PKG"; exit 1; }
+
+      - name: Build sdist + wheel
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
