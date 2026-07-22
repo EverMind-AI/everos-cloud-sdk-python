@@ -1,84 +1,40 @@
 # EverOS Cloud SDK for Python
 
-Official Python client for the **EverOS Cloud Memory API** (v2).
-
-> **This code is generated** from the EverOS OpenAPI contract. Please file bugs and
-> feature requests as issues — pull requests against the generated source will be
-> overwritten on the next release. Corrections flow through the internal SDK factory.
+Official Python client for the **EverOS Cloud Memory API**, published to PyPI as
+[`everos-cloud-sdk`](https://pypi.org/project/everos-cloud-sdk/).
 
 ## Install
 
 ```sh
-pip install everos-cloud-sdk-python
+pip install everos-cloud-sdk           # latest stable
+pip install --pre everos-cloud-sdk     # include pre-releases (release candidates)
 ```
 
-## Authentication
+You don't need this repository to use the SDK — just `pip install`. Install and
+usage docs for each major version live on that version's branch (see below).
 
-All requests use your EverOS API key as a bearer token:
+## Repository layout — one branch per major API version
 
-```python
-from everos_cloud_sdk_python import Configuration
-config = Configuration(access_token="sk-...")   # sent as: Authorization: Bearer sk-...
-```
+The SDK source is **not** on `main`. Each major version of the API has its own
+long-lived branch, and releases are tagged on it. `main` is an orientation page
+only and carries no SDK code.
 
-The default host is `https://api.evermind.ai`; override with `Configuration(host=...)`.
+| Branch | API major | PyPI versions | Status |
+|--------|-----------|---------------|--------|
+| [`v2`](../../tree/v2) | v2 | `2.x` (pin `>=2,<3`) | current |
+| `v3` (future) | v3 | `3.x` | — |
 
-## Quickstart
+- **Use the SDK:** `pip install "everos-cloud-sdk>=2,<3"`, then read the README on
+  the [`v2`](../../tree/v2) branch for auth + quickstart.
+- **Browse source / file issues:** switch to the branch for your major.
+- **Releases:** tagged `vX.Y.Z` on the matching version branch (e.g. `v2.0.0`);
+  pre-releases like `v2.0.0-rc1` publish to PyPI but install only with `--pre`.
 
-```python
-from everos_cloud_sdk_python import ApiClient, Configuration, MemoryApi
-from everos_cloud_sdk_python.models import AddInput, MessageItem, Content, SearchInput
+Majors are independent and may be incompatible — pick the branch matching the
+version you depend on.
 
-config = Configuration(access_token="sk-...")
+## Generated, not hand-edited
 
-with ApiClient(config) as client:
-    memory = MemoryApi(client)
-
-    # Add messages. Async by default: the call returns HTTP 202 with status "queued"
-    # and extraction happens in the background. Pass async_mode=False to write
-    # synchronously and surface write errors directly.
-    memory.add_memory(AddInput(
-        session_id="session-1",
-        messages=[
-            MessageItem(
-                sender_id="user-1",
-                role="user",
-                timestamp=1700000000,
-                content=Content("I love hiking in the mountains"),
-            )
-        ],
-    ))
-
-    # Search memories
-    result = memory.search_memory(SearchInput(query="outdoor hobbies"))
-    print(result.data)
-```
-
-## Methods
-
-`MemoryApi` mirrors the v2 endpoints:
-
-| Method | Endpoint | Notes |
-|---|---|---|
-| `add_memory(AddInput)` | `POST /api/v2/memory/add` | Async by default (202 `queued`); `async_mode=False` for sync 200. |
-| `search_memory(SearchInput)` | `POST /api/v2/memory/search` | Keyword / vector / hybrid / agentic. |
-| `get_memory(GetInput)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
-| `delete_memory(DeleteInput)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
-| `edit_profile(EditInput)` | `POST /api/v2/memory/edit` | Bulk profile add/update/delete operations. |
-
-### A note on message `content`
-
-`MessageItem.content` accepts either a plain string or a list of content items. In
-this SDK both are passed through the `Content` wrapper:
-
-```python
-Content("hello")                          # plain text (shorthand)
-Content([ContentItem(type="text", text="hello")])   # explicit item list
-```
-
-Either serializes to the correct wire shape.
-
-## Links
-
-- API reference: per-endpoint and model docs under [`docs/`](docs/).
-- Issues: https://github.com/EverMind-AI/everos-cloud-sdk-python/issues
+This SDK is generated from the EverOS OpenAPI contract by an internal factory.
+Please file **issues** for bugs and requests — pull requests against generated
+source are overwritten on the next release.
