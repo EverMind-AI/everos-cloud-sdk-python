@@ -15,22 +15,22 @@
 
 import unittest
 
-from everos_cloud_sdk.api.health_api import HealthApi
+from everos_cloud_sdk.api.storage_api import StorageApi
 
 
-class TestHealthApi(unittest.TestCase):
-    """HealthApi unit test stubs"""
+class TestStorageApi(unittest.TestCase):
+    """StorageApi unit test stubs"""
 
     def setUp(self) -> None:
-        self.api = HealthApi()
+        self.api = StorageApi()
 
     def tearDown(self) -> None:
         pass
 
-    def test_health_check_health_get(self) -> None:
-        """Test case for health_check_health_get
+    def test_sign_objects(self) -> None:
+        """Test case for sign_objects
 
-        Health check
+        Upload multimodal data (generate presigned upload info)
         """
         pass
 

@@ -17,6 +17,8 @@ docs/EditData.md
 docs/EditInput.md
 docs/EditInputOperationsInner.md
 docs/EditResultItem.md
+docs/Envelope.md
+docs/EnvelopeResult.md
 docs/EpisodeItem.md
 docs/ExplicitInfoData.md
 docs/ExplicitInfoPatch.md
@@ -26,7 +28,6 @@ docs/FlushInput.md
 docs/GetData.md
 docs/GetInput.md
 docs/HTTPValidationError.md
-docs/HealthApi.md
 docs/ImplicitTraitData.md
 docs/ImplicitTraitPatch.md
 docs/MemoryApi.md
@@ -39,6 +40,14 @@ docs/SearchData.md
 docs/SearchEpisodeItem.md
 docs/SearchInput.md
 docs/SearchProfileItem.md
+docs/SignEnvelope.md
+docs/SignEnvelopeAllOfResult.md
+docs/SignObjectItem.md
+docs/SignRequest.md
+docs/SignResponse.md
+docs/SignResponseItem.md
+docs/SignedInfo.md
+docs/StorageApi.md
 docs/SuccessEnvelopeAddData.md
 docs/SuccessEnvelopeDeleteData.md
 docs/SuccessEnvelopeEditData.md
@@ -53,8 +62,8 @@ docs/ValidationError.md
 docs/ValidationErrorLocInner.md
 everos_cloud_sdk/__init__.py
 everos_cloud_sdk/api/__init__.py
-everos_cloud_sdk/api/health_api.py
 everos_cloud_sdk/api/memory_api.py
+everos_cloud_sdk/api/storage_api.py
 everos_cloud_sdk/api_client.py
 everos_cloud_sdk/api_response.py
 everos_cloud_sdk/configuration.py
@@ -77,6 +86,8 @@ everos_cloud_sdk/models/edit_data.py
 everos_cloud_sdk/models/edit_input.py
 everos_cloud_sdk/models/edit_input_operations_inner.py
 everos_cloud_sdk/models/edit_result_item.py
+everos_cloud_sdk/models/envelope.py
+everos_cloud_sdk/models/envelope_result.py
 everos_cloud_sdk/models/episode_item.py
 everos_cloud_sdk/models/explicit_info_data.py
 everos_cloud_sdk/models/explicit_info_patch.py
@@ -97,6 +108,13 @@ everos_cloud_sdk/models/search_data.py
 everos_cloud_sdk/models/search_episode_item.py
 everos_cloud_sdk/models/search_input.py
 everos_cloud_sdk/models/search_profile_item.py
+everos_cloud_sdk/models/sign_envelope.py
+everos_cloud_sdk/models/sign_envelope_all_of_result.py
+everos_cloud_sdk/models/sign_object_item.py
+everos_cloud_sdk/models/sign_request.py
+everos_cloud_sdk/models/sign_response.py
+everos_cloud_sdk/models/sign_response_item.py
+everos_cloud_sdk/models/signed_info.py
 everos_cloud_sdk/models/success_envelope_add_data.py
 everos_cloud_sdk/models/success_envelope_delete_data.py
 everos_cloud_sdk/models/success_envelope_edit_data.py
@@ -134,6 +152,8 @@ test/test_edit_data.py
 test/test_edit_input.py
 test/test_edit_input_operations_inner.py
 test/test_edit_result_item.py
+test/test_envelope.py
+test/test_envelope_result.py
 test/test_episode_item.py
 test/test_explicit_info_data.py
 test/test_explicit_info_patch.py
@@ -142,7 +162,6 @@ test/test_flush_data.py
 test/test_flush_input.py
 test/test_get_data.py
 test/test_get_input.py
-test/test_health_api.py
 test/test_http_validation_error.py
 test/test_implicit_trait_data.py
 test/test_implicit_trait_patch.py
@@ -156,6 +175,14 @@ test/test_search_data.py
 test/test_search_episode_item.py
 test/test_search_input.py
 test/test_search_profile_item.py
+test/test_sign_envelope.py
+test/test_sign_envelope_all_of_result.py
+test/test_sign_object_item.py
+test/test_sign_request.py
+test/test_sign_response.py
+test/test_sign_response_item.py
+test/test_signed_info.py
+test/test_storage_api.py
 test/test_success_envelope_add_data.py
 test/test_success_envelope_delete_data.py
 test/test_success_envelope_edit_data.py
