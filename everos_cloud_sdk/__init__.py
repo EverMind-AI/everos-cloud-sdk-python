@@ -15,11 +15,11 @@
 """  # noqa: E501
 
 
-__version__ = "2.0.0-rc2"
+__version__ = "2.0.0-rc3"
 
 # import apis into sdk package
-from everos_cloud_sdk.api.health_api import HealthApi
 from everos_cloud_sdk.api.memory_api import MemoryApi
+from everos_cloud_sdk.api.storage_api import StorageApi
 
 # import ApiClient
 from everos_cloud_sdk.api_response import ApiResponse
@@ -50,6 +50,8 @@ from everos_cloud_sdk.models.edit_data import EditData
 from everos_cloud_sdk.models.edit_input import EditInput
 from everos_cloud_sdk.models.edit_input_operations_inner import EditInputOperationsInner
 from everos_cloud_sdk.models.edit_result_item import EditResultItem
+from everos_cloud_sdk.models.envelope import Envelope
+from everos_cloud_sdk.models.envelope_result import EnvelopeResult
 from everos_cloud_sdk.models.episode_item import EpisodeItem
 from everos_cloud_sdk.models.explicit_info_data import ExplicitInfoData
 from everos_cloud_sdk.models.explicit_info_patch import ExplicitInfoPatch
@@ -70,6 +72,13 @@ from everos_cloud_sdk.models.search_data import SearchData
 from everos_cloud_sdk.models.search_episode_item import SearchEpisodeItem
 from everos_cloud_sdk.models.search_input import SearchInput
 from everos_cloud_sdk.models.search_profile_item import SearchProfileItem
+from everos_cloud_sdk.models.sign_envelope import SignEnvelope
+from everos_cloud_sdk.models.sign_envelope_all_of_result import SignEnvelopeAllOfResult
+from everos_cloud_sdk.models.sign_object_item import SignObjectItem
+from everos_cloud_sdk.models.sign_request import SignRequest
+from everos_cloud_sdk.models.sign_response import SignResponse
+from everos_cloud_sdk.models.sign_response_item import SignResponseItem
+from everos_cloud_sdk.models.signed_info import SignedInfo
 from everos_cloud_sdk.models.success_envelope_add_data import SuccessEnvelopeAddData
 from everos_cloud_sdk.models.success_envelope_delete_data import SuccessEnvelopeDeleteData
 from everos_cloud_sdk.models.success_envelope_edit_data import SuccessEnvelopeEditData
