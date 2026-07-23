@@ -18,28 +18,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SearchAgentSkillItem(BaseModel):
+class FlushInput(BaseModel):
     """
-    SearchAgentSkillItem
+    FlushInput
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
-    agent_id: StrictStr
-    name: StrictStr
-    description: StrictStr
-    content: StrictStr
-    confidence: Union[StrictFloat, StrictInt]
-    maturity_score: Union[StrictFloat, StrictInt]
-    source_case_ids: Optional[List[StrictStr]] = None
-    score: Union[StrictFloat, StrictInt]
+    app_id: Optional[StrictStr] = 'default'
+    project_id: Optional[StrictStr] = 'default'
+    session_id: Annotated[str, Field(min_length=1, strict=True)]
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "agent_id", "name", "description", "content", "confidence", "maturity_score", "source_case_ids", "score"]
+    __properties: ClassVar[List[str]] = ["app_id", "project_id", "session_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -59,7 +52,7 @@ class SearchAgentSkillItem(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SearchAgentSkillItem from a JSON string"""
+        """Create an instance of FlushInput from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -91,7 +84,7 @@ class SearchAgentSkillItem(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SearchAgentSkillItem from a dict"""
+        """Create an instance of FlushInput from a dict"""
         if obj is None:
             return None
 
@@ -99,17 +92,9 @@ class SearchAgentSkillItem(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "app_id": obj.get("app_id"),
-            "project_id": obj.get("project_id"),
-            "agent_id": obj.get("agent_id"),
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "content": obj.get("content"),
-            "confidence": obj.get("confidence"),
-            "maturity_score": obj.get("maturity_score"),
-            "source_case_ids": obj.get("source_case_ids"),
-            "score": obj.get("score")
+            "app_id": obj.get("app_id") if obj.get("app_id") is not None else 'default',
+            "project_id": obj.get("project_id") if obj.get("project_id") is not None else 'default',
+            "session_id": obj.get("session_id")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

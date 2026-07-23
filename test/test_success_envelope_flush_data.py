@@ -15,10 +15,10 @@
 
 import unittest
 
-from everos_cloud_sdk.models.edit_input_operations_inner import EditInputOperationsInner
+from everos_cloud_sdk.models.success_envelope_flush_data import SuccessEnvelopeFlushData
 
-class TestEditInputOperationsInner(unittest.TestCase):
-    """EditInputOperationsInner unit test stubs"""
+class TestSuccessEnvelopeFlushData(unittest.TestCase):
+    """SuccessEnvelopeFlushData unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,33 +26,30 @@ class TestEditInputOperationsInner(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EditInputOperationsInner:
-        """Test EditInputOperationsInner
+    def make_instance(self, include_optional) -> SuccessEnvelopeFlushData:
+        """Test SuccessEnvelopeFlushData
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EditInputOperationsInner`
+        # uncomment below to create an instance of `SuccessEnvelopeFlushData`
         """
-        model = EditInputOperationsInner()
+        model = SuccessEnvelopeFlushData()
         if include_optional:
-            return EditInputOperationsInner(
-                reason = '',
-                action = 'delete',
-                type = 'explicit_info',
-                data = None,
-                item_id = ''
+            return SuccessEnvelopeFlushData(
+                request_id = '',
+                data = everos_cloud_sdk.models.flush_data.FlushData(
+                    status = 'extracted', )
             )
         else:
-            return EditInputOperationsInner(
-                action = 'delete',
-                type = 'explicit_info',
-                data = None,
-                item_id = '',
+            return SuccessEnvelopeFlushData(
+                request_id = '',
+                data = everos_cloud_sdk.models.flush_data.FlushData(
+                    status = 'extracted', ),
         )
         """
 
-    def testEditInputOperationsInner(self):
-        """Test EditInputOperationsInner"""
+    def testSuccessEnvelopeFlushData(self):
+        """Test SuccessEnvelopeFlushData"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

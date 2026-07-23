@@ -15,10 +15,10 @@
 
 import unittest
 
-from everos_cloud_sdk.models.edit_input_operations_inner import EditInputOperationsInner
+from everos_cloud_sdk.models.flush_input import FlushInput
 
-class TestEditInputOperationsInner(unittest.TestCase):
-    """EditInputOperationsInner unit test stubs"""
+class TestFlushInput(unittest.TestCase):
+    """FlushInput unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,33 +26,28 @@ class TestEditInputOperationsInner(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EditInputOperationsInner:
-        """Test EditInputOperationsInner
+    def make_instance(self, include_optional) -> FlushInput:
+        """Test FlushInput
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EditInputOperationsInner`
+        # uncomment below to create an instance of `FlushInput`
         """
-        model = EditInputOperationsInner()
+        model = FlushInput()
         if include_optional:
-            return EditInputOperationsInner(
-                reason = '',
-                action = 'delete',
-                type = 'explicit_info',
-                data = None,
-                item_id = ''
+            return FlushInput(
+                app_id = 'default',
+                project_id = 'default',
+                session_id = '0'
             )
         else:
-            return EditInputOperationsInner(
-                action = 'delete',
-                type = 'explicit_info',
-                data = None,
-                item_id = '',
+            return FlushInput(
+                session_id = '0',
         )
         """
 
-    def testEditInputOperationsInner(self):
-        """Test EditInputOperationsInner"""
+    def testFlushInput(self):
+        """Test FlushInput"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
