@@ -18,28 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
+from everos_cloud_sdk.models.flush_data import FlushData
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SearchAgentSkillItem(BaseModel):
+class SuccessEnvelopeFlushData(BaseModel):
     """
-    SearchAgentSkillItem
+    SuccessEnvelopeFlushData
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
-    agent_id: StrictStr
-    name: StrictStr
-    description: StrictStr
-    content: StrictStr
-    confidence: Union[StrictFloat, StrictInt]
-    maturity_score: Union[StrictFloat, StrictInt]
-    source_case_ids: Optional[List[StrictStr]] = None
-    score: Union[StrictFloat, StrictInt]
+    request_id: StrictStr = Field(description="Request trace id (peer to data)")
+    data: FlushData = Field(description="Endpoint-defined business result")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "agent_id", "name", "description", "content", "confidence", "maturity_score", "source_case_ids", "score"]
+    __properties: ClassVar[List[str]] = ["request_id", "data"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -59,7 +51,7 @@ class SearchAgentSkillItem(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SearchAgentSkillItem from a JSON string"""
+        """Create an instance of SuccessEnvelopeFlushData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -82,6 +74,9 @@ class SearchAgentSkillItem(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of data
+        if self.data:
+            _dict['data'] = self.data.to_dict()
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -91,7 +86,7 @@ class SearchAgentSkillItem(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SearchAgentSkillItem from a dict"""
+        """Create an instance of SuccessEnvelopeFlushData from a dict"""
         if obj is None:
             return None
 
@@ -99,17 +94,8 @@ class SearchAgentSkillItem(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
-            "app_id": obj.get("app_id"),
-            "project_id": obj.get("project_id"),
-            "agent_id": obj.get("agent_id"),
-            "name": obj.get("name"),
-            "description": obj.get("description"),
-            "content": obj.get("content"),
-            "confidence": obj.get("confidence"),
-            "maturity_score": obj.get("maturity_score"),
-            "source_case_ids": obj.get("source_case_ids"),
-            "score": obj.get("score")
+            "request_id": obj.get("request_id"),
+            "data": FlushData.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

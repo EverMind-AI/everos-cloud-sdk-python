@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "everos_cloud_sdk"
-version = "2.0.0-rc1"
+version = "2.0.0-rc2"
 description = "EverOS Cloud Memory API"
-authors = ["OpenAPI Generator Community <team@openapitools.org>"]
-license = "NoLicense"
+authors = ["EverMind AI <service@evermind.ai>"]
+license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/EverMind-AI/everos-cloud-sdk-python"
 keywords = ["OpenAPI", "OpenAPI-Generator", "EverOS Cloud Memory API"]
