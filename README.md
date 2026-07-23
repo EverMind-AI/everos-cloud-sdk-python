@@ -25,33 +25,75 @@ The default host is `https://api.evermind.ai`; override with `Configuration(host
 
 ## Quickstart
 
+The snippet below exercises all five endpoints. Every call takes a single typed
+input model and returns a typed response envelope (`result.data`).
+
 ```python
 from everos_cloud_sdk import ApiClient, Configuration, MemoryApi
-from everos_cloud_sdk.models import AddInput, MessageItem, Content, SearchInput
+from everos_cloud_sdk.models import (
+    AddInput, MessageItem, Content, SearchInput, GetInput, DeleteInput,
+    EditInput, AddOperation, EditInputOperationsInner,
+)
 
 config = Configuration(access_token="sk-...")
 
 with ApiClient(config) as client:
     memory = MemoryApi(client)
 
-    # Add messages. Async by default: the call returns HTTP 202 with status "queued"
-    # and extraction happens in the background. Pass async_mode=False to write
-    # synchronously and surface write errors directly.
+    # ── Add messages ──────────────────────────────────────────────────────────
+    # Async by default: returns HTTP 202 with status "queued" and extraction runs
+    # in the background. Pass async_mode=False to write synchronously and surface
+    # write errors directly.
     memory.add_memory(AddInput(
         session_id="session-1",
         messages=[
             MessageItem(
                 sender_id="user-1",
-                role="user",
+                role="user",                       # user | assistant | tool
                 timestamp=1700000000,
                 content=Content("I love hiking in the mountains"),
             )
         ],
     ))
 
-    # Search memories
-    result = memory.search_memory(SearchInput(query="outdoor hobbies"))
+    # ── Search memories ───────────────────────────────────────────────────────
+    # method: keyword | vector | hybrid (default) | agentic
+    result = memory.search_memory(SearchInput(
+        query="outdoor hobbies",
+        method="hybrid",
+        top_k=10,
+        include_profile=True,
+    ))
     print(result.data)
+
+    # ── Get memories (paginated) ──────────────────────────────────────────────
+    # memory_type: episode | profile | agent_case | agent_skill
+    page = memory.get_memory(GetInput(
+        memory_type="episode",
+        page=1,
+        page_size=20,
+        sort_order="desc",                         # by timestamp (default)
+    ))
+    print(page.data)
+
+    # ── Edit profile (bulk, Cloud-only) ───────────────────────────────────────
+    # 1–50 operations; each must be wrapped in EditInputOperationsInner.
+    # action: add | update | delete   ·   type: explicit_info | implicit_traits
+    memory.edit_profile(EditInput(
+        user_id="user-1",
+        operations=[
+            EditInputOperationsInner(AddOperation(
+                action="add",
+                type="explicit_info",
+                data={"category": "hobby", "description": "Enjoys hiking in the mountains"},
+                reason="Stated in session-1",
+            )),
+        ],
+    ))
+
+    # ── Delete memories (scoped soft-delete, Cloud-only) ──────────────────────
+    # Scope the delete by any combination of user_id / agent_id / session_id.
+    memory.delete_memory(DeleteInput(user_id="user-1", session_id="session-1"))
 ```
 
 ## Methods
