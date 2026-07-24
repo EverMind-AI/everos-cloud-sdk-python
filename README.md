@@ -25,14 +25,15 @@ The default host is `https://api.evermind.ai`; override with `Configuration(host
 
 ## Quickstart
 
-The snippet below exercises all five endpoints. Every call takes a single typed
-input model and returns a typed response envelope (`result.data`).
+The snippet below exercises the six Memory endpoints. Every Memory call takes a
+single typed input model and returns a typed response envelope (`result.data`).
+Object storage lives on a separate `StorageApi` (see below).
 
 ```python
 from everos_cloud_sdk import ApiClient, Configuration, MemoryApi
 from everos_cloud_sdk.models import (
     AddInput, MessageItem, Content, SearchInput, GetInput, DeleteInput,
-    EditInput, AddOperation, EditInputOperationsInner,
+    EditInput, AddOperation, EditInputOperationsInner, FlushInput,
 )
 
 config = Configuration(access_token="sk-...")
@@ -94,7 +95,63 @@ with ApiClient(config) as client:
     # ── Delete memories (scoped soft-delete, Cloud-only) ──────────────────────
     # Scope the delete by any combination of user_id / agent_id / session_id.
     memory.delete_memory(DeleteInput(user_id="user-1", session_id="session-1"))
+
+    # ── Flush a session (force boundary detection + extraction) ────────────────
+    # Extraction is normally async; flush forces it for a session and returns
+    # status "extracted" or "no_extraction". The generated method name mirrors
+    # the operationId.
+    flushed = memory.flush_api_v2_memory_flush_post(FlushInput(session_id="session-1"))
+    print(flushed.data.status)                      # "extracted" | "no_extraction"
 ```
+
+## Uploading multimodal data (`StorageApi`)
+
+Attaching images, audio, or documents to a message is a two-step flow: ask the
+API to presign an upload, then `POST` the bytes directly to S3 using the returned
+form fields. The sign endpoint lives on `StorageApi`.
+
+Unlike the Memory endpoints, `sign_objects` returns the raw MMS envelope: business
+outcome is carried in `status` (`0` means success) and the payload in
+`result.data` — check `status == 0` before reading it.
+
+```python
+import requests
+from everos_cloud_sdk import ApiClient, Configuration, StorageApi
+from everos_cloud_sdk.models import SignRequest, SignObjectItem
+
+config = Configuration(access_token="sk-...")
+
+with ApiClient(config) as client:
+    storage = StorageApi(client)
+
+    # ── Presign uploads (≤ 50 objects; each file_id unique) ────────────────────
+    # file_type: image | file | video
+    envelope = storage.sign_objects(SignRequest(
+        object_list=[
+            SignObjectItem(file_id="file-1", file_name="photo.jpg", file_type="image"),
+        ],
+    ))
+
+    if envelope.status != 0:                        # 0 == success; see status codes below
+        raise RuntimeError(f"sign failed: status={envelope.status} error={envelope.error}")
+
+    # ── Upload the bytes straight to S3 with the presigned POST form ───────────
+    for obj in envelope.result.data.object_list:
+        signed = obj.object_signed_info             # url + fields + maxSize
+        with open("photo.jpg", "rb") as fh:
+            resp = requests.post(
+                signed.url,
+                data=signed.fields,                 # presigned form fields
+                files={"file": fh},
+            )
+        resp.raise_for_status()                     # 204 from S3 on success
+        print(obj.object_key)                       # reference this key back in /add
+```
+
+Non-zero `status` values surface business errors rather than raising — common
+ones are `2018` (validation failed), `1012` (bad/expired token), `1002`
+(unsupported `file_type`), and `1007` (more than 50 objects). See the `signObjects`
+description in `openapi.json` for the full list.
 
 ## Methods
 
@@ -107,6 +164,13 @@ with ApiClient(config) as client:
 | `get_memory(GetInput)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
 | `delete_memory(DeleteInput)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
 | `edit_profile(EditInput)` | `POST /api/v2/memory/edit` | Bulk profile add/update/delete operations. |
+| `flush_api_v2_memory_flush_post(FlushInput)` | `POST /api/v2/memory/flush` | Force boundary detection + extraction for a session. |
+
+`StorageApi` covers object upload:
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| `sign_objects(SignRequest)` | `POST /api/v1/object/sign` | Presign ≤ 50 objects for direct-to-S3 upload; returns the MMS envelope (`status == 0` on success). |
 
 ### A note on message `content`
 
