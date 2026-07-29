@@ -9,15 +9,23 @@ Official Python client for the **EverOS Cloud Memory API** (v2).
 ## Install
 
 ```sh
-pip install everos-cloud-sdk
+pip install everos-cloud
 ```
+
+Release candidates need `--pre`: `pip install --pre everos-cloud==1.0.0rc1`.
+
+> **Upgrading from 0.4.x?** `everos-cloud` 1.0.0 is a **rewrite, not an increment**. The
+> 0.x line was a different client (httpx-based, hand-maintained); 1.x is generated from
+> the EverOS OpenAPI contract and has a different API surface — client classes, method
+> names, and model types all changed. The import path (`everos_cloud`) is unchanged.
+> Pin `everos-cloud<1` if you are not ready to migrate.
 
 ## Authentication
 
 All requests use your EverOS API key as a bearer token:
 
 ```python
-from everos_cloud_sdk import Configuration
+from everos_cloud import Configuration
 config = Configuration(access_token="sk-...")   # sent as: Authorization: Bearer sk-...
 ```
 
@@ -30,8 +38,8 @@ single typed input model and returns a typed response envelope (`result.data`).
 Object storage lives on a separate `StorageApi` (see below).
 
 ```python
-from everos_cloud_sdk import ApiClient, Configuration, MemoryApi
-from everos_cloud_sdk.models import (
+from everos_cloud import ApiClient, Configuration, MemoryApi
+from everos_cloud.models import (
     AddInput, MessageItem, Content, SearchInput, GetInput, DeleteInput,
     EditInput, AddOperation, EditInputOperationsInner, FlushInput,
 )
@@ -116,8 +124,8 @@ outcome is carried in `status` (`0` means success) and the payload in
 
 ```python
 import requests
-from everos_cloud_sdk import ApiClient, Configuration, StorageApi
-from everos_cloud_sdk.models import SignRequest, SignObjectItem
+from everos_cloud import ApiClient, Configuration, StorageApi
+from everos_cloud.models import SignRequest, SignObjectItem
 
 config = Configuration(access_token="sk-...")
 
