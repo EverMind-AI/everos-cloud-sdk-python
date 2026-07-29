@@ -1,0 +1,2787 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "EverOS Cloud Memory API",
+    "version": "2.0.0",
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "contact": {
+      "name": "EverMind AI",
+      "email": "service@evermind.ai",
+      "url": "https://github.com/EverMind-AI/everos-cloud-sdk-python"
+    },
+    "description": "Official Python client for the EverOS Cloud Memory API. Add, search, retrieve, and manage long-term memory for your AI applications over a typed interface (pydantic v2, with full type hints). Install and usage guides: https://github.com/EverMind-AI/everos-cloud-sdk-python"
+  },
+  "paths": {
+    "/api/v2/memory/add": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Add messages [OSS + Cloud]",
+        "operationId": "addMemory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Synchronous write result (async_mode=false).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_AddData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted for asynchronous processing (async_mode=true, default).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_AddData_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/delete": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Delete memories [Cloud-only]",
+        "operationId": "deleteMemory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DeleteData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/edit": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Edit profile items [Cloud-only]",
+        "operationId": "editProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_EditData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/flush": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Force boundary detection + extraction [OSS + Cloud]",
+        "operationId": "flush_api_v2_memory_flush_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlushInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_FlushData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/get": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Get memories (paginated) [OSS + Cloud]",
+        "operationId": "getMemory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_GetData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/search": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Search memories [OSS + Cloud]",
+        "operationId": "searchMemory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_SearchData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/object/sign": {
+      "post": {
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Upload multimodal data (generate presigned upload info)",
+        "operationId": "signObjects",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Envelope response (MMS returns HTTP 200 for every business outcome;\nonly unmatched routes return 404). `status: 0` means success and\n`result.data` is a SignResponse. Non-zero `status` values seen on\nthis endpoint:\n\n- `20003` \u2014 request body bind failure (malformed JSON).\n- `2018`  \u2014 parameter validation failed (e.g. missing `objectList`,\n  `fileId`, `fileName`, or `fileType`); `result.data` is the\n  validator error string.\n- `1012`  \u2014 `mms-token` missing, invalid, expired, or revoked\n  (emitted by the auth middleware before the handler runs).\n- `1013`  \u2014 token lacks the required `object:sign` scope.\n- `1007`  \u2014 `objectList` exceeds the per-request limit of 50.\n- `1002`  \u2014 `fileType` not one of image/video/file.\n- `1009`  \u2014 duplicate `fileId` within the request.\n- `1004`  \u2014 S3 operation failed (bucket unavailable).\n- `1005`  \u2014 presigned POST generation failed.\n- `2015`  \u2014 object metadata persistence failed.\n- `20001` \u2014 unhandled internal server error.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddData": {
+        "properties": {
+          "message_count": {
+            "type": "integer",
+            "title": "Message Count"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accumulated",
+              "extracted",
+              "queued"
+            ],
+            "title": "Status",
+            "description": "\"queued\" \u2014 async enqueue accepted (HTTP 202). \"accumulated\"/\"extracted\" \u2014 synchronous write outcome (HTTP 200, async_mode=false)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "message_count",
+          "status"
+        ],
+        "title": "AddData"
+      },
+      "AddInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "default": "default"
+          },
+          "session_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Session Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "chat",
+              "agent"
+            ],
+            "title": "Mode",
+            "default": "chat"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageItem"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Messages"
+          },
+          "async_mode": {
+            "type": "boolean",
+            "default": true,
+            "title": "Async Mode",
+            "description": "Selects the write path. true (default): validated and enqueued asynchronously \u2192 HTTP 202 with status \"queued\". false: forwarded synchronously to the engine, returning its 200 result and surfacing write errors directly. Extraction is always asynchronous (flush-triggered)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "messages"
+        ],
+        "title": "AddInput",
+        "example": {
+          "session_id": "session-1",
+          "messages": [
+            {
+              "sender_id": "user-1",
+              "role": "user",
+              "timestamp": 1700000000,
+              "content": "I love hiking in the mountains"
+            }
+          ]
+        }
+      },
+      "AddOperation": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "action": {
+            "type": "string",
+            "const": "add",
+            "title": "Action"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explicit_info",
+              "implicit_traits"
+            ],
+            "title": "Type"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExplicitInfoData"
+              },
+              {
+                "$ref": "#/components/schemas/ImplicitTraitData"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "type",
+          "data"
+        ],
+        "title": "AddOperation",
+        "description": "Add a new profile item (``item_id`` forbidden \u2014 the server mints it)."
+      },
+      "AgentCaseItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "agent_id": {
+            "type": "string",
+            "title": "Agent Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "task_intent": {
+            "type": "string",
+            "title": "Task Intent"
+          },
+          "approach": {
+            "type": "string",
+            "title": "Approach"
+          },
+          "quality_score": {
+            "type": "number",
+            "title": "Quality Score"
+          },
+          "key_insight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Insight"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "agent_id",
+          "session_id",
+          "task_intent",
+          "approach",
+          "quality_score",
+          "timestamp"
+        ],
+        "title": "AgentCaseItem"
+      },
+      "AgentSkillItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "agent_id": {
+            "type": "string",
+            "title": "Agent Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "maturity_score": {
+            "type": "number",
+            "title": "Maturity Score"
+          },
+          "source_case_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Case Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "agent_id",
+          "name",
+          "description",
+          "content",
+          "confidence",
+          "maturity_score"
+        ],
+        "title": "AgentSkillItem"
+      },
+      "AtomicFactItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "content"
+        ],
+        "title": "AtomicFactItem",
+        "description": "Atomic fact nested in an episode. Spec appendix E references it but does\nnot enumerate its fields \u2014 minimal shape until the contract is detailed."
+      },
+      "ContentItem": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "audio",
+              "image",
+              "doc",
+              "pdf",
+              "html",
+              "email"
+            ],
+            "title": "Type"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "base64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base64"
+          },
+          "uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uri"
+          },
+          "ext": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ext"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "source_info": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Info"
+          },
+          "extras": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extras"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "ContentItem",
+        "description": "A single content element (appendix A). Current phase: only ``type=\"text\"``."
+      },
+      "DeleteData": {
+        "properties": {
+          "filters": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Filters",
+            "description": "Scope filters used, e.g. ['user_id'] or ['user_id', 'session_id']"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Total memory records soft-deleted",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "DeleteData",
+        "description": "Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were\napplied + how many mongo records were soft-deleted across all memory types."
+      },
+      "DeleteInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "default": "default"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Id"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DeleteInput",
+        "example": {
+          "user_id": "user-1",
+          "session_id": "session-1"
+        }
+      },
+      "DeleteOperation": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "action": {
+            "type": "string",
+            "const": "delete",
+            "title": "Action"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explicit_info",
+              "implicit_traits"
+            ],
+            "title": "Type"
+          },
+          "item_id": {
+            "type": "string",
+            "title": "Item Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "type",
+          "item_id"
+        ],
+        "title": "DeleteOperation",
+        "description": "Delete an existing profile item by ``item_id`` (carries no ``data``)."
+      },
+      "EditData": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "applied": {
+            "type": "integer",
+            "title": "Applied"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/EditResultItem"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "profile": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Profile"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "version",
+          "applied"
+        ],
+        "title": "EditData",
+        "description": "Response payload for a successful profile edit request."
+      },
+      "EditInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "default": "default"
+          },
+          "user_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "User Id"
+          },
+          "memory_type": {
+            "type": "string",
+            "const": "profile",
+            "title": "Memory Type",
+            "default": "profile"
+          },
+          "operations": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/AddOperation"
+                },
+                {
+                  "$ref": "#/components/schemas/UpdateOperation"
+                },
+                {
+                  "$ref": "#/components/schemas/DeleteOperation"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "action",
+                "mapping": {
+                  "add": "#/components/schemas/AddOperation",
+                  "delete": "#/components/schemas/DeleteOperation",
+                  "update": "#/components/schemas/UpdateOperation"
+                }
+              }
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Operations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id",
+          "operations"
+        ],
+        "title": "EditInput",
+        "description": "Bulk profile edit request [Cloud-only].\n\nCarries 1\u201350 ``EditOperation`` items targeting a single user's profile.\n``memory_type`` is pinned to ``\"profile\"``; ``source`` is server-set and\nnot accepted from the client.",
+        "example": {
+          "user_id": "user-1",
+          "operations": [
+            {
+              "action": "add",
+              "type": "explicit_info",
+              "reason": "Stated in session-1",
+              "data": {
+                "category": "hobby",
+                "description": "Enjoys hiking in the mountains"
+              }
+            }
+          ]
+        }
+      },
+      "EditResultItem": {
+        "properties": {
+          "op_index": {
+            "type": "integer",
+            "title": "Op Index"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "applied",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "new_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Item Id"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "op_index",
+          "action",
+          "type",
+          "status"
+        ],
+        "title": "EditResultItem",
+        "description": "Per-operation outcome returned in ``EditData.results``."
+      },
+      "EpisodeItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "sender_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sender Ids"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "episode": {
+            "type": "string",
+            "title": "Episode"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "atomic_facts": {
+            "items": {
+              "$ref": "#/components/schemas/AtomicFactItem"
+            },
+            "type": "array",
+            "title": "Atomic Facts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "timestamp",
+          "summary",
+          "subject",
+          "episode",
+          "type"
+        ],
+        "title": "EpisodeItem"
+      },
+      "ExplicitInfoData": {
+        "properties": {
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Category"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Description"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "category",
+          "description"
+        ],
+        "title": "ExplicitInfoData",
+        "description": "``data`` payload for ``add explicit_info`` \u2014 ``category`` + ``description``\nrequired (non-empty); other fields (``evidence``, ``sources``, \u2026) pass through."
+      },
+      "ExplicitInfoPatch": {
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "ExplicitInfoPatch",
+        "description": "``data`` payload for ``update explicit_info`` \u2014 partial; at least one of\n``category`` / ``description`` (non-empty if present); others pass through."
+      },
+      "FilterNode": {
+        "properties": {
+          "AND": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FilterNode"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "And"
+          },
+          "OR": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FilterNode"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Or"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "FilterNode",
+        "description": "One Filters DSL node \u2014 recursive ``AND`` / ``OR`` arrays plus arbitrary\nscalar field conditions at the same level."
+      },
+      "FlushData": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "extracted",
+              "no_extraction"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "FlushData"
+      },
+      "FlushInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "default": "default"
+          },
+          "session_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Session Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id"
+        ],
+        "title": "FlushInput"
+      },
+      "GetData": {
+        "properties": {
+          "episodes": {
+            "items": {
+              "$ref": "#/components/schemas/EpisodeItem"
+            },
+            "type": "array",
+            "title": "Episodes"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileItem"
+            },
+            "type": "array",
+            "title": "Profiles"
+          },
+          "agent_cases": {
+            "items": {
+              "$ref": "#/components/schemas/AgentCaseItem"
+            },
+            "type": "array",
+            "title": "Agent Cases"
+          },
+          "agent_skills": {
+            "items": {
+              "$ref": "#/components/schemas/AgentSkillItem"
+            },
+            "type": "array",
+            "title": "Agent Skills"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count",
+            "default": 0
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "GetData"
+      },
+      "GetInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "default": "default"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Id"
+          },
+          "memory_type": {
+            "type": "string",
+            "enum": [
+              "episode",
+              "profile",
+              "agent_case",
+              "agent_skill"
+            ],
+            "title": "Memory Type"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Page Size",
+            "default": 20
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "timestamp",
+              "updated_at"
+            ],
+            "title": "Sort By",
+            "default": "timestamp"
+          },
+          "sort_order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "title": "Sort Order",
+            "default": "desc"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterNode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type"
+        ],
+        "title": "GetInput",
+        "example": {
+          "memory_type": "episode",
+          "page": 1,
+          "page_size": 20,
+          "sort_order": "desc"
+        }
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImplicitTraitData": {
+        "properties": {
+          "trait": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Trait"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Description"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "trait",
+          "description"
+        ],
+        "title": "ImplicitTraitData",
+        "description": "``data`` payload for ``add implicit_traits`` \u2014 ``trait`` + ``description``\nrequired (non-empty); other fields (``basis``, ``evidence``, ``sources``, \u2026)\npass through."
+      },
+      "ImplicitTraitPatch": {
+        "properties": {
+          "trait": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trait"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "ImplicitTraitPatch",
+        "description": "``data`` payload for ``update implicit_traits`` \u2014 partial; at least one of\n``trait`` / ``description`` (non-empty if present); others pass through."
+      },
+      "MessageItem": {
+        "properties": {
+          "sender_id": {
+            "type": "string",
+            "title": "Sender Id"
+          },
+          "sender_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sender Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "title": "Role"
+          },
+          "timestamp": {
+            "type": "integer",
+            "title": "Timestamp"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContentItem"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Content"
+          },
+          "tool_calls": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ToolCall"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Calls"
+          },
+          "tool_call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Call Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sender_id",
+          "role",
+          "timestamp",
+          "content"
+        ],
+        "title": "MessageItem",
+        "description": "One message in an /add batch (spec \u00a72). ``content`` accepts a plain string\n(shorthand for a single text ContentItem) or an explicit ContentItem list."
+      },
+      "ProfileItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "profile_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Profile Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "user_id"
+        ],
+        "title": "ProfileItem"
+      },
+      "SearchAgentCaseItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "agent_id": {
+            "type": "string",
+            "title": "Agent Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "task_intent": {
+            "type": "string",
+            "title": "Task Intent"
+          },
+          "approach": {
+            "type": "string",
+            "title": "Approach"
+          },
+          "quality_score": {
+            "type": "number",
+            "title": "Quality Score"
+          },
+          "key_insight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Insight"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "agent_id",
+          "session_id",
+          "task_intent",
+          "approach",
+          "quality_score",
+          "timestamp",
+          "score"
+        ],
+        "title": "SearchAgentCaseItem"
+      },
+      "SearchAgentSkillItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "agent_id": {
+            "type": "string",
+            "title": "Agent Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "maturity_score": {
+            "type": "number",
+            "title": "Maturity Score"
+          },
+          "source_case_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Case Ids"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "agent_id",
+          "name",
+          "description",
+          "content",
+          "confidence",
+          "maturity_score",
+          "score"
+        ],
+        "title": "SearchAgentSkillItem"
+      },
+      "SearchAtomicFactItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "content",
+          "score"
+        ],
+        "title": "SearchAtomicFactItem"
+      },
+      "SearchData": {
+        "properties": {
+          "episodes": {
+            "items": {
+              "$ref": "#/components/schemas/SearchEpisodeItem"
+            },
+            "type": "array",
+            "title": "Episodes"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/SearchProfileItem"
+            },
+            "type": "array",
+            "title": "Profiles"
+          },
+          "agent_cases": {
+            "items": {
+              "$ref": "#/components/schemas/SearchAgentCaseItem"
+            },
+            "type": "array",
+            "title": "Agent Cases"
+          },
+          "agent_skills": {
+            "items": {
+              "$ref": "#/components/schemas/SearchAgentSkillItem"
+            },
+            "type": "array",
+            "title": "Agent Skills"
+          },
+          "unprocessed_messages": {
+            "items": {
+              "$ref": "#/components/schemas/UnprocessedMessageDTO"
+            },
+            "type": "array",
+            "title": "Unprocessed Messages"
+          }
+        },
+        "type": "object",
+        "title": "SearchData"
+      },
+      "SearchEpisodeItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "sender_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sender Ids"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "episode": {
+            "type": "string",
+            "title": "Episode"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "atomic_facts": {
+            "items": {
+              "$ref": "#/components/schemas/SearchAtomicFactItem"
+            },
+            "type": "array",
+            "title": "Atomic Facts"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "timestamp",
+          "summary",
+          "subject",
+          "episode",
+          "type",
+          "score"
+        ],
+        "title": "SearchEpisodeItem"
+      },
+      "SearchInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "default": "default"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Id"
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Query"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "keyword",
+              "vector",
+              "hybrid",
+              "agentic"
+            ],
+            "title": "Method",
+            "default": "hybrid"
+          },
+          "top_k": {
+            "type": "integer",
+            "title": "Top K",
+            "default": -1
+          },
+          "radius": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radius"
+          },
+          "min_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Score"
+          },
+          "include_profile": {
+            "type": "boolean",
+            "title": "Include Profile",
+            "default": false
+          },
+          "enable_llm_rerank": {
+            "type": "boolean",
+            "title": "Enable Llm Rerank",
+            "default": false
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterNode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "SearchInput",
+        "example": {
+          "query": "outdoor hobbies",
+          "method": "hybrid",
+          "top_k": 10,
+          "include_profile": true
+        }
+      },
+      "SearchProfileItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "profile_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Profile Data"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "user_id"
+        ],
+        "title": "SearchProfileItem"
+      },
+      "SuccessEnvelope_AddData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AddData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[AddData]"
+      },
+      "SuccessEnvelope_DeleteData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DeleteData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DeleteData]"
+      },
+      "SuccessEnvelope_EditData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/EditData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[EditData]"
+      },
+      "SuccessEnvelope_FlushData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FlushData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[FlushData]"
+      },
+      "SuccessEnvelope_GetData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/GetData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[GetData]"
+      },
+      "SuccessEnvelope_SearchData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SearchData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[SearchData]"
+      },
+      "ToolCall": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "default": "function"
+          },
+          "function": {
+            "$ref": "#/components/schemas/ToolCallFunction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "function"
+        ],
+        "title": "ToolCall"
+      },
+      "ToolCallFunction": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "arguments": {
+            "type": "string",
+            "title": "Arguments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "arguments"
+        ],
+        "title": "ToolCallFunction"
+      },
+      "UnprocessedMessageDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "sender_id": {
+            "type": "string",
+            "title": "Sender Id"
+          },
+          "sender_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sender Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContentItem"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Content"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "tool_calls": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ToolCall"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Calls"
+          },
+          "tool_call_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Call Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "session_id",
+          "sender_id",
+          "role",
+          "content",
+          "timestamp"
+        ],
+        "title": "UnprocessedMessageDTO",
+        "description": "Buffered raw message not yet extracted (no owner \u2014 inference happens after\nboundary detection). Returned by /search only when ``filters.session_id`` is a\ntop-level eq scalar (spec \u00a74 / appendix E)."
+      },
+      "UpdateOperation": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "action": {
+            "type": "string",
+            "const": "update",
+            "title": "Action"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "explicit_info",
+              "implicit_traits"
+            ],
+            "title": "Type"
+          },
+          "item_id": {
+            "type": "string",
+            "title": "Item Id"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExplicitInfoPatch"
+              },
+              {
+                "$ref": "#/components/schemas/ImplicitTraitPatch"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "type",
+          "item_id",
+          "data"
+        ],
+        "title": "UpdateOperation",
+        "description": "Update an existing profile item (partial ``data`` shallow-merge)."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "SignRequest": {
+        "type": "object",
+        "required": [
+          "objectList"
+        ],
+        "properties": {
+          "objectList": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "description": "Objects to sign for upload. At most 50 per request\n(`status: 1007` if exceeded). Each `fileId` must be unique within\nthe request (`status: 1009` on duplicates).\n",
+            "items": {
+              "$ref": "#/components/schemas/SignObjectItem"
+            }
+          }
+        },
+        "example": {
+          "objectList": [
+            {
+              "fileId": "file-1",
+              "fileName": "photo.jpg",
+              "fileType": "image"
+            }
+          ]
+        }
+      },
+      "SignObjectItem": {
+        "type": "object",
+        "required": [
+          "fileId",
+          "fileName",
+          "fileType"
+        ],
+        "properties": {
+          "fileId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileType": {
+            "type": "string",
+            "enum": [
+              "image",
+              "file",
+              "video"
+            ],
+            "description": "Media class. Default size limits per type: image=10MB,\nfile=100MB, video=500MB. These are defaults and may be overridden\nper token (via the token's `file_limits`); the effective limit is\nenforced by S3 through the presigned POST `content-length-range`\ncondition, and surfaced as `objectSignedInfo.maxSize`.\n"
+          }
+        }
+      },
+      "SignResponse": {
+        "type": "object",
+        "properties": {
+          "objectList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SignResponseItem"
+            }
+          }
+        }
+      },
+      "SignResponseItem": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileType": {
+            "type": "string"
+          },
+          "objectKey": {
+            "type": "string"
+          },
+          "objectUrl": {
+            "type": "string",
+            "description": "Present in the response struct for parity with the find endpoint,\nbut not populated on the sign path (omitted from the JSON).\n"
+          },
+          "objectSignedInfo": {
+            "$ref": "#/components/schemas/SignedInfo"
+          }
+        }
+      },
+      "SignedInfo": {
+        "type": "object",
+        "description": "Presigned POST form data for direct-to-S3 upload",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "maxSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum file size in bytes"
+          }
+        }
+      },
+      "Envelope": {
+        "type": "object",
+        "description": "Common response envelope",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "`\"OK\"` on success, otherwise a human-readable error message\ndecoded from the business error.\n"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Business status code; 0 means success"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "data": true
+            }
+          }
+        }
+      },
+      "SignEnvelope": {
+        "description": "Response envelope for the sign endpoint. The `result.data` shape\ndepends on `status`:\n\n- `status: 0` (success) \u2014 `result.data` is a `SignResponse`, as\n  modelled below.\n- `status: 2018` (validation failed) \u2014 `result.data` is a plain\n  string carrying the validator error message, not a `SignResponse`.\n- all other non-zero statuses \u2014 `result.data` is `null`.\n\nGenerated clients should treat `result.data` as populated only when\n`status` is 0.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Envelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "result": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/SignResponse"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GatewayError": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Gateway error body. NOTE: shape is not yet uniform across auth/quota/ rate-limit paths \u2014 treat fields as best-effort. Commonly includes a `code`/`message` (flat) or an `error` object/string with a `message`.",
+        "title": "GatewayError"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key issued by EverOS, sent as `Authorization: Bearer <api_key>`."
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.evermind.ai",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
+}
