@@ -21,14 +21,14 @@ only and carries no SDK code.
 
 | Branch | API major | PyPI versions | Status |
 |--------|-----------|---------------|--------|
-| [`v2`](../../tree/v2) | v2 | `2.x` (pin `>=2,<3`) | current |
-| `v3` (future) | v3 | `3.x` | — |
+| [`v1`](../../tree/v1) | v1 | `1.x` (pin `>=1,<2`) | current |
+| `v2` (future) | v2 | `2.x` | — |
 
-- **Use the SDK:** `pip install "everos-cloud-sdk>=2,<3"`, then read the README on
-  the [`v2`](../../tree/v2) branch for auth + quickstart.
+- **Use the SDK:** `pip install "everos-cloud-sdk>=1,<2"`, then read the README on
+  the [`v1`](../../tree/v1) branch for auth + quickstart.
 - **Browse source / file issues:** switch to the branch for your major.
-- **Releases:** tagged `vX.Y.Z` on the matching version branch (e.g. `v2.0.0`);
-  pre-releases like `v2.0.0-rc1` publish to PyPI but install only with `--pre`.
+- **Releases:** tagged `vX.Y.Z` on the matching version branch (e.g. `v1.0.0`);
+  pre-releases like `v1.0.0-rc1` publish to PyPI but install only with `--pre`.
 
 Majors are independent and may be incompatible — pick the branch matching the
 version you depend on.
