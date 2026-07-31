@@ -33,7 +33,7 @@ def test_add_builds_payload_and_returns_data():
     assert isinstance(msg, MessageItem)
     assert msg.role == "user"
     assert msg.sender_id == "user"          # defaults to role when omitted
-    assert isinstance(msg.timestamp, int)   # defaults to now
+    assert msg.timestamp >= 1_000_000_000_000   # defaults to now, in unix milliseconds
     # string content shorthand became a Content wrapper
     assert msg.content is not None
 
@@ -43,10 +43,10 @@ def test_message_passthrough_and_explicit_fields():
     mem.add_memory.return_value = SimpleNamespace(data=None)
     c = _client(memory=mem)
     c.add(session_id="s1", messages=[
-        {"sender_id": "u9", "role": "assistant", "timestamp": 1700000000, "content": "hi"},
+        {"sender_id": "u9", "role": "assistant", "timestamp": 1700000000000, "content": "hi"},
     ])
     msg = mem.add_memory.call_args.args[0].messages[0]
-    assert msg.sender_id == "u9" and msg.role == "assistant" and msg.timestamp == 1700000000
+    assert msg.sender_id == "u9" and msg.role == "assistant" and msg.timestamp == 1700000000000
 
 
 def test_search_drops_none_so_defaults_survive():

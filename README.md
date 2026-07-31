@@ -67,10 +67,10 @@ from everos_cloud import EverOS
 
 with EverOS(api_key="sk-...") as client:
     client.add(session_id="session-1", messages=[
-        {"role": "user", "content": "I love hiking in the mountains"},
+        {"sender_id": "user-1", "role": "user", "content": "I love hiking in the mountains"},
     ])
 
-    results = client.search("outdoor hobbies")
+    results = client.search("outdoor hobbies", user_id="user-1")
     print(results)
 ```
 

@@ -28,7 +28,7 @@ client = EverOS(api_key="sk-...")     # host defaults to https://api.evermind.ai
 # Async by default: validated and enqueued, extraction runs in the background.
 # `content` accepts a plain string; `timestamp` defaults to now, `sender_id` to role.
 client.add(session_id="session-1", messages=[
-    {"role": "user", "content": "I love hiking in the mountains"},
+    {"sender_id": "user-1", "role": "user", "content": "I love hiking in the mountains"},
 ])
 
 # ── Force extraction for a session ────────────────────────────────────────────
@@ -36,13 +36,13 @@ flushed = client.flush("session-1")
 print(flushed.status)                 # "extracted" | "no_extraction"
 
 # ── Get memories (paginated) ──────────────────────────────────────────────────
-# memory_type: episode | profile | agent_case | agent_skill
-page = client.get("episode", page=1, page_size=20)
+# memory_type: episode | profile | agent_case | agent_skill. Scope with user_id or agent_id.
+page = client.get("episode", user_id="user-1", page=1, page_size=20)
 print(page.episodes)
 
 # ── Search ────────────────────────────────────────────────────────────────────
-# method: keyword | vector | hybrid (default) | agentic
-result = client.search("outdoor hobbies", top_k=10, include_profile=True)
+# method: keyword | vector | hybrid (default) | agentic. Scope with user_id or agent_id.
+result = client.search("outdoor hobbies", user_id="user-1", top_k=10, include_profile=True)
 print(result.episodes)
 
 # ── Edit a user's profile (bulk) ──────────────────────────────────────────────
@@ -98,7 +98,7 @@ with ApiClient(config) as api:
     memory.add_memory(AddInput(
         session_id="session-1",
         messages=[MessageItem(
-            sender_id="user-1", role="user", timestamp=1700000000,
+            sender_id="user-1", role="user", timestamp=1700000000000,
             content=Content("I love hiking in the mountains"),
         )],
     ))
