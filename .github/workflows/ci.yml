@@ -51,6 +51,43 @@ jobs:
           print("import + config OK")
           PY
 
+      - name: Quickstart drift smoke
+        # quickstart.md is hand-maintained (not generated), so it can drift from the
+        # SDK when the API surface changes. This catches the common cases offline (no
+        # live API): its code must still parse, and every model/method it references
+        # must still exist in the installed SDK.
+        if: steps.detect.outputs.has_pkg == 'true' && hashFiles('quickstart.md') != ''
+        run: |
+          python - <<'PY'
+          import re
+          import everos_cloud.models as models
+          from everos_cloud import MemoryApi, StorageApi
+
+          text = open("quickstart.md").read()
+          blocks = re.findall(r"```python\n(.*?)```", text, re.S)
+          assert blocks, "no python code blocks found in quickstart.md"
+          code = "\n".join(blocks)
+
+          # 1) every snippet must still be valid Python
+          compile(code, "quickstart.md", "exec")
+
+          # 2) every model imported from everos_cloud.models must still exist
+          for paren, line in re.findall(
+              r"from everos_cloud\.models import (?:\(([^)]*)\)|([^\n]+))", text
+          ):
+              for name in re.split(r"[,\s]+", paren or line):
+                  name = name.strip()
+                  if name:
+                      assert hasattr(models, name), f"quickstart drift: missing model {name!r}"
+
+          # 3) every API method the quickstart calls must still exist
+          for var, cls in (("memory", MemoryApi), ("storage", StorageApi)):
+              for meth in sorted(set(re.findall(rf"\b{var}\.(\w+)\(", code))):
+                  assert hasattr(cls, meth), f"quickstart drift: {cls.__name__} has no {meth!r}"
+
+          print("quickstart drift smoke OK")
+          PY
+
       - name: Build sdist + wheel
         if: steps.detect.outputs.has_pkg == 'true'
         run: |
