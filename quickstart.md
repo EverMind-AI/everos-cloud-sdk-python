@@ -105,11 +105,10 @@ with ApiClient(config) as client:
     # Scope the delete by any combination of user_id / agent_id / session_id.
     memory.delete_memory(DeleteInput(user_id="user-1", session_id="session-1"))
 
-    # ── Flush a session (force boundary detection + extraction) ────────────────
+    # ── Flush a session (force extraction) ─────────────────────────────────────
     # Extraction is normally async; flush forces it for a session and returns
-    # status "extracted" or "no_extraction". The generated method name mirrors
-    # the operationId.
-    flushed = memory.flush_api_v2_memory_flush_post(FlushInput(session_id="session-1"))
+    # status "extracted" or "no_extraction".
+    flushed = memory.flush_memory(FlushInput(session_id="session-1"))
     print(flushed.data.status)                      # "extracted" | "no_extraction"
 ```
 
@@ -173,7 +172,7 @@ description in `openapi.json` for the full list.
 | `get_memory(GetInput)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
 | `delete_memory(DeleteInput)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
 | `edit_profile(EditInput)` | `POST /api/v2/memory/edit` | Bulk profile add/update/delete operations. |
-| `flush_api_v2_memory_flush_post(FlushInput)` | `POST /api/v2/memory/flush` | Force boundary detection + extraction for a session. |
+| `flush_memory(FlushInput)` | `POST /api/v2/memory/flush` | Force extraction for a session. |
 
 `StorageApi` covers object upload:
 
