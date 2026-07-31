@@ -4,13 +4,13 @@ All URIs are relative to *https://api.evermind.ai*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**sign_objects**](StorageApi.md#sign_objects) | **POST** /api/v2/object/sign | Upload multimodal data (generate presigned upload info)
+[**sign_objects**](StorageApi.md#sign_objects) | **POST** /api/v2/object/sign | Get multimodal upload URLs
 
 
 # **sign_objects**
 > SignEnvelope sign_objects(sign_request)
 
-Upload multimodal data (generate presigned upload info)
+Get multimodal upload URLs
 
 ### Example
 
@@ -46,7 +46,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     sign_request = everos_cloud.SignRequest() # SignRequest | 
 
     try:
-        # Upload multimodal data (generate presigned upload info)
+        # Get multimodal upload URLs
         api_response = api_instance.sign_objects(sign_request)
         print("The response of StorageApi->sign_objects:\n")
         pprint(api_response)

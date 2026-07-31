@@ -273,7 +273,7 @@
         "tags": [
           "Memory"
         ],
-        "summary": "Force boundary detection + extraction [OSS + Cloud]",
+        "summary": "Force memory extraction [OSS + Cloud]",
         "operationId": "flushMemory",
         "requestBody": {
           "content": {
@@ -516,7 +516,7 @@
         "tags": [
           "Storage"
         ],
-        "summary": "Upload multimodal data (generate presigned upload info)",
+        "summary": "Get multimodal upload URLs",
         "operationId": "signObjects",
         "requestBody": {
           "required": true,

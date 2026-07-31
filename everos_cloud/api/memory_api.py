@@ -926,7 +926,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeFlushData:
-        """Force boundary detection + extraction [OSS + Cloud]
+        """Force memory extraction [OSS + Cloud]
 
 
         :param flush_input: (required)
@@ -997,7 +997,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeFlushData]:
-        """Force boundary detection + extraction [OSS + Cloud]
+        """Force memory extraction [OSS + Cloud]
 
 
         :param flush_input: (required)
@@ -1068,7 +1068,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Force boundary detection + extraction [OSS + Cloud]
+        """Force memory extraction [OSS + Cloud]
 
 
         :param flush_input: (required)

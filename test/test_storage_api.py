@@ -30,7 +30,7 @@ class TestStorageApi(unittest.TestCase):
     def test_sign_objects(self) -> None:
         """Test case for sign_objects
 
-        Upload multimodal data (generate presigned upload info)
+        Get multimodal upload URLs
         """
         pass
 

@@ -51,7 +51,7 @@ class TestMemoryApi(unittest.TestCase):
     def test_flush_memory(self) -> None:
         """Test case for flush_memory
 
-        Force boundary detection + extraction [OSS + Cloud]
+        Force memory extraction [OSS + Cloud]
         """
         pass
 
