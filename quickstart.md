@@ -3,9 +3,8 @@
 Full usage for the Python client of the **EverOS Cloud Memory API** (v2). For an
 overview and install, see the [README](README.md).
 
-> **This code is generated** from the EverOS OpenAPI contract. Please file bugs and
-> feature requests as issues — pull requests against the generated source will be
-> overwritten on the next release. Corrections flow through the internal SDK factory.
+> **This code is generated** from the EverOS OpenAPI contract, but the ergonomic
+> `EverOS` client below is hand-maintained. File bugs and feature requests as issues.
 
 ## Install
 
@@ -13,184 +12,108 @@ overview and install, see the [README](README.md).
 pip install everos-cloud
 ```
 
-Release candidates need `--pre`: `pip install --pre everos-cloud==1.0.0rc1`.
-
-> **Upgrading from 0.4.x?** `everos-cloud` 1.0.0 is a **rewrite, not an increment**. The
-> 0.x line was a different client (httpx-based, hand-maintained); 1.x is generated from
-> the EverOS OpenAPI contract and has a different API surface — client classes, method
-> names, and model types all changed. The import path (`everos_cloud`) is unchanged.
-> Pin `everos-cloud<1` if you are not ready to migrate.
-
-## Authentication
-
-All requests use your EverOS API key as a bearer token:
-
-```python
-from everos_cloud import Configuration
-config = Configuration(access_token="sk-...")   # sent as: Authorization: Bearer sk-...
-```
-
-The default host is `https://api.evermind.ai`; override with `Configuration(host=...)`.
+Release candidates need `--pre`: `pip install --pre everos-cloud`.
 
 ## Quickstart
 
-The snippet below exercises the six Memory endpoints. Every Memory call takes a
-single typed input model and returns a typed response envelope (`result.data`).
-Object storage lives on a separate `StorageApi` (see below).
+`EverOS` is the recommended high-level client: plain kwargs / dicts in, the response
+`.data` out. Get an API key from the [EverOS Console](https://everos.evermind.ai).
+
+```python
+from everos_cloud import EverOS
+
+client = EverOS(api_key="sk-...")     # host defaults to https://api.evermind.ai
+
+# ── Add messages ──────────────────────────────────────────────────────────────
+# Async by default: validated and enqueued, extraction runs in the background.
+# `content` accepts a plain string; `timestamp` defaults to now, `sender_id` to role.
+client.add(session_id="session-1", messages=[
+    {"sender_id": "user-1", "role": "user", "content": "I love hiking in the mountains"},
+])
+
+# ── Force extraction for a session ────────────────────────────────────────────
+flushed = client.flush("session-1")
+print(flushed.status)                 # "extracted" | "no_extraction"
+
+# ── Get memories (paginated) ──────────────────────────────────────────────────
+# memory_type: episode | profile | agent_case | agent_skill. Scope with user_id or agent_id.
+page = client.get("episode", user_id="user-1", page=1, page_size=20)
+print(page.episodes)
+
+# ── Search ────────────────────────────────────────────────────────────────────
+# method: keyword | vector | hybrid (default) | agentic. Scope with user_id or agent_id.
+result = client.search("outdoor hobbies", user_id="user-1", top_k=10, include_profile=True)
+print(result.episodes)
+
+# ── Edit a user's profile (bulk) ──────────────────────────────────────────────
+# action: add | update | delete   ·   type: explicit_info | implicit_traits
+client.edit("user-1", operations=[
+    {"action": "add", "type": "explicit_info",
+     "data": {"category": "hobby", "description": "Enjoys hiking in the mountains"},
+     "reason": "Stated in session-1"},
+])
+
+# ── Delete memories (scoped soft-delete) ──────────────────────────────────────
+client.delete(user_id="user-1", session_id="session-1")
+
+# ── Upload multimodal data ────────────────────────────────────────────────────
+# Presigns + POSTs the file directly to S3, returns the object key you then
+# reference in a message's multimodal content. file_type is inferred from the ext.
+object_key = client.upload("photo.jpg")
+```
+
+Every method returns the endpoint's `.data`. Failures raise `EverOSError`
+(`EverOSAPIError` for memory HTTP errors, `EverOSStorageError` for uploads). Set a
+per-client request timeout with `EverOS(api_key=..., timeout=30)`, or use it as a
+context manager (`with EverOS(...) as client:`) to release connections on exit.
+
+## Method reference
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| `add(session_id, messages, ...)` | `POST /api/v2/memory/add` | Async by default (202 `queued`); `async_mode=False` for sync 200. |
+| `flush(session_id)` | `POST /api/v2/memory/flush` | Force extraction for a session. |
+| `get(memory_type, ...)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
+| `search(query, ...)` | `POST /api/v2/memory/search` | Keyword / vector / hybrid / agentic. |
+| `edit(user_id, operations)` | `POST /api/v2/memory/edit` | Bulk profile add / update / delete. |
+| `delete(...)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
+| `upload(path)` | `POST /api/v2/object/sign` + S3 | Presign + direct-to-S3, returns `object_key`. |
+
+## Low-level typed client (advanced)
+
+`EverOS` wraps the generated `MemoryApi` / `StorageApi`, exposed as `client.memory`
+and `client.storage`. Use them directly when you want typed models and full control
+— every request is a pydantic v2 model and every response a typed envelope
+(`.data`). The full per-endpoint and model docs live under [`docs/`](docs/).
 
 ```python
 from everos_cloud import ApiClient, Configuration, MemoryApi
-from everos_cloud.models import (
-    AddInput, MessageItem, Content, SearchInput, GetInput, DeleteInput,
-    EditInput, AddOperation, EditInputOperationsInner, FlushInput,
-)
+from everos_cloud.models import AddInput, MessageItem, Content, SearchInput
 
 config = Configuration(access_token="sk-...")
 
-with ApiClient(config) as client:
-    memory = MemoryApi(client)
+with ApiClient(config) as api:
+    memory = MemoryApi(api)
 
-    # ── Add messages ──────────────────────────────────────────────────────────
-    # Async by default: returns HTTP 202 with status "queued" and extraction runs
-    # in the background. Pass async_mode=False to write synchronously and surface
-    # write errors directly.
     memory.add_memory(AddInput(
         session_id="session-1",
-        messages=[
-            MessageItem(
-                sender_id="user-1",
-                role="user",                       # user | assistant | tool
-                timestamp=1700000000,
-                content=Content("I love hiking in the mountains"),
-            )
-        ],
+        messages=[MessageItem(
+            sender_id="user-1", role="user", timestamp=1700000000000,
+            content=Content("I love hiking in the mountains"),
+        )],
     ))
 
-    # ── Search memories ───────────────────────────────────────────────────────
-    # method: keyword | vector | hybrid (default) | agentic
-    result = memory.search_memory(SearchInput(
-        query="outdoor hobbies",
-        method="hybrid",
-        top_k=10,
-        include_profile=True,
-    ))
+    result = memory.search_memory(SearchInput(query="outdoor hobbies", method="hybrid"))
     print(result.data)
-
-    # ── Get memories (paginated) ──────────────────────────────────────────────
-    # memory_type: episode | profile | agent_case | agent_skill
-    page = memory.get_memory(GetInput(
-        memory_type="episode",
-        page=1,
-        page_size=20,
-        sort_order="desc",                         # by timestamp (default)
-    ))
-    print(page.data)
-
-    # ── Edit profile (bulk, Cloud-only) ───────────────────────────────────────
-    # 1–50 operations; each must be wrapped in EditInputOperationsInner.
-    # action: add | update | delete   ·   type: explicit_info | implicit_traits
-    memory.edit_profile(EditInput(
-        user_id="user-1",
-        operations=[
-            EditInputOperationsInner(AddOperation(
-                action="add",
-                type="explicit_info",
-                data={"category": "hobby", "description": "Enjoys hiking in the mountains"},
-                reason="Stated in session-1",
-            )),
-        ],
-    ))
-
-    # ── Delete memories (scoped soft-delete, Cloud-only) ──────────────────────
-    # Scope the delete by any combination of user_id / agent_id / session_id.
-    memory.delete_memory(DeleteInput(user_id="user-1", session_id="session-1"))
-
-    # ── Flush a session (force extraction) ─────────────────────────────────────
-    # Extraction is normally async; flush forces it for a session and returns
-    # status "extracted" or "no_extraction".
-    flushed = memory.flush_memory(FlushInput(session_id="session-1"))
-    print(flushed.data.status)                      # "extracted" | "no_extraction"
 ```
 
-## Uploading multimodal data (`StorageApi`)
-
-Attaching images, audio, or documents to a message is a two-step flow: ask the
-API to presign an upload, then `POST` the bytes directly to S3 using the returned
-form fields. The sign endpoint lives on `StorageApi`.
-
-Unlike the Memory endpoints, `sign_objects` returns the raw MMS envelope: business
-outcome is carried in `status` (`0` means success) and the payload in
-`result.data` — check `status == 0` before reading it.
+`MessageItem.content` accepts a plain string (shorthand for a single text item) or an
+explicit list — both are passed through the `Content` wrapper:
 
 ```python
-import requests
-from everos_cloud import ApiClient, Configuration, StorageApi
-from everos_cloud.models import SignRequest, SignObjectItem
-
-config = Configuration(access_token="sk-...")
-
-with ApiClient(config) as client:
-    storage = StorageApi(client)
-
-    # ── Presign uploads (≤ 50 objects; each file_id unique) ────────────────────
-    # file_type: image | file | video
-    envelope = storage.sign_objects(SignRequest(
-        object_list=[
-            SignObjectItem(file_id="file-1", file_name="photo.jpg", file_type="image"),
-        ],
-    ))
-
-    if envelope.status != 0:                        # 0 == success; see status codes below
-        raise RuntimeError(f"sign failed: status={envelope.status} error={envelope.error}")
-
-    # ── Upload the bytes straight to S3 with the presigned POST form ───────────
-    for obj in envelope.result.data.object_list:
-        signed = obj.object_signed_info             # url + fields + maxSize
-        with open("photo.jpg", "rb") as fh:
-            resp = requests.post(
-                signed.url,
-                data=signed.fields,                 # presigned form fields
-                files={"file": fh},
-            )
-        resp.raise_for_status()                     # 204 from S3 on success
-        print(obj.object_key)                       # reference this key back in /add
+Content("hello")                                     # plain text
+Content([ContentItem(type="text", text="hello")])    # explicit item list
 ```
-
-Non-zero `status` values surface business errors rather than raising — common
-ones are `2018` (validation failed), `1012` (bad/expired token), `1002`
-(unsupported `file_type`), and `1007` (more than 50 objects). See the `signObjects`
-description in `openapi.json` for the full list.
-
-## Methods
-
-`MemoryApi` mirrors the v2 endpoints:
-
-| Method | Endpoint | Notes |
-|---|---|---|
-| `add_memory(AddInput)` | `POST /api/v2/memory/add` | Async by default (202 `queued`); `async_mode=False` for sync 200. |
-| `search_memory(SearchInput)` | `POST /api/v2/memory/search` | Keyword / vector / hybrid / agentic. |
-| `get_memory(GetInput)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
-| `delete_memory(DeleteInput)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
-| `edit_profile(EditInput)` | `POST /api/v2/memory/edit` | Bulk profile add/update/delete operations. |
-| `flush_memory(FlushInput)` | `POST /api/v2/memory/flush` | Force extraction for a session. |
-
-`StorageApi` covers object upload:
-
-| Method | Endpoint | Notes |
-|---|---|---|
-| `sign_objects(SignRequest)` | `POST /api/v1/object/sign` | Presign ≤ 50 objects for direct-to-S3 upload; returns the MMS envelope (`status == 0` on success). |
-
-### A note on message `content`
-
-`MessageItem.content` accepts either a plain string or a list of content items. In
-this SDK both are passed through the `Content` wrapper:
-
-```python
-Content("hello")                          # plain text (shorthand)
-Content([ContentItem(type="text", text="hello")])   # explicit item list
-```
-
-Either serializes to the correct wire shape.
 
 ## Links
 

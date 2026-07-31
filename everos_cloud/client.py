@@ -158,7 +158,7 @@ class EverOS:
                 sender_id=m.get("sender_id") or role,
                 sender_name=m.get("sender_name"),
                 role=role,
-                timestamp=m["timestamp"] if m.get("timestamp") is not None else int(time.time()),
+                timestamp=m["timestamp"] if m.get("timestamp") is not None else int(time.time() * 1000),
                 content=content,
                 tool_calls=m.get("tool_calls"),
                 tool_call_id=m.get("tool_call_id"),
