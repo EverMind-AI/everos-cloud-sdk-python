@@ -15,7 +15,7 @@
 """  # noqa: E501
 
 
-__version__ = "1.0.0-rc1"
+__version__ = "1.0.0-rc2"
 
 # import apis into sdk package
 from everos_cloud.api.memory_api import MemoryApi
