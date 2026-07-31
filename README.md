@@ -63,28 +63,20 @@ pip install everos-cloud
 Get an API key from the [EverOS Console](https://everos.evermind.ai), then:
 
 ```python
-from everos_cloud import ApiClient, Configuration, MemoryApi
-from everos_cloud.models import AddInput, MessageItem, Content, SearchInput
+from everos_cloud import EverOS
 
-config = Configuration(access_token="sk-...")
+with EverOS(api_key="sk-...") as client:
+    client.add(session_id="session-1", messages=[
+        {"role": "user", "content": "I love hiking in the mountains"},
+    ])
 
-with ApiClient(config) as client:
-    memory = MemoryApi(client)
-
-    memory.add_memory(AddInput(
-        session_id="session-1",
-        messages=[MessageItem(
-            sender_id="user-1", role="user", timestamp=1700000000,
-            content=Content("I love hiking in the mountains"),
-        )],
-    ))
-
-    result = memory.search_memory(SearchInput(query="outdoor hobbies", method="hybrid"))
-    print(result.data)
+    results = client.search("outdoor hobbies")
+    print(results)
 ```
 
-**Full usage** — all six Memory endpoints, profile editing, deletion, and multimodal
-uploads — is in **[quickstart.md](https://github.com/EverMind-AI/everos-cloud-sdk-python/blob/v1/quickstart.md)**.
+**Full usage** — every memory operation, profile editing, and multimodal upload — is in
+**[quickstart.md](https://github.com/EverMind-AI/everos-cloud-sdk-python/blob/v1/quickstart.md)**.
+Prefer typed control? The generated low-level client is exposed as `client.memory` / `client.storage`.
 
 ## Documentation
 

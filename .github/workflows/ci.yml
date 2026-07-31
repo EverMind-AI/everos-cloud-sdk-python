@@ -64,8 +64,9 @@ jobs:
           python - <<'PY'
           import re
           import everos_cloud.models as models
-          from everos_cloud import MemoryApi, StorageApi
+          from everos_cloud import EverOS, MemoryApi, StorageApi
 
+          CLASSES = {"EverOS": EverOS, "MemoryApi": MemoryApi, "StorageApi": StorageApi}
           text = open("quickstart.md").read()
           blocks = re.findall(r"```python\n(.*?)```", text, re.S)
           assert blocks, "no python code blocks found in quickstart.md"
@@ -83,9 +84,12 @@ jobs:
                   if name:
                       assert hasattr(models, name), f"quickstart drift: missing model {name!r}"
 
-          # 3) every API method the quickstart calls must still exist
-          for var, cls in (("memory", MemoryApi), ("storage", StorageApi)):
-              for meth in sorted(set(re.findall(rf"\b{var}\.(\w+)\(", code))):
+          # 3) every method called on an EverOS / MemoryApi / StorageApi instance
+          #    must still exist (maps each instance var to its class from assignment).
+          var_class = {v: CLASSES[c] for v, c in
+                       re.findall(r"(\w+)\s*=\s*(EverOS|MemoryApi|StorageApi)\(", code)}
+          for var, cls in var_class.items():
+              for meth in sorted(set(re.findall(rf"\b{re.escape(var)}\.(\w+)\(", code))):
                   assert hasattr(cls, meth), f"quickstart drift: {cls.__name__} has no {meth!r}"
 
           print("quickstart drift smoke OK")
