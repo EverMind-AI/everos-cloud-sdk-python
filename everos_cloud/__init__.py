@@ -15,7 +15,7 @@
 """  # noqa: E501
 
 
-__version__ = "1.0.0-rc2"
+__version__ = "1.0.0-rc3"
 
 # import apis into sdk package
 from everos_cloud.api.memory_api import MemoryApi
@@ -92,15 +92,7 @@ from everos_cloud.models.update_operation import UpdateOperation
 from everos_cloud.models.validation_error import ValidationError
 from everos_cloud.models.validation_error_loc_inner import ValidationErrorLocInner
 
-# Ergonomic high-level client — hand-maintained, preserved across regeneration
-# (usage in quickstart.md). Guarded so a bare generated tree without client.py
-# (e.g. the factory's build output) still imports cleanly.
 try:
-    from everos_cloud.client import (
-        EverOS,
-        EverOSAPIError,
-        EverOSError,
-        EverOSStorageError,
-    )
-except ImportError:  # pragma: no cover
+    from everos_cloud.client import EverOS, EverOSError, EverOSAPIError, EverOSStorageError
+except ImportError:
     pass

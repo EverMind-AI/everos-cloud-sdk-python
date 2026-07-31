@@ -13,6 +13,8 @@
 """  # noqa: E501
 
 
+from pathlib import Path
+
 from setuptools import setup, find_packages  # noqa: H301
 
 # To install the library, run the following
@@ -22,8 +24,16 @@ from setuptools import setup, find_packages  # noqa: H301
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 NAME = "everos-cloud"
-VERSION = "1.0.0-rc2"
+VERSION = "1.0.0-rc3"
 PYTHON_REQUIRES = ">= 3.8"
+
+# PyPI renders this as the project page body. Use the repo README (which ships in
+# the SDK tree — propose_sdk.sh preserves it), falling back to the spec description
+# if it is ever absent (keeps a bare-tree build from crashing).
+try:
+    LONG_DESCRIPTION = (Path(__file__).parent / "README.md").read_text(encoding="utf-8")
+except FileNotFoundError:
+    LONG_DESCRIPTION = """Official Python client for the EverOS Cloud Memory API. Add, search, retrieve, and manage long-term memory for your AI applications over a typed interface (pydantic v2, with full type hints). Install and usage guides: https://github.com/EverMind-AI/everos-cloud-sdk-python"""
 REQUIRES = [
     "urllib3 >= 1.25.3, < 3.0.0",
     "python-dateutil >= 2.8.2",
@@ -44,8 +54,6 @@ setup(
     include_package_data=True,
     license="Apache-2.0",
     long_description_content_type='text/markdown',
-    long_description="""\
-    Official Python client for the EverOS Cloud Memory API. Add, search, retrieve, and manage long-term memory for your AI applications over a typed interface (pydantic v2, with full type hints). Install and usage guides: https://github.com/EverMind-AI/everos-cloud-sdk-python
-    """,  # noqa: E501
+    long_description=LONG_DESCRIPTION,  # noqa: E501
     package_data={"everos_cloud": ["py.typed"]},
 )

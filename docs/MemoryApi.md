@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**add_memory**](MemoryApi.md#add_memory) | **POST** /api/v2/memory/add | Add messages [OSS + Cloud]
 [**delete_memory**](MemoryApi.md#delete_memory) | **POST** /api/v2/memory/delete | Delete memories [Cloud-only]
 [**edit_profile**](MemoryApi.md#edit_profile) | **POST** /api/v2/memory/edit | Edit profile items [Cloud-only]
-[**flush_api_v2_memory_flush_post**](MemoryApi.md#flush_api_v2_memory_flush_post) | **POST** /api/v2/memory/flush | Force boundary detection + extraction [OSS + Cloud]
+[**flush_memory**](MemoryApi.md#flush_memory) | **POST** /api/v2/memory/flush | Force boundary detection + extraction [OSS + Cloud]
 [**get_memory**](MemoryApi.md#get_memory) | **POST** /api/v2/memory/get | Get memories (paginated) [OSS + Cloud]
 [**search_memory**](MemoryApi.md#search_memory) | **POST** /api/v2/memory/search | Search memories [OSS + Cloud]
 
@@ -259,8 +259,8 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **flush_api_v2_memory_flush_post**
-> SuccessEnvelopeFlushData flush_api_v2_memory_flush_post(flush_input)
+# **flush_memory**
+> SuccessEnvelopeFlushData flush_memory(flush_input)
 
 Force boundary detection + extraction [OSS + Cloud]
 
@@ -299,11 +299,11 @@ with everos_cloud.ApiClient(configuration) as api_client:
 
     try:
         # Force boundary detection + extraction [OSS + Cloud]
-        api_response = api_instance.flush_api_v2_memory_flush_post(flush_input)
-        print("The response of MemoryApi->flush_api_v2_memory_flush_post:\n")
+        api_response = api_instance.flush_memory(flush_input)
+        print("The response of MemoryApi->flush_memory:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling MemoryApi->flush_api_v2_memory_flush_post: %s\n" % e)
+        print("Exception when calling MemoryApi->flush_memory: %s\n" % e)
 ```
 
 

@@ -910,7 +910,7 @@ class MemoryApi:
 
 
     @validate_call
-    def flush_api_v2_memory_flush_post(
+    def flush_memory(
         self,
         flush_input: FlushInput,
         _request_timeout: Union[
@@ -953,7 +953,7 @@ class MemoryApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._flush_api_v2_memory_flush_post_serialize(
+        _param = self._flush_memory_serialize(
             flush_input=flush_input,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -981,7 +981,7 @@ class MemoryApi:
 
 
     @validate_call
-    def flush_api_v2_memory_flush_post_with_http_info(
+    def flush_memory_with_http_info(
         self,
         flush_input: FlushInput,
         _request_timeout: Union[
@@ -1024,7 +1024,7 @@ class MemoryApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._flush_api_v2_memory_flush_post_serialize(
+        _param = self._flush_memory_serialize(
             flush_input=flush_input,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1052,7 +1052,7 @@ class MemoryApi:
 
 
     @validate_call
-    def flush_api_v2_memory_flush_post_without_preload_content(
+    def flush_memory_without_preload_content(
         self,
         flush_input: FlushInput,
         _request_timeout: Union[
@@ -1095,7 +1095,7 @@ class MemoryApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._flush_api_v2_memory_flush_post_serialize(
+        _param = self._flush_memory_serialize(
             flush_input=flush_input,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1118,7 +1118,7 @@ class MemoryApi:
         return response_data.response
 
 
-    def _flush_api_v2_memory_flush_post_serialize(
+    def _flush_memory_serialize(
         self,
         flush_input,
         _request_auth,
