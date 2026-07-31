@@ -91,3 +91,16 @@ from everos_cloud.models.unprocessed_message_dto import UnprocessedMessageDTO
 from everos_cloud.models.update_operation import UpdateOperation
 from everos_cloud.models.validation_error import ValidationError
 from everos_cloud.models.validation_error_loc_inner import ValidationErrorLocInner
+
+# Ergonomic high-level client — hand-maintained, preserved across regeneration
+# (usage in quickstart.md). Guarded so a bare generated tree without client.py
+# (e.g. the factory's build output) still imports cleanly.
+try:
+    from everos_cloud.client import (
+        EverOS,
+        EverOSAPIError,
+        EverOSError,
+        EverOSStorageError,
+    )
+except ImportError:  # pragma: no cover
+    pass
