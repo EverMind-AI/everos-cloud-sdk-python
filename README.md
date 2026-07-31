@@ -55,7 +55,7 @@ pip install everos-cloud
 > Pre-releases need `--pre`: `pip install --pre everos-cloud`.
 >
 > Upgrading from the 0.4.x client? 1.x is a rewrite with a new API surface — see the
-> [migration guide](https://docs.evermind.ai/api-reference/sdk-migration). Pin
+> [migration guide](https://docs.evermind.ai/api-reference/sdk-migration-1x). Pin
 > `everos-cloud<1` to stay on the old client.
 
 ## Quickstart
