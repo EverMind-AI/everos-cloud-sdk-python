@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**add_memory**](MemoryApi.md#add_memory) | **POST** /api/v2/memory/add | Add messages [OSS + Cloud]
 [**delete_memory**](MemoryApi.md#delete_memory) | **POST** /api/v2/memory/delete | Delete memories [Cloud-only]
 [**edit_profile**](MemoryApi.md#edit_profile) | **POST** /api/v2/memory/edit | Edit profile items [Cloud-only]
-[**flush_memory**](MemoryApi.md#flush_memory) | **POST** /api/v2/memory/flush | Force boundary detection + extraction [OSS + Cloud]
+[**flush_memory**](MemoryApi.md#flush_memory) | **POST** /api/v2/memory/flush | Force memory extraction [OSS + Cloud]
 [**get_memory**](MemoryApi.md#get_memory) | **POST** /api/v2/memory/get | Get memories (paginated) [OSS + Cloud]
 [**search_memory**](MemoryApi.md#search_memory) | **POST** /api/v2/memory/search | Search memories [OSS + Cloud]
 
@@ -262,7 +262,7 @@ Name | Type | Description  | Notes
 # **flush_memory**
 > SuccessEnvelopeFlushData flush_memory(flush_input)
 
-Force boundary detection + extraction [OSS + Cloud]
+Force memory extraction [OSS + Cloud]
 
 ### Example
 
@@ -298,7 +298,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     flush_input = everos_cloud.FlushInput() # FlushInput | 
 
     try:
-        # Force boundary detection + extraction [OSS + Cloud]
+        # Force memory extraction [OSS + Cloud]
         api_response = api_instance.flush_memory(flush_input)
         print("The response of MemoryApi->flush_memory:\n")
         pprint(api_response)

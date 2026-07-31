@@ -55,7 +55,7 @@ class StorageApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SignEnvelope:
-        """Upload multimodal data (generate presigned upload info)
+        """Get multimodal upload URLs
 
 
         :param sign_request: (required)
@@ -125,7 +125,7 @@ class StorageApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SignEnvelope]:
-        """Upload multimodal data (generate presigned upload info)
+        """Get multimodal upload URLs
 
 
         :param sign_request: (required)
@@ -195,7 +195,7 @@ class StorageApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Upload multimodal data (generate presigned upload info)
+        """Get multimodal upload URLs
 
 
         :param sign_request: (required)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "everos_cloud"
-version = "1.0.0-rc3"
+version = "1.0.0"
 description = "EverOS Cloud Memory API"
 authors = ["EverMind AI <service@evermind.ai>"]
 license = "Apache-2.0"
