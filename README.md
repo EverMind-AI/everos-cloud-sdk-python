@@ -16,13 +16,14 @@
   <img src="https://img.shields.io/badge/license-Apache--2.0-green?style=for-the-badge" alt="License">
 </p>
 
-[Website](https://evermind.ai) · [Documentation](https://docs.evermind.ai) · [Dashboard](https://everos.evermind.ai)
+[Website](https://evermind.ai) · [Documentation](https://docs.evermind.ai) · [Console](https://everos.evermind.ai)
 
 </div>
 
 <br>
 
 > **Which package?** This is **EverOS Cloud** — the managed SaaS client (`pip install everos-cloud`).
+>
 > Want to self-host? Use the open-source [`everos`](https://pypi.org/project/everos/) library instead.
 
 # EverOS Cloud — Python SDK
@@ -52,13 +53,14 @@ pip install everos-cloud
 ```
 
 > Pre-releases need `--pre`: `pip install --pre everos-cloud`.
+>
 > Upgrading from the 0.4.x client? 1.x is a rewrite with a new API surface — see the
 > [migration guide](https://docs.evermind.ai/api-reference/sdk-migration). Pin
 > `everos-cloud<1` to stay on the old client.
 
 ## Quickstart
 
-Get an API key from the [dashboard](https://everos.evermind.ai), then:
+Get an API key from the [EverOS Console](https://everos.evermind.ai), then:
 
 ```python
 from everos_cloud import ApiClient, Configuration, MemoryApi
@@ -82,11 +84,11 @@ with ApiClient(config) as client:
 ```
 
 **Full usage** — all six Memory endpoints, profile editing, deletion, and multimodal
-uploads — is in **[quickstart.md](quickstart.md)**.
+uploads — is in **[quickstart.md](https://github.com/EverMind-AI/everos-cloud-sdk-python/blob/v1/quickstart.md)**.
 
 ## Documentation
 
-- [Full SDK usage](quickstart.md)
+- [Full SDK usage](https://github.com/EverMind-AI/everos-cloud-sdk-python/blob/v1/quickstart.md)
 - [Quickstart](https://docs.evermind.ai/cloud/quickstart)
 - [API Reference](https://docs.evermind.ai/api-reference/introduction)
 - [Core Concepts](https://docs.evermind.ai/cloud/concepts/memory-lifecycle)
