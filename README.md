@@ -1,10 +1,49 @@
-# EverOS Cloud SDK for Python
+<div align="center" id="readme-top">
 
-Official Python client for the **EverOS Cloud Memory API** (v2).
+![EverOS banner](https://github.com/user-attachments/assets/8e217d39-5d15-4c6c-9b54-3e83add4e0f2)
 
-> **This code is generated** from the EverOS OpenAPI contract. Please file bugs and
-> feature requests as issues — pull requests against the generated source will be
-> overwritten on the next release. Corrections flow through the internal SDK factory.
+<h3 align="center">☁️ Managed long-term memory for AI agents — the official <b>Cloud</b> Python SDK</h3>
+
+<p align="center">
+  <a href="https://x.com/evermind"><img src="https://img.shields.io/badge/EverMind-000000?labelColor=gray&style=for-the-badge&logo=x&logoColor=white" alt="X"></a>
+  <a href="https://huggingface.co/EverMind-AI"><img src="https://img.shields.io/badge/🤗_HuggingFace-EverMind-F5C842?labelColor=gray&style=for-the-badge" alt="HuggingFace"></a>
+  <a href="https://discord.gg/gYep5nQRZJ"><img src="https://img.shields.io/badge/Discord-EverMind-404EED?labelColor=gray&style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/everos-cloud/"><img src="https://img.shields.io/pypi/v/everos-cloud?color=2DABC2&style=for-the-badge" alt="PyPI"></a>
+  <img src="https://img.shields.io/pypi/pyversions/everos-cloud?style=for-the-badge" alt="Python">
+  <img src="https://img.shields.io/badge/license-Apache--2.0-green?style=for-the-badge" alt="License">
+</p>
+
+[Website](https://evermind.ai) · [Documentation](https://docs.evermind.ai) · [Dashboard](https://everos.evermind.ai)
+
+</div>
+
+<br>
+
+> **Which package?** This is **EverOS Cloud** — the managed SaaS client (`pip install everos-cloud`).
+> Want to self-host? Use the open-source [`everos`](https://pypi.org/project/everos/) library instead.
+
+# EverOS Cloud — Python SDK
+
+Give your AI agents memory that persists across sessions — managed, searchable, and typed.
+Add a conversation; EverOS turns it into structured, retrievable memory you can query in one call.
+
+## Why EverOS Cloud
+
+- **Self-evolving memory** — memory doesn't just pile up, it improves. Background
+  consolidation merges related episodes and refines user profiles over time, so recall
+  gets sharper the more your agent is used.
+- **Structured memory, not chat logs** — extracts episodes, user profiles, and reusable
+  agent cases & skills from raw conversations, so retrieval returns meaning, not transcripts.
+- **Retrieval that fits the query** — keyword, vector, hybrid (default), or agentic multi-step search.
+- **Multimodal** — attach images, audio, and documents to any message.
+- **Built for production** — fully managed (no vector DB or extraction pipeline to run),
+  with low-latency retrieval and high-concurrency throughput. The engineering guarantees
+  you don't get from self-hosting.
+- **Fully typed (pydantic v2)** — every request/response is a typed model with full hints,
+  so you get editor autocomplete and validation instead of raw dicts.
 
 ## Install
 
@@ -12,187 +51,44 @@ Official Python client for the **EverOS Cloud Memory API** (v2).
 pip install everos-cloud
 ```
 
-Release candidates need `--pre`: `pip install --pre everos-cloud==1.0.0rc1`.
-
-> **Upgrading from 0.4.x?** `everos-cloud` 1.0.0 is a **rewrite, not an increment**. The
-> 0.x line was a different client (httpx-based, hand-maintained); 1.x is generated from
-> the EverOS OpenAPI contract and has a different API surface — client classes, method
-> names, and model types all changed. The import path (`everos_cloud`) is unchanged.
-> Pin `everos-cloud<1` if you are not ready to migrate.
-
-## Authentication
-
-All requests use your EverOS API key as a bearer token:
-
-```python
-from everos_cloud import Configuration
-config = Configuration(access_token="sk-...")   # sent as: Authorization: Bearer sk-...
-```
-
-The default host is `https://api.evermind.ai`; override with `Configuration(host=...)`.
+> Pre-releases need `--pre`: `pip install --pre everos-cloud`.
+> Upgrading from the 0.4.x client? 1.x is a rewrite with a new API surface — see the
+> [migration guide](https://docs.evermind.ai/api-reference/sdk-migration). Pin
+> `everos-cloud<1` to stay on the old client.
 
 ## Quickstart
 
-The snippet below exercises the six Memory endpoints. Every Memory call takes a
-single typed input model and returns a typed response envelope (`result.data`).
-Object storage lives on a separate `StorageApi` (see below).
+Get an API key from the [dashboard](https://everos.evermind.ai), then:
 
 ```python
 from everos_cloud import ApiClient, Configuration, MemoryApi
-from everos_cloud.models import (
-    AddInput, MessageItem, Content, SearchInput, GetInput, DeleteInput,
-    EditInput, AddOperation, EditInputOperationsInner, FlushInput,
-)
+from everos_cloud.models import AddInput, MessageItem, Content, SearchInput
 
 config = Configuration(access_token="sk-...")
 
 with ApiClient(config) as client:
     memory = MemoryApi(client)
 
-    # ── Add messages ──────────────────────────────────────────────────────────
-    # Async by default: returns HTTP 202 with status "queued" and extraction runs
-    # in the background. Pass async_mode=False to write synchronously and surface
-    # write errors directly.
     memory.add_memory(AddInput(
         session_id="session-1",
-        messages=[
-            MessageItem(
-                sender_id="user-1",
-                role="user",                       # user | assistant | tool
-                timestamp=1700000000,
-                content=Content("I love hiking in the mountains"),
-            )
-        ],
+        messages=[MessageItem(
+            sender_id="user-1", role="user", timestamp=1700000000,
+            content=Content("I love hiking in the mountains"),
+        )],
     ))
 
-    # ── Search memories ───────────────────────────────────────────────────────
-    # method: keyword | vector | hybrid (default) | agentic
-    result = memory.search_memory(SearchInput(
-        query="outdoor hobbies",
-        method="hybrid",
-        top_k=10,
-        include_profile=True,
-    ))
+    result = memory.search_memory(SearchInput(query="outdoor hobbies", method="hybrid"))
     print(result.data)
-
-    # ── Get memories (paginated) ──────────────────────────────────────────────
-    # memory_type: episode | profile | agent_case | agent_skill
-    page = memory.get_memory(GetInput(
-        memory_type="episode",
-        page=1,
-        page_size=20,
-        sort_order="desc",                         # by timestamp (default)
-    ))
-    print(page.data)
-
-    # ── Edit profile (bulk, Cloud-only) ───────────────────────────────────────
-    # 1–50 operations; each must be wrapped in EditInputOperationsInner.
-    # action: add | update | delete   ·   type: explicit_info | implicit_traits
-    memory.edit_profile(EditInput(
-        user_id="user-1",
-        operations=[
-            EditInputOperationsInner(AddOperation(
-                action="add",
-                type="explicit_info",
-                data={"category": "hobby", "description": "Enjoys hiking in the mountains"},
-                reason="Stated in session-1",
-            )),
-        ],
-    ))
-
-    # ── Delete memories (scoped soft-delete, Cloud-only) ──────────────────────
-    # Scope the delete by any combination of user_id / agent_id / session_id.
-    memory.delete_memory(DeleteInput(user_id="user-1", session_id="session-1"))
-
-    # ── Flush a session (force boundary detection + extraction) ────────────────
-    # Extraction is normally async; flush forces it for a session and returns
-    # status "extracted" or "no_extraction". The generated method name mirrors
-    # the operationId.
-    flushed = memory.flush_api_v2_memory_flush_post(FlushInput(session_id="session-1"))
-    print(flushed.data.status)                      # "extracted" | "no_extraction"
 ```
 
-## Uploading multimodal data (`StorageApi`)
+**Full usage** — all six Memory endpoints, profile editing, deletion, and multimodal
+uploads — is in **[quickstart.md](quickstart.md)**.
 
-Attaching images, audio, or documents to a message is a two-step flow: ask the
-API to presign an upload, then `POST` the bytes directly to S3 using the returned
-form fields. The sign endpoint lives on `StorageApi`.
+## Documentation
 
-Unlike the Memory endpoints, `sign_objects` returns the raw MMS envelope: business
-outcome is carried in `status` (`0` means success) and the payload in
-`result.data` — check `status == 0` before reading it.
+- [Full SDK usage](quickstart.md)
+- [Quickstart](https://docs.evermind.ai/cloud/quickstart)
+- [API Reference](https://docs.evermind.ai/api-reference/introduction)
+- [Core Concepts](https://docs.evermind.ai/cloud/concepts/memory-lifecycle)
 
-```python
-import requests
-from everos_cloud import ApiClient, Configuration, StorageApi
-from everos_cloud.models import SignRequest, SignObjectItem
-
-config = Configuration(access_token="sk-...")
-
-with ApiClient(config) as client:
-    storage = StorageApi(client)
-
-    # ── Presign uploads (≤ 50 objects; each file_id unique) ────────────────────
-    # file_type: image | file | video
-    envelope = storage.sign_objects(SignRequest(
-        object_list=[
-            SignObjectItem(file_id="file-1", file_name="photo.jpg", file_type="image"),
-        ],
-    ))
-
-    if envelope.status != 0:                        # 0 == success; see status codes below
-        raise RuntimeError(f"sign failed: status={envelope.status} error={envelope.error}")
-
-    # ── Upload the bytes straight to S3 with the presigned POST form ───────────
-    for obj in envelope.result.data.object_list:
-        signed = obj.object_signed_info             # url + fields + maxSize
-        with open("photo.jpg", "rb") as fh:
-            resp = requests.post(
-                signed.url,
-                data=signed.fields,                 # presigned form fields
-                files={"file": fh},
-            )
-        resp.raise_for_status()                     # 204 from S3 on success
-        print(obj.object_key)                       # reference this key back in /add
-```
-
-Non-zero `status` values surface business errors rather than raising — common
-ones are `2018` (validation failed), `1012` (bad/expired token), `1002`
-(unsupported `file_type`), and `1007` (more than 50 objects). See the `signObjects`
-description in `openapi.json` for the full list.
-
-## Methods
-
-`MemoryApi` mirrors the v2 endpoints:
-
-| Method | Endpoint | Notes |
-|---|---|---|
-| `add_memory(AddInput)` | `POST /api/v2/memory/add` | Async by default (202 `queued`); `async_mode=False` for sync 200. |
-| `search_memory(SearchInput)` | `POST /api/v2/memory/search` | Keyword / vector / hybrid / agentic. |
-| `get_memory(GetInput)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
-| `delete_memory(DeleteInput)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
-| `edit_profile(EditInput)` | `POST /api/v2/memory/edit` | Bulk profile add/update/delete operations. |
-| `flush_api_v2_memory_flush_post(FlushInput)` | `POST /api/v2/memory/flush` | Force boundary detection + extraction for a session. |
-
-`StorageApi` covers object upload:
-
-| Method | Endpoint | Notes |
-|---|---|---|
-| `sign_objects(SignRequest)` | `POST /api/v1/object/sign` | Presign ≤ 50 objects for direct-to-S3 upload; returns the MMS envelope (`status == 0` on success). |
-
-### A note on message `content`
-
-`MessageItem.content` accepts either a plain string or a list of content items. In
-this SDK both are passed through the `Content` wrapper:
-
-```python
-Content("hello")                          # plain text (shorthand)
-Content([ContentItem(type="text", text="hello")])   # explicit item list
-```
-
-Either serializes to the correct wire shape.
-
-## Links
-
-- API reference: per-endpoint and model docs under [`docs/`](docs/).
-- Issues: https://github.com/EverMind-AI/everos-cloud-sdk-python/issues
+<p align="right"><a href="#readme-top">back to top</a></p>
