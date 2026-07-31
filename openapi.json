@@ -274,7 +274,7 @@
           "Memory"
         ],
         "summary": "Force boundary detection + extraction [OSS + Cloud]",
-        "operationId": "flush_api_v2_memory_flush_post",
+        "operationId": "flushMemory",
         "requestBody": {
           "content": {
             "application/json": {
