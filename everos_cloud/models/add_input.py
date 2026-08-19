@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from everos_cloud.models.message_item import MessageItem
@@ -32,21 +32,10 @@ class AddInput(BaseModel):
     app_id: Optional[StrictStr] = 'default'
     project_id: Optional[StrictStr] = 'default'
     session_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
-    mode: Optional[StrictStr] = 'chat'
     messages: Annotated[List[MessageItem], Field(min_length=1, max_length=500)]
     async_mode: Optional[StrictBool] = Field(default=True, description="Selects the write path. true (default): validated and enqueued asynchronously → HTTP 202 with status \"queued\". false: forwarded synchronously to the engine, returning its 200 result and surfacing write errors directly. Extraction is always asynchronous (flush-triggered).")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["app_id", "project_id", "session_id", "mode", "messages", "async_mode"]
-
-    @field_validator('mode')
-    def mode_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['chat', 'agent']):
-            raise ValueError("must be one of enum values ('chat', 'agent')")
-        return value
+    __properties: ClassVar[List[str]] = ["app_id", "project_id", "session_id", "messages", "async_mode"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -116,7 +105,6 @@ class AddInput(BaseModel):
             "app_id": obj.get("app_id") if obj.get("app_id") is not None else 'default',
             "project_id": obj.get("project_id") if obj.get("project_id") is not None else 'default',
             "session_id": obj.get("session_id"),
-            "mode": obj.get("mode") if obj.get("mode") is not None else 'chat',
             "messages": [MessageItem.from_dict(_item) for _item in obj["messages"]] if obj.get("messages") is not None else None,
             "async_mode": obj.get("async_mode") if obj.get("async_mode") is not None else True
         })

@@ -46,6 +46,7 @@ class TestSearchInput(unittest.TestCase):
                 radius = 0.0,
                 min_score = 0.0,
                 include_profile = True,
+                with_readable_episode = True,
                 enable_llm_rerank = True,
                 filters = { }
             )

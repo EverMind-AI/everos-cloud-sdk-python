@@ -39,11 +39,13 @@ class SearchEpisodeItem(BaseModel):
     summary: StrictStr
     subject: StrictStr
     episode: StrictStr
+    readable_episode: Optional[StrictStr] = None
     type: StrictStr
     atomic_facts: Optional[List[SearchAtomicFactItem]] = None
+    tags: Optional[List[StrictStr]] = None
     score: Union[StrictFloat, StrictInt]
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "type", "atomic_facts", "score"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags", "score"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -108,6 +110,11 @@ class SearchEpisodeItem(BaseModel):
         if self.session_id is None and "session_id" in self.model_fields_set:
             _dict['session_id'] = None
 
+        # set to None if readable_episode (nullable) is None
+        # and model_fields_set contains the field
+        if self.readable_episode is None and "readable_episode" in self.model_fields_set:
+            _dict['readable_episode'] = None
+
         return _dict
 
     @classmethod
@@ -130,8 +137,10 @@ class SearchEpisodeItem(BaseModel):
             "summary": obj.get("summary"),
             "subject": obj.get("subject"),
             "episode": obj.get("episode"),
+            "readable_episode": obj.get("readable_episode"),
             "type": obj.get("type"),
             "atomic_facts": [SearchAtomicFactItem.from_dict(_item) for _item in obj["atomic_facts"]] if obj.get("atomic_facts") is not None else None,
+            "tags": obj.get("tags"),
             "score": obj.get("score")
         })
         # store additional fields in additional_properties

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from everos_cloud.models.filter_node import FilterNode
@@ -38,9 +38,10 @@ class GetInput(BaseModel):
     page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = 20
     sort_by: Optional[StrictStr] = 'timestamp'
     sort_order: Optional[StrictStr] = 'desc'
+    with_readable_episode: Optional[StrictBool] = False
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "memory_type", "page", "page_size", "sort_by", "sort_order", "filters"]
+    __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "memory_type", "page", "page_size", "sort_by", "sort_order", "with_readable_episode", "filters"]
 
     @field_validator('memory_type')
     def memory_type_validate_enum(cls, value):
@@ -154,6 +155,7 @@ class GetInput(BaseModel):
             "page_size": obj.get("page_size") if obj.get("page_size") is not None else 20,
             "sort_by": obj.get("sort_by") if obj.get("sort_by") is not None else 'timestamp',
             "sort_order": obj.get("sort_order") if obj.get("sort_order") is not None else 'desc',
+            "with_readable_episode": obj.get("with_readable_episode") if obj.get("with_readable_episode") is not None else False,
             "filters": FilterNode.from_dict(obj["filters"]) if obj.get("filters") is not None else None
         })
         # store additional fields in additional_properties

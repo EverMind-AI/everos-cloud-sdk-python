@@ -39,7 +39,6 @@ class TestAddInput(unittest.TestCase):
                 app_id = 'default',
                 project_id = 'default',
                 session_id = '0',
-                mode = 'chat',
                 messages = [
                     everos_cloud.models.message_item.MessageItem(
                         sender_id = '', 

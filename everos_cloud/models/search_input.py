@@ -39,10 +39,11 @@ class SearchInput(BaseModel):
     radius: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
     min_score: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
     include_profile: Optional[StrictBool] = False
+    with_readable_episode: Optional[StrictBool] = False
     enable_llm_rerank: Optional[StrictBool] = False
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "query", "method", "top_k", "radius", "min_score", "include_profile", "enable_llm_rerank", "filters"]
+    __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "query", "method", "top_k", "radius", "min_score", "include_profile", "with_readable_episode", "enable_llm_rerank", "filters"]
 
     @field_validator('method')
     def method_validate_enum(cls, value):
@@ -150,6 +151,7 @@ class SearchInput(BaseModel):
             "radius": obj.get("radius"),
             "min_score": obj.get("min_score"),
             "include_profile": obj.get("include_profile") if obj.get("include_profile") is not None else False,
+            "with_readable_episode": obj.get("with_readable_episode") if obj.get("with_readable_episode") is not None else False,
             "enable_llm_rerank": obj.get("enable_llm_rerank") if obj.get("enable_llm_rerank") is not None else False,
             "filters": FilterNode.from_dict(obj["filters"]) if obj.get("filters") is not None else None
         })

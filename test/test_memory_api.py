@@ -34,6 +34,13 @@ class TestMemoryApi(unittest.TestCase):
         """
         pass
 
+    def test_bind_tags(self) -> None:
+        """Test case for bind_tags
+
+        Bind tags to memory items [Cloud]
+        """
+        pass
+
     def test_delete_memory(self) -> None:
         """Test case for delete_memory
 
@@ -62,10 +69,24 @@ class TestMemoryApi(unittest.TestCase):
         """
         pass
 
+    def test_replace_tags(self) -> None:
+        """Test case for replace_tags
+
+        Replace (overwrite) tags on memory items [Cloud]
+        """
+        pass
+
     def test_search_memory(self) -> None:
         """Test case for search_memory
 
         Search memories [OSS + Cloud]
+        """
+        pass
+
+    def test_unbind_tags(self) -> None:
+        """Test case for unbind_tags
+
+        Unbind tags from memory items [Cloud]
         """
         pass
 

@@ -511,6 +511,1094 @@
         }
       }
     },
+    "/api/v2/memory/tag/bind": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Bind tags to memory items [Cloud]",
+        "operationId": "bindTags",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagBindInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TagBindData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/tag/replace": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Replace (overwrite) tags on memory items [Cloud]",
+        "operationId": "replaceTags",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagReplaceInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TagReplaceData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/tag/unbind": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Unbind tags from memory items [Cloud]",
+        "operationId": "unbindTags",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagUnbindInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TagUnbindData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/categories": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Create a category",
+        "operationId": "createCategory",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryCreateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_CategoryData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List categories in a knowledge base",
+        "operationId": "listCategories",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_CategoryListData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/documents": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Upload a document (async ingest)",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocIngestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DocIngestData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List documents in a knowledge base",
+        "operationId": "listDocuments",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DocListData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Create a knowledge base",
+        "operationId": "createKnowledgeBase",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KbCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_KbData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List knowledge bases",
+        "operationId": "listKnowledgeBases",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "owner_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Owner Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_KbListData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/categories/{category_id}": {
+      "delete": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Delete a category",
+        "operationId": "deleteCategory",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_CategoryDeleteData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Update a category",
+        "operationId": "updateCategory",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Category Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryPatchBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_CategoryData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}": {
+      "delete": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Delete a document (+ cascade nodes, P5)",
+        "operationId": "deleteDocument",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DocDeleteData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get a document (with topic_count)",
+        "operationId": "getDocument",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DocData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Update document metadata (title / category)",
+        "operationId": "updateDocument",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocPatchBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DocPatchData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Replace a document (async, atomic swap)",
+        "operationId": "replaceDocument",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocIngestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DocIngestData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}": {
+      "delete": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Delete a knowledge base",
+        "operationId": "deleteKnowledgeBase",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_KbDeleteData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get a knowledge base",
+        "operationId": "getKnowledgeBase",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_KbData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Update a knowledge base",
+        "operationId": "updateKnowledgeBase",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KbPatchBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_KbData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Get a topic's full content (inline / S3 transparent)",
+        "operationId": "getTopic",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "topic_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Topic Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TopicDetailData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List a document's topic tree (optionally with each topic's content)",
+        "operationId": "listTopics",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Extra fields to hydrate, e.g. `include=content` for full bodies",
+              "title": "Include"
+            },
+            "description": "Extra fields to hydrate, e.g. `include=content` for full bodies"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TopicListData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/search": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Search within a knowledge base (keyword / vector / hybrid)",
+        "operationId": "searchKnowledge",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_KbSearchData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/object/sign": {
       "post": {
         "tags": [
@@ -581,6 +1669,224 @@
           }
         }
       }
+    },
+    "/api/v2/tasks": {
+      "get": {
+        "description": "Paginated task list, filterable by status, session and time window. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.",
+        "operationId": "listTasks",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "description": "Page number, 1-based",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "description": "Items per page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "queued",
+                "processing",
+                "success",
+                "failed"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "session_id",
+            "required": false,
+            "schema": {
+              "description": "Filter by session",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start",
+            "required": false,
+            "schema": {
+              "description": "Window start (RFC3339 or epoch milliseconds)",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "schema": {
+              "description": "Window end",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            },
+            "description": "Task list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid query parameter, or missing tenant scope"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskErrorResponse"
+                }
+              }
+            },
+            "description": "Listing requires the database-backed store, which is not configured"
+          }
+        },
+        "summary": "List async tasks",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/v2/tasks/stats": {
+      "get": {
+        "description": "Counts tasks per status over a time window. All four statuses are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.",
+        "operationId": "getTaskStats",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "start",
+            "required": false,
+            "schema": {
+              "description": "Window start (RFC3339 or epoch milliseconds)",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "schema": {
+              "description": "Window end",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStatsResponse"
+                }
+              }
+            },
+            "description": "Aggregated counts"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid query parameter, or missing tenant scope"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskErrorResponse"
+                }
+              }
+            },
+            "description": "Stats require the database-backed store, which is not configured"
+          }
+        },
+        "summary": "Aggregate task counts by status",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/v2/tasks/{task_id}": {
+      "get": {
+        "description": "Returns the progress of one async task. Task ids are unique system-wide, so the task type does not need to be known. Unknown or expired ids return 404. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.",
+        "operationId": "getTaskStatus",
+        "parameters": [
+          {
+            "description": "Task id, as returned in the 202 acknowledgement of the write that created it",
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStatusResponse"
+                }
+              }
+            },
+            "description": "Task status"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskErrorResponse"
+                }
+              }
+            },
+            "description": "Missing tenant scope"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskErrorResponse"
+                }
+              }
+            },
+            "description": "Task id is unknown or has expired"
+          }
+        },
+        "summary": "Get async task status",
+        "tags": [
+          "Tasks"
+        ]
+      }
     }
   },
   "components": {
@@ -626,15 +1932,6 @@
             "maxLength": 128,
             "minLength": 1,
             "title": "Session Id"
-          },
-          "mode": {
-            "type": "string",
-            "enum": [
-              "chat",
-              "agent"
-            ],
-            "title": "Mode",
-            "default": "chat"
           },
           "messages": {
             "items": {
@@ -862,6 +2159,136 @@
         ],
         "title": "AtomicFactItem",
         "description": "Atomic fact nested in an episode. Spec appendix E references it but does\nnot enumerate its fields \u2014 minimal shape until the contract is detailed."
+      },
+      "CategoryCreateBody": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Display name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Feeds everalgo CategorySpec",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "CategoryCreateBody",
+        "description": "POST body \u2014 id is system-generated, never client-supplied."
+      },
+      "CategoryData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Category id (system-generated, stable)"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "document_count": {
+            "type": "integer",
+            "title": "Document Count",
+            "default": 0
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "description": "'kb' = user-created in this kb; 'tenant' = global preset (read-only)",
+            "default": "kb"
+          },
+          "editable": {
+            "type": "boolean",
+            "title": "Editable",
+            "description": "False for tenant-global preset categories (read-only)",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "CategoryData",
+        "description": "A category as returned to clients. ``id`` is the system-generated stable key."
+      },
+      "CategoryDeleteData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Deleted category id"
+          },
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted",
+            "description": "True if a live category was soft-deleted; False if absent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "deleted"
+        ],
+        "title": "CategoryDeleteData"
+      },
+      "CategoryListData": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryData"
+            },
+            "type": "array",
+            "title": "Categories"
+          }
+        },
+        "type": "object",
+        "title": "CategoryListData"
+      },
+      "CategoryPatchBody": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CategoryPatchBody"
       },
       "ContentItem": {
         "properties": {
@@ -1094,6 +2521,301 @@
         ],
         "title": "DeleteOperation",
         "description": "Delete an existing profile item by ``item_id`` (carries no ``data``)."
+      },
+      "DocData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Document id (bare primary key)"
+          },
+          "kb_id": {
+            "type": "string",
+            "title": "Kb Id"
+          },
+          "category_id": {
+            "type": "string",
+            "title": "Category Id",
+            "default": ""
+          },
+          "category_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Name",
+            "description": "Resolved category display name (kb-local or tenant-global preset); None when the document is unclassified or the category no longer exists"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "source_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Name"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "topic_count": {
+            "type": "integer",
+            "title": "Topic Count",
+            "description": "Number of real topics extracted (0 = not ingested yet / ingest failed). EXCLUDES the synthetic document-root node, so `GET .../topics` \u2014 which includes it \u2014 returns exactly one more item than this",
+            "default": 0
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kb_id",
+          "title"
+        ],
+        "title": "DocData",
+        "description": "A document as returned to clients. ``topic_count`` = the node_count (>0 = ingested).\n\nContract note \u2014 ``topic_count`` vs ``GET .../topics``: the count is of REAL topics and\nexcludes the synthetic document-root node, while the topics list INCLUDES it. So\n``len(topics) == topic_count + 1`` for an ingested document. See ``TopicListData``."
+      },
+      "DocDeleteData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Deleted document id"
+          },
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted",
+            "description": "True if a live document was soft-deleted; False if absent"
+          },
+          "deleted_topics": {
+            "type": "integer",
+            "title": "Deleted Topics",
+            "description": "Nodes cascaded (P5; 0 for now)",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "deleted"
+        ],
+        "title": "DocDeleteData"
+      },
+      "DocIngestBody": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Title"
+          },
+          "content": {
+            "$ref": "#/components/schemas/ContentItem",
+            "description": "The object to ingest (its uri = the SMM object_key)"
+          },
+          "category_id": {
+            "type": "string",
+            "title": "Category Id",
+            "description": "Category id in this kb; omit for LLM auto-classify",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "content"
+        ],
+        "title": "DocIngestBody",
+        "description": "Public POST/PUT documents request body (design \u00a73.2 / \u00a73.3). ``content`` is the\nobject to ingest (its ``uri`` = the SMM object_key). On PUT the ``doc_id`` rides the\npath, not the body; on POST no id is supplied \u2014 the engine mints it."
+      },
+      "DocIngestData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Document id (engine-minted on create)"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Async task status (contract-nominal at the engine)",
+            "default": "queued"
+          },
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "Async task handle (contract-nominal at the engine)",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "DocIngestData",
+        "description": "202 response for document create / replace (design \u00a73.2 / \u00a73.3). ``id`` is the document\nid (engine-minted on create). The engine ingests synchronously; ``status`` / ``task_id``\nmirror the async contract so this endpoint is wire-identical to the gateway edge \u2014 the real\ntask lifecycle (queued -> processing -> success/failed) is maintained by msgbus/Redis, a\nseparate layer. Ingest success is authoritative via GET documents/{id} (topic_count > 0)."
+      },
+      "DocListData": {
+        "properties": {
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/DocData"
+            },
+            "type": "array",
+            "title": "Documents"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "DocListData"
+      },
+      "DocPatchBody": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DocPatchBody"
+      },
+      "DocPatchData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "updated_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Updated Fields"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "DocPatchData"
+      },
+      "DocumentContext": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": ""
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "doc_id"
+        ],
+        "title": "DocumentContext",
+        "description": "The parent document a hit belongs to (rolled up for display)."
       },
       "EditData": {
         "properties": {
@@ -1331,6 +3053,17 @@
             "type": "string",
             "title": "Episode"
           },
+          "readable_episode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readable Episode"
+          },
           "type": {
             "type": "string",
             "title": "Type"
@@ -1341,6 +3074,13 @@
             },
             "type": "array",
             "title": "Atomic Facts"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
           }
         },
         "type": "object",
@@ -1610,6 +3350,11 @@
             "title": "Sort Order",
             "default": "desc"
           },
+          "with_readable_episode": {
+            "type": "boolean",
+            "title": "With Readable Episode",
+            "default": false
+          },
           "filters": {
             "anyOf": [
               {
@@ -1702,6 +3447,201 @@
         "type": "object",
         "title": "ImplicitTraitPatch",
         "description": "``data`` payload for ``update implicit_traits`` \u2014 partial; at least one of\n``trait`` / ``description`` (non-empty if present); others pass through."
+      },
+      "KbCreateInput": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Display name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description",
+            "default": ""
+          },
+          "owner_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Id",
+            "description": "Optional owner (soft partition, not a security boundary); omit for a shared/tenant-wide kb"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "KbCreateInput",
+        "description": "POST /knowledge_bases request."
+      },
+      "KbData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Knowledge base id (bare primary key)"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "owner_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Id"
+          },
+          "document_count": {
+            "type": "integer",
+            "title": "Document Count",
+            "default": 0
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "KbData",
+        "description": "A knowledge base as returned to clients (create / get / list item / patch)."
+      },
+      "KbDeleteData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Deleted knowledge base id"
+          },
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted",
+            "description": "True if a live kb was soft-deleted; False if absent (idempotent)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "deleted"
+        ],
+        "title": "KbDeleteData"
+      },
+      "KbListData": {
+        "properties": {
+          "knowledge_bases": {
+            "items": {
+              "$ref": "#/components/schemas/KbData"
+            },
+            "type": "array",
+            "title": "Knowledge Bases"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "KbListData"
+      },
+      "KbPatchBody": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "KbPatchBody",
+        "description": "PATCH request BODY (kb_id rides the path, not the body)."
+      },
+      "KbSearchData": {
+        "properties": {
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            },
+            "type": "array",
+            "title": "Hits"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          },
+          "took_ms": {
+            "type": "number",
+            "title": "Took Ms",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "KbSearchData",
+        "description": "Knowledge search response payload. Prefixed ``Kb`` to stay distinct from\n``memory_api.SearchData`` \u2014 two same-named models under ``SuccessEnvelope[...]`` collide\nto a non-deterministic OpenAPI component name (see openapi-sync / check-openapi)."
       },
       "MessageItem": {
         "properties": {
@@ -1974,6 +3914,62 @@
         ],
         "title": "SearchAtomicFactItem"
       },
+      "SearchBody": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Query"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "keyword",
+              "vector",
+              "hybrid"
+            ],
+            "title": "Method",
+            "default": "hybrid"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "default": 10
+          },
+          "score_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Threshold"
+          },
+          "include": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Include",
+            "description": "e.g. ['content']"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "SearchBody",
+        "description": "POST body (kb_id rides the path, not the body)."
+      },
       "SearchData": {
         "properties": {
           "episodes": {
@@ -2075,6 +4071,17 @@
             "type": "string",
             "title": "Episode"
           },
+          "readable_episode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readable Episode"
+          },
           "type": {
             "type": "string",
             "title": "Type"
@@ -2085,6 +4092,13 @@
             },
             "type": "array",
             "title": "Atomic Facts"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
           },
           "score": {
             "type": "number",
@@ -2104,6 +4118,127 @@
           "score"
         ],
         "title": "SearchEpisodeItem"
+      },
+      "SearchFilters": {
+        "properties": {
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SearchFilters",
+        "description": "Optional hard filters. ``category_id`` is a soft filter on recall (design 01 \u00a73.9)."
+      },
+      "SearchHit": {
+        "properties": {
+          "object": {
+            "type": "string",
+            "title": "Object",
+            "default": "topic"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "kb_id": {
+            "type": "string",
+            "title": "Kb Id"
+          },
+          "category_id": {
+            "type": "string",
+            "title": "Category Id",
+            "default": ""
+          },
+          "category_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Name"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "default": ""
+          },
+          "depth": {
+            "type": "integer",
+            "title": "Depth",
+            "default": 0
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": ""
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "default": 0.0
+          },
+          "retrieval_method": {
+            "type": "string",
+            "title": "Retrieval Method",
+            "default": "hybrid"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "document": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "doc_id",
+          "kb_id"
+        ],
+        "title": "SearchHit",
+        "description": "A single search hit. ``object`` self-describes the unit (currently always topic)."
       },
       "SearchInput": {
         "properties": {
@@ -2191,6 +4326,11 @@
           "include_profile": {
             "type": "boolean",
             "title": "Include Profile",
+            "default": false
+          },
+          "with_readable_episode": {
+            "type": "boolean",
+            "title": "With Readable Episode",
             "default": false
           },
           "enable_llm_rerank": {
@@ -2285,6 +4425,63 @@
         ],
         "title": "SuccessEnvelope[AddData]"
       },
+      "SuccessEnvelope_CategoryData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CategoryData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[CategoryData]"
+      },
+      "SuccessEnvelope_CategoryDeleteData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CategoryDeleteData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[CategoryDeleteData]"
+      },
+      "SuccessEnvelope_CategoryListData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CategoryListData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[CategoryListData]"
+      },
       "SuccessEnvelope_DeleteData_": {
         "properties": {
           "request_id": {
@@ -2303,6 +4500,101 @@
           "data"
         ],
         "title": "SuccessEnvelope[DeleteData]"
+      },
+      "SuccessEnvelope_DocData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DocData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DocData]"
+      },
+      "SuccessEnvelope_DocDeleteData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DocDeleteData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DocDeleteData]"
+      },
+      "SuccessEnvelope_DocIngestData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DocIngestData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DocIngestData]"
+      },
+      "SuccessEnvelope_DocListData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DocListData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DocListData]"
+      },
+      "SuccessEnvelope_DocPatchData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DocPatchData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DocPatchData]"
       },
       "SuccessEnvelope_EditData_": {
         "properties": {
@@ -2361,6 +4653,82 @@
         ],
         "title": "SuccessEnvelope[GetData]"
       },
+      "SuccessEnvelope_KbData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/KbData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[KbData]"
+      },
+      "SuccessEnvelope_KbDeleteData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/KbDeleteData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[KbDeleteData]"
+      },
+      "SuccessEnvelope_KbListData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/KbListData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[KbListData]"
+      },
+      "SuccessEnvelope_KbSearchData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/KbSearchData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[KbSearchData]"
+      },
       "SuccessEnvelope_SearchData_": {
         "properties": {
           "request_id": {
@@ -2379,6 +4747,260 @@
           "data"
         ],
         "title": "SuccessEnvelope[SearchData]"
+      },
+      "SuccessEnvelope_TagBindData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TagBindData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TagBindData]"
+      },
+      "SuccessEnvelope_TagReplaceData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TagReplaceData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TagReplaceData]"
+      },
+      "SuccessEnvelope_TagUnbindData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TagUnbindData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TagUnbindData]"
+      },
+      "SuccessEnvelope_TopicDetailData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TopicDetailData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TopicDetailData]"
+      },
+      "SuccessEnvelope_TopicListData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TopicListData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TopicListData]"
+      },
+      "TagBindData": {
+        "properties": {
+          "matched": {
+            "type": "integer",
+            "title": "Matched",
+            "default": 0
+          },
+          "requested": {
+            "type": "integer",
+            "title": "Requested",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "TagBindData"
+      },
+      "TagBindInput": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Memory Type"
+          },
+          "memory_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Memory Ids"
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "maxLength": 32,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Tags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type",
+          "memory_ids",
+          "tags"
+        ],
+        "title": "TagBindInput"
+      },
+      "TagReplaceData": {
+        "properties": {
+          "matched": {
+            "type": "integer",
+            "title": "Matched",
+            "default": 0
+          },
+          "requested": {
+            "type": "integer",
+            "title": "Requested",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "TagReplaceData"
+      },
+      "TagReplaceInput": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Memory Type"
+          },
+          "memory_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Memory Ids"
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "maxLength": 32,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Tags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type",
+          "memory_ids",
+          "tags"
+        ],
+        "title": "TagReplaceInput",
+        "description": "Full replacement (PUT semantics): overwrite each item's tag set with ``tags``.\n\n``tags`` may be empty \u2014 an empty list clears all tags on the targeted items.\nDuplicates collapse (tags is a set; the service dedups before ``$set``)."
+      },
+      "TagUnbindData": {
+        "properties": {
+          "matched": {
+            "type": "integer",
+            "title": "Matched",
+            "default": 0
+          },
+          "requested": {
+            "type": "integer",
+            "title": "Requested",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "TagUnbindData"
+      },
+      "TagUnbindInput": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Memory Type"
+          },
+          "memory_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Memory Ids"
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "maxLength": 32,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Tags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type",
+          "memory_ids",
+          "tags"
+        ],
+        "title": "TagUnbindInput"
       },
       "ToolCall": {
         "properties": {
@@ -2419,6 +5041,238 @@
           "arguments"
         ],
         "title": "ToolCallFunction"
+      },
+      "TopicDetailData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "kb_id": {
+            "type": "string",
+            "title": "Kb Id"
+          },
+          "category_id": {
+            "type": "string",
+            "title": "Category Id",
+            "default": ""
+          },
+          "category_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Name"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "depth": {
+            "type": "integer",
+            "title": "Depth",
+            "default": 0
+          },
+          "seq": {
+            "type": "integer",
+            "title": "Seq",
+            "default": 0
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": ""
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Labels"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "children_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Children Ids"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "doc_id",
+          "kb_id",
+          "name"
+        ],
+        "title": "TopicDetailData",
+        "description": "Full topic (node), with content transparently restored (inline or from S3)."
+      },
+      "TopicListData": {
+        "properties": {
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicListItem"
+            },
+            "type": "array",
+            "title": "Topics"
+          }
+        },
+        "type": "object",
+        "title": "TopicListData",
+        "description": "A document's topic tree, DFS-ordered (flat list; build the tree from `parent_id`).\n\nThe list INCLUDES the synthetic document-root item (`type=root`), so\n``len(topics) == document.topic_count + 1`` \u2014 the document's ``topic_count`` counts real\ntopics only. Two consumer recipes:\n\n* **Full tree** \u2014 root at the item whose ``parent_id`` is null, link the rest by\n  ``parent_id``. Returned order is already DFS, so children keep document order.\n* **Real topics only** (to match ``topic_count``) \u2014 drop the ``type=root`` item AND\n  null out the ``parent_id`` of its direct children, otherwise those now point at an id\n  that is no longer in the set.\n\nRobust root test for either recipe: ``parent_id is null OR parent_id not in the returned\nids`` \u2014 that also survives an orphan row left behind by a partial cascade delete.\n\n``include=content`` hydrates every item's body, which can grow the response by orders of\nmagnitude. Ask for it to render a whole document, not to draw the tree."
+      },
+      "TopicListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Topic (node) id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Node title. For the document-root item (`type=root`) this is the document title, i.e. the same value as the document's `title`"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Structural role: `root` = the document-root container (exactly one per document, `depth=0`, `parent_id=null`, empty body), `section` = a real topic, `element` = rich media (reserved, not produced yet). Filter on this rather than on `depth==0` to tell the root apart from real topics",
+            "default": "section"
+          },
+          "depth": {
+            "type": "integer",
+            "title": "Depth",
+            "description": "Tree depth: 0 = document root, 1 = a top-level topic",
+            "default": 0
+          },
+          "seq": {
+            "type": "integer",
+            "title": "Seq",
+            "description": "DFS position within the document (0 = the root). Items are already returned in this order \u2014 use the order, do not do arithmetic on the value",
+            "default": 0
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id",
+            "description": "Parent topic id; null only on the document root"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "Retrieval-oriented summary covering this node AND its subtree. On the root item it is the document-level summary",
+            "default": ""
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content",
+            "description": "Full markdown body \u2014 populated ONLY when the request passes `include=content`, else null. Always the complete body, never a stored excerpt. Null on the document-root item, which has no body of its own"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "TopicListItem",
+        "description": "Node-tree overview item. ``content`` only when the caller asks for it."
       },
       "UnprocessedMessageDTO": {
         "properties": {
@@ -2757,6 +5611,201 @@
             }
           }
         ]
+      },
+      "TaskErrorResponse": {
+        "properties": {
+          "error": {
+            "properties": {
+              "code": {
+                "description": "Error code, e.g. invalid_request, not_found, unavailable",
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "type": {
+                "description": "Error class, carrying the HTTP status text (BadRequest, NotFound, ...)",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "type"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "TaskErrorResponse",
+        "type": "object"
+      },
+      "TaskItem": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "error": {
+            "description": "Failure reason; present only when status is failed",
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "finished_at": {
+            "description": "Completion time; absent while the task is not in a terminal state",
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "description": "Task id (the request's X-Request-Id), not a database primary key",
+            "type": "string"
+          },
+          "object": {
+            "description": "Resource type produced by the task (frozen field, cannot express a batch)",
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "processing",
+              "success",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "task_type": {
+            "enum": [
+              "memory_add",
+              "knowledge_ingest"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "title": "TaskItem",
+        "type": "object"
+      },
+      "TaskListResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/TaskItem"
+                },
+                "type": "array"
+              },
+              "page": {
+                "type": "integer"
+              },
+              "page_size": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "page",
+              "page_size",
+              "items"
+            ],
+            "type": "object"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "TaskListResponse",
+        "type": "object"
+      },
+      "TaskStatsResponse": {
+        "properties": {
+          "data": {
+            "properties": {
+              "by_status": {
+                "properties": {
+                  "failed": {
+                    "type": "integer"
+                  },
+                  "processing": {
+                    "type": "integer"
+                  },
+                  "queued": {
+                    "type": "integer"
+                  },
+                  "success": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "queued",
+                  "processing",
+                  "success",
+                  "failed"
+                ],
+                "type": "object"
+              },
+              "end": {
+                "description": "End of the window actually aggregated",
+                "format": "date-time",
+                "type": "string"
+              },
+              "start": {
+                "description": "Start of the window actually aggregated, after server-side clamping",
+                "format": "date-time",
+                "type": "string"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "by_status",
+              "start",
+              "end"
+            ],
+            "type": "object"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "TaskStatsResponse",
+        "type": "object"
+      },
+      "TaskStatusResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TaskItem"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "TaskStatusResponse",
+        "type": "object"
       },
       "GatewayError": {
         "type": "object",

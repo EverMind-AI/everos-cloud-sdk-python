@@ -15,11 +15,13 @@
 """  # noqa: E501
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0-rc1"
 
 # import apis into sdk package
+from everos_cloud.api.knowledge_api import KnowledgeApi
 from everos_cloud.api.memory_api import MemoryApi
 from everos_cloud.api.storage_api import StorageApi
+from everos_cloud.api.tasks_api import TasksApi
 
 # import ApiClient
 from everos_cloud.api_response import ApiResponse
@@ -39,6 +41,11 @@ from everos_cloud.models.add_operation import AddOperation
 from everos_cloud.models.agent_case_item import AgentCaseItem
 from everos_cloud.models.agent_skill_item import AgentSkillItem
 from everos_cloud.models.atomic_fact_item import AtomicFactItem
+from everos_cloud.models.category_create_body import CategoryCreateBody
+from everos_cloud.models.category_data import CategoryData
+from everos_cloud.models.category_delete_data import CategoryDeleteData
+from everos_cloud.models.category_list_data import CategoryListData
+from everos_cloud.models.category_patch_body import CategoryPatchBody
 from everos_cloud.models.content import Content
 from everos_cloud.models.content_item import ContentItem
 from everos_cloud.models.data import Data
@@ -46,6 +53,14 @@ from everos_cloud.models.data1 import Data1
 from everos_cloud.models.delete_data import DeleteData
 from everos_cloud.models.delete_input import DeleteInput
 from everos_cloud.models.delete_operation import DeleteOperation
+from everos_cloud.models.doc_data import DocData
+from everos_cloud.models.doc_delete_data import DocDeleteData
+from everos_cloud.models.doc_ingest_body import DocIngestBody
+from everos_cloud.models.doc_ingest_data import DocIngestData
+from everos_cloud.models.doc_list_data import DocListData
+from everos_cloud.models.doc_patch_body import DocPatchBody
+from everos_cloud.models.doc_patch_data import DocPatchData
+from everos_cloud.models.document_context import DocumentContext
 from everos_cloud.models.edit_data import EditData
 from everos_cloud.models.edit_input import EditInput
 from everos_cloud.models.edit_input_operations_inner import EditInputOperationsInner
@@ -63,13 +78,22 @@ from everos_cloud.models.get_input import GetInput
 from everos_cloud.models.http_validation_error import HTTPValidationError
 from everos_cloud.models.implicit_trait_data import ImplicitTraitData
 from everos_cloud.models.implicit_trait_patch import ImplicitTraitPatch
+from everos_cloud.models.kb_create_input import KbCreateInput
+from everos_cloud.models.kb_data import KbData
+from everos_cloud.models.kb_delete_data import KbDeleteData
+from everos_cloud.models.kb_list_data import KbListData
+from everos_cloud.models.kb_patch_body import KbPatchBody
+from everos_cloud.models.kb_search_data import KbSearchData
 from everos_cloud.models.message_item import MessageItem
 from everos_cloud.models.profile_item import ProfileItem
 from everos_cloud.models.search_agent_case_item import SearchAgentCaseItem
 from everos_cloud.models.search_agent_skill_item import SearchAgentSkillItem
 from everos_cloud.models.search_atomic_fact_item import SearchAtomicFactItem
+from everos_cloud.models.search_body import SearchBody
 from everos_cloud.models.search_data import SearchData
 from everos_cloud.models.search_episode_item import SearchEpisodeItem
+from everos_cloud.models.search_filters import SearchFilters
+from everos_cloud.models.search_hit import SearchHit
 from everos_cloud.models.search_input import SearchInput
 from everos_cloud.models.search_profile_item import SearchProfileItem
 from everos_cloud.models.sign_envelope import SignEnvelope
@@ -80,13 +104,48 @@ from everos_cloud.models.sign_response import SignResponse
 from everos_cloud.models.sign_response_item import SignResponseItem
 from everos_cloud.models.signed_info import SignedInfo
 from everos_cloud.models.success_envelope_add_data import SuccessEnvelopeAddData
+from everos_cloud.models.success_envelope_category_data import SuccessEnvelopeCategoryData
+from everos_cloud.models.success_envelope_category_delete_data import SuccessEnvelopeCategoryDeleteData
+from everos_cloud.models.success_envelope_category_list_data import SuccessEnvelopeCategoryListData
 from everos_cloud.models.success_envelope_delete_data import SuccessEnvelopeDeleteData
+from everos_cloud.models.success_envelope_doc_data import SuccessEnvelopeDocData
+from everos_cloud.models.success_envelope_doc_delete_data import SuccessEnvelopeDocDeleteData
+from everos_cloud.models.success_envelope_doc_ingest_data import SuccessEnvelopeDocIngestData
+from everos_cloud.models.success_envelope_doc_list_data import SuccessEnvelopeDocListData
+from everos_cloud.models.success_envelope_doc_patch_data import SuccessEnvelopeDocPatchData
 from everos_cloud.models.success_envelope_edit_data import SuccessEnvelopeEditData
 from everos_cloud.models.success_envelope_flush_data import SuccessEnvelopeFlushData
 from everos_cloud.models.success_envelope_get_data import SuccessEnvelopeGetData
+from everos_cloud.models.success_envelope_kb_data import SuccessEnvelopeKbData
+from everos_cloud.models.success_envelope_kb_delete_data import SuccessEnvelopeKbDeleteData
+from everos_cloud.models.success_envelope_kb_list_data import SuccessEnvelopeKbListData
+from everos_cloud.models.success_envelope_kb_search_data import SuccessEnvelopeKbSearchData
 from everos_cloud.models.success_envelope_search_data import SuccessEnvelopeSearchData
+from everos_cloud.models.success_envelope_tag_bind_data import SuccessEnvelopeTagBindData
+from everos_cloud.models.success_envelope_tag_replace_data import SuccessEnvelopeTagReplaceData
+from everos_cloud.models.success_envelope_tag_unbind_data import SuccessEnvelopeTagUnbindData
+from everos_cloud.models.success_envelope_topic_detail_data import SuccessEnvelopeTopicDetailData
+from everos_cloud.models.success_envelope_topic_list_data import SuccessEnvelopeTopicListData
+from everos_cloud.models.tag_bind_data import TagBindData
+from everos_cloud.models.tag_bind_input import TagBindInput
+from everos_cloud.models.tag_replace_data import TagReplaceData
+from everos_cloud.models.tag_replace_input import TagReplaceInput
+from everos_cloud.models.tag_unbind_data import TagUnbindData
+from everos_cloud.models.tag_unbind_input import TagUnbindInput
+from everos_cloud.models.task_error_response import TaskErrorResponse
+from everos_cloud.models.task_error_response_error import TaskErrorResponseError
+from everos_cloud.models.task_item import TaskItem
+from everos_cloud.models.task_list_response import TaskListResponse
+from everos_cloud.models.task_list_response_data import TaskListResponseData
+from everos_cloud.models.task_stats_response import TaskStatsResponse
+from everos_cloud.models.task_stats_response_data import TaskStatsResponseData
+from everos_cloud.models.task_stats_response_data_by_status import TaskStatsResponseDataByStatus
+from everos_cloud.models.task_status_response import TaskStatusResponse
 from everos_cloud.models.tool_call import ToolCall
 from everos_cloud.models.tool_call_function import ToolCallFunction
+from everos_cloud.models.topic_detail_data import TopicDetailData
+from everos_cloud.models.topic_list_data import TopicListData
+from everos_cloud.models.topic_list_item import TopicListItem
 from everos_cloud.models.unprocessed_message_dto import UnprocessedMessageDTO
 from everos_cloud.models.update_operation import UpdateOperation
 from everos_cloud.models.validation_error import ValidationError

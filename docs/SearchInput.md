@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **radius** | **float** |  | [optional] 
 **min_score** | **float** |  | [optional] 
 **include_profile** | **bool** |  | [optional] [default to False]
+**with_readable_episode** | **bool** |  | [optional] [default to False]
 **enable_llm_rerank** | **bool** |  | [optional] [default to False]
 **filters** | [**FilterNode**](FilterNode.md) |  | [optional] 
 
