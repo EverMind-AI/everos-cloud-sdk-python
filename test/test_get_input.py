@@ -45,6 +45,7 @@ class TestGetInput(unittest.TestCase):
                 page_size = 1.0,
                 sort_by = 'timestamp',
                 sort_order = 'desc',
+                with_readable_episode = True,
                 filters = { }
             )
         else:

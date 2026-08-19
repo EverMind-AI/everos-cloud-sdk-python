@@ -15,8 +15,10 @@ Name | Type | Description | Notes
 **summary** | **str** |  | 
 **subject** | **str** |  | 
 **episode** | **str** |  | 
+**readable_episode** | **str** |  | [optional] 
 **type** | **str** |  | 
 **atomic_facts** | [**List[SearchAtomicFactItem]**](SearchAtomicFactItem.md) |  | [optional] 
+**tags** | **List[str]** |  | [optional] 
 **score** | **float** |  | 
 
 ## Example

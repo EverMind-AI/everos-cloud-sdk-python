@@ -8,7 +8,6 @@ Name | Type | Description | Notes
 **app_id** | **str** |  | [optional] [default to 'default']
 **project_id** | **str** |  | [optional] [default to 'default']
 **session_id** | **str** |  | 
-**mode** | **str** |  | [optional] [default to 'chat']
 **messages** | [**List[MessageItem]**](MessageItem.md) |  | 
 **async_mode** | **bool** | Selects the write path. true (default): validated and enqueued asynchronously → HTTP 202 with status \&quot;queued\&quot;. false: forwarded synchronously to the engine, returning its 200 result and surfacing write errors directly. Extraction is always asynchronous (flush-triggered). | [optional] [default to True]
 

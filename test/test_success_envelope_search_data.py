@@ -52,12 +52,16 @@ class TestSuccessEnvelopeSearchData(unittest.TestCase):
                             summary = '', 
                             subject = '', 
                             episode = '', 
+                            readable_episode = '', 
                             type = '', 
                             atomic_facts = [
                                 everos_cloud.models.search_atomic_fact_item.SearchAtomicFactItem(
                                     id = '', 
                                     content = '', 
                                     score = 1.337, )
+                                ], 
+                            tags = [
+                                ''
                                 ], 
                             score = 1.337, )
                         ], 
@@ -140,12 +144,16 @@ class TestSuccessEnvelopeSearchData(unittest.TestCase):
                             summary = '', 
                             subject = '', 
                             episode = '', 
+                            readable_episode = '', 
                             type = '', 
                             atomic_facts = [
                                 everos_cloud.models.search_atomic_fact_item.SearchAtomicFactItem(
                                     id = '', 
                                     content = '', 
                                     score = 1.337, )
+                                ], 
+                            tags = [
+                                ''
                                 ], 
                             score = 1.337, )
                         ], 

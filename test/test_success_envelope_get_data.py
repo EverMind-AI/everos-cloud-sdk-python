@@ -52,11 +52,15 @@ class TestSuccessEnvelopeGetData(unittest.TestCase):
                             summary = '', 
                             subject = '', 
                             episode = '', 
+                            readable_episode = '', 
                             type = '', 
                             atomic_facts = [
                                 everos_cloud.models.atomic_fact_item.AtomicFactItem(
                                     id = '', 
                                     content = '', )
+                                ], 
+                            tags = [
+                                ''
                                 ], )
                         ], 
                     profiles = [
@@ -116,11 +120,15 @@ class TestSuccessEnvelopeGetData(unittest.TestCase):
                             summary = '', 
                             subject = '', 
                             episode = '', 
+                            readable_episode = '', 
                             type = '', 
                             atomic_facts = [
                                 everos_cloud.models.atomic_fact_item.AtomicFactItem(
                                     id = '', 
                                     content = '', )
+                                ], 
+                            tags = [
+                                ''
                                 ], )
                         ], 
                     profiles = [

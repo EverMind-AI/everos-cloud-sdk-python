@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **page_size** | **int** |  | [optional] [default to 20]
 **sort_by** | **str** |  | [optional] [default to 'timestamp']
 **sort_order** | **str** |  | [optional] [default to 'desc']
+**with_readable_episode** | **bool** |  | [optional] [default to False]
 **filters** | [**FilterNode**](FilterNode.md) |  | [optional] 
 
 ## Example
