@@ -100,6 +100,8 @@ hits = client.search_kb(kb_id, "how much leave do I get", top_k=5)
 
 # ── Browse and maintain ───────────────────────────────────────────────────────
 docs = client.list_documents(kb_id, page=1, page_size=20)
+client.update_document(kb_id, doc_id, category_id="cat-2")   # metadata only
+client.delete_document(kb_id, doc_id)
 client.update_kb(kb_id, description="HR policies (2026)")
 client.delete_kb(kb_id)               # deletes the kb and everything in it
 ```
@@ -157,6 +159,7 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 | `search_kb(kb_id, query, ...)` | `POST .../{kb_id}/search` | Search one knowledge base. |
 | `ingest_document(kb_id, title, content, ...)` | `POST/PUT .../documents` | Async (202 + `task_id`); `doc_id=` replaces in place. |
 | `list_documents` / `get_document` | `GET .../documents[/{doc_id}]` | Browse ingested documents. |
+| `update_document` / `delete_document` | `PATCH/DELETE .../documents/{doc_id}` | Patch title / category; delete a document. |
 | `task(task_id)` | `GET /api/v2/tasks/{task_id}` | One task's status. |
 | `list_tasks(...)` | `GET /api/v2/tasks` | Filter by status / session / time window. |
 | `wait_task(task_id, ...)` | polls `GET /api/v2/tasks/{task_id}` | Blocks until terminal; raises on failure/timeout. |

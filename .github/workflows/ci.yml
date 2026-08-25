@@ -61,6 +61,7 @@ jobs:
                     "bind_tags", "unbind_tags", "replace_tags",
                     "create_kb", "list_kbs", "get_kb", "update_kb", "delete_kb", "search_kb",
                     "ingest_document", "list_documents", "get_document",
+                    "update_document", "delete_document",
                     "task", "list_tasks", "wait_task"):
               assert hasattr(EverOS, m), m
           # every generated client is reachable through the facade (regression: the

@@ -545,3 +545,18 @@ def test_to_content_coerces_string_dict_and_passthrough():
 
     existing = ContentItem(type="image", uri="obj-9")
     assert _E._to_content(existing) is existing
+
+
+def test_document_patch_and_delete():
+    kb = MagicMock()
+    kb.update_document.return_value = SimpleNamespace(data="PATCHED")
+    kb.delete_document.return_value = SimpleNamespace(data="DELETED")
+    c = _client(knowledge=kb)
+
+    assert c.update_document("kb-1", "doc-1", category_id="cat-2") == "PATCHED"
+    args = kb.update_document.call_args.args
+    assert args[0] == "kb-1" and args[1] == "doc-1"
+    assert args[2].category_id == "cat-2" and args[2].title is None   # metadata only
+
+    assert c.delete_document("kb-1", "doc-1") == "DELETED"
+    assert kb.delete_document.call_args.args == ("kb-1", "doc-1")

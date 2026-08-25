@@ -34,6 +34,7 @@ from everos_cloud.models import (
     DeleteInput,
     DeleteOperation,
     DocIngestBody,
+    DocPatchBody,
     EditInput,
     EditInputOperationsInner,
     FlushInput,
@@ -486,6 +487,26 @@ class EverOS:
     def get_document(self, kb_id: str, doc_id: str) -> Any:
         """Get one document. Returns ``DocData``."""
         return self._call(self.knowledge.get_document, kb_id, doc_id).data
+
+    def update_document(
+        self,
+        kb_id: str,
+        doc_id: str,
+        *,
+        title: str | None = None,
+        category_id: str | None = None,
+    ) -> Any:
+        """Patch a document's title / category — metadata only, no re-ingest.
+
+        To change a document's CONTENT, call :meth:`ingest_document` with ``doc_id``:
+        that replaces it and re-runs extraction asynchronously.
+        """
+        payload = DocPatchBody(**_clean(title=title, category_id=category_id))
+        return self._call(self.knowledge.update_document, kb_id, doc_id, payload).data
+
+    def delete_document(self, kb_id: str, doc_id: str) -> Any:
+        """Delete one document and its derived topics. Returns ``DocDeleteData``."""
+        return self._call(self.knowledge.delete_document, kb_id, doc_id).data
 
     # -- async tasks ---------------------------------------------------------
     def task(self, task_id: str) -> Any:
