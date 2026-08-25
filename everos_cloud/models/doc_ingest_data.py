@@ -27,9 +27,9 @@ class DocIngestData(BaseModel):
     """
     202 response for document create / replace (design §3.2 / §3.3). ``id`` is the document id (engine-minted on create). The engine ingests synchronously; ``status`` / ``task_id`` mirror the async contract so this endpoint is wire-identical to the gateway edge — the real task lifecycle (queued -> processing -> success/failed) is maintained by msgbus/Redis, a separate layer. Ingest success is authoritative via GET documents/{id} (topic_count > 0).
     """ # noqa: E501
-    id: StrictStr = Field(description="Document id (engine-minted on create)")
-    status: Optional[StrictStr] = Field(default='queued', description="Async task status (contract-nominal at the engine)")
-    task_id: Optional[StrictStr] = Field(default='', description="Async task handle (contract-nominal at the engine)")
+    id: Optional[StrictStr] = Field(default=None, description="Document id. Present only when the engine is called directly; the gateway's async ack omits it (the id is minted downstream), so SDK callers resolve it from GET .../documents by title.")
+    status: StrictStr = Field(description="Async task status (contract-nominal at the engine)")
+    task_id: StrictStr = Field(description="Async task handle (contract-nominal at the engine)")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "status", "task_id"]
 

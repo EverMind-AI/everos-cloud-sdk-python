@@ -44,7 +44,7 @@ class TestTaskItem(unittest.TestCase):
                 object = '',
                 object_id = '',
                 status = 'queued',
-                task_type = 'memory_add'
+                task_type = ''
             )
         else:
             return TaskItem(

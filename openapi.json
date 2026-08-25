@@ -548,6 +548,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -589,6 +629,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -627,6 +707,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -682,6 +802,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       },
@@ -722,6 +882,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -756,7 +956,7 @@
         },
         "responses": {
           "202": {
-            "description": "Successful Response",
+            "description": "Accepted for asynchronous ingest. The body carries `status` and `task_id` only; `id` is absent (minted downstream) \u2014 resolve it from GET .../documents.",
             "content": {
               "application/json": {
                 "schema": {
@@ -771,6 +971,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -850,6 +1090,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -888,6 +1168,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -958,6 +1278,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -1006,6 +1366,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1068,6 +1468,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -1119,6 +1559,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       },
@@ -1165,6 +1645,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1227,6 +1747,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       },
@@ -1268,7 +1828,7 @@
         },
         "responses": {
           "202": {
-            "description": "Successful Response",
+            "description": "Accepted for asynchronous re-ingest of this document id. The body carries `status` and `task_id` only.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1283,6 +1843,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1328,6 +1928,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       },
@@ -1365,6 +2005,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1415,6 +2095,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1475,6 +2195,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1543,6 +2303,46 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         }
       }
@@ -1592,6 +2392,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
                 }
               }
             }
@@ -1765,6 +2605,36 @@
               }
             },
             "description": "Listing requires the database-backed store, which is not configured"
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         },
         "summary": "List async tasks",
@@ -1827,6 +2697,36 @@
               }
             },
             "description": "Stats require the database-backed store, which is not configured"
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         },
         "summary": "Aggregate task counts by status",
@@ -1880,6 +2780,46 @@
               }
             },
             "description": "Task id is unknown or has expired"
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
           }
         },
         "summary": "Get async task status",
@@ -2685,7 +3625,7 @@
           "id": {
             "type": "string",
             "title": "Id",
-            "description": "Document id (engine-minted on create)"
+            "description": "Document id. Present only when the engine is called directly; the gateway's async ack omits it (the id is minted downstream), so SDK callers resolve it from GET .../documents by title."
           },
           "status": {
             "type": "string",
@@ -2702,7 +3642,8 @@
         },
         "type": "object",
         "required": [
-          "id"
+          "status",
+          "task_id"
         ],
         "title": "DocIngestData",
         "description": "202 response for document create / replace (design \u00a73.2 / \u00a73.3). ``id`` is the document\nid (engine-minted on create). The engine ingests synchronously; ``status`` / ``task_id``\nmirror the async contract so this endpoint is wire-identical to the gateway edge \u2014 the real\ntask lifecycle (queued -> processing -> success/failed) is maintained by msgbus/Redis, a\nseparate layer. Ingest success is authoritative via GET documents/{id} (topic_count > 0)."
@@ -5675,16 +6616,14 @@
             "enum": [
               "queued",
               "processing",
+              "pending",
               "success",
               "failed"
             ],
             "type": "string"
           },
           "task_type": {
-            "enum": [
-              "memory_add",
-              "knowledge_ingest"
-            ],
+            "description": "Async interface that produced the task, e.g. memory_add / knowledge_document / batch_import",
             "type": "string"
           }
         },
@@ -5742,6 +6681,9 @@
                   "failed": {
                     "type": "integer"
                   },
+                  "pending": {
+                    "type": "integer"
+                  },
                   "processing": {
                     "type": "integer"
                   },
@@ -5755,6 +6697,7 @@
                 "required": [
                   "queued",
                   "processing",
+                  "pending",
                   "success",
                   "failed"
                 ],

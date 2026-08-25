@@ -36,25 +36,15 @@ class TaskItem(BaseModel):
     object: Optional[StrictStr] = Field(default=None, description="Resource type produced by the task (frozen field, cannot express a batch)")
     object_id: Optional[StrictStr] = None
     status: StrictStr
-    task_type: Optional[StrictStr] = None
+    task_type: Optional[StrictStr] = Field(default=None, description="Async interface that produced the task, e.g. memory_add / knowledge_document / batch_import")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["created_at", "error", "error_code", "finished_at", "id", "object", "object_id", "status", "task_type"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['queued', 'processing', 'success', 'failed']):
-            raise ValueError("must be one of enum values ('queued', 'processing', 'success', 'failed')")
-        return value
-
-    @field_validator('task_type')
-    def task_type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value is None:
-            return value
-
-        if value not in set(['memory_add', 'knowledge_ingest']):
-            raise ValueError("must be one of enum values ('memory_add', 'knowledge_ingest')")
+        if value not in set(['queued', 'processing', 'pending', 'success', 'failed']):
+            raise ValueError("must be one of enum values ('queued', 'processing', 'pending', 'success', 'failed')")
         return value
 
     model_config = ConfigDict(

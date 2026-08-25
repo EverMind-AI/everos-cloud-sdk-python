@@ -46,7 +46,7 @@ class TestTaskListResponseData(unittest.TestCase):
                         object = '', 
                         object_id = '', 
                         status = 'queued', 
-                        task_type = 'memory_add', )
+                        task_type = '', )
                     ],
                 page = 56,
                 page_size = 56,
@@ -64,7 +64,7 @@ class TestTaskListResponseData(unittest.TestCase):
                         object = '', 
                         object_id = '', 
                         status = 'queued', 
-                        task_type = 'memory_add', )
+                        task_type = '', )
                     ],
                 page = 56,
                 page_size = 56,

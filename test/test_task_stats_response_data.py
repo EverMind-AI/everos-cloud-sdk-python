@@ -38,6 +38,7 @@ class TestTaskStatsResponseData(unittest.TestCase):
             return TaskStatsResponseData(
                 by_status = everos_cloud.models.task_stats_response_data_by_status.TaskStatsResponse_data_by_status(
                     failed = 56, 
+                    pending = 56, 
                     processing = 56, 
                     queued = 56, 
                     success = 56, ),
@@ -49,6 +50,7 @@ class TestTaskStatsResponseData(unittest.TestCase):
             return TaskStatsResponseData(
                 by_status = everos_cloud.models.task_stats_response_data_by_status.TaskStatsResponse_data_by_status(
                     failed = 56, 
+                    pending = 56, 
                     processing = 56, 
                     queued = 56, 
                     success = 56, ),

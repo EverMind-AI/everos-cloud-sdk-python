@@ -37,6 +37,7 @@ class TestTaskStatsResponseDataByStatus(unittest.TestCase):
         if include_optional:
             return TaskStatsResponseDataByStatus(
                 failed = 56,
+                pending = 56,
                 processing = 56,
                 queued = 56,
                 success = 56
@@ -44,6 +45,7 @@ class TestTaskStatsResponseDataByStatus(unittest.TestCase):
         else:
             return TaskStatsResponseDataByStatus(
                 failed = 56,
+                pending = 56,
                 processing = 56,
                 queued = 56,
                 success = 56,

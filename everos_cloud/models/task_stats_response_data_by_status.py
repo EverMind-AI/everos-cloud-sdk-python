@@ -28,11 +28,12 @@ class TaskStatsResponseDataByStatus(BaseModel):
     TaskStatsResponseDataByStatus
     """ # noqa: E501
     failed: StrictInt
+    pending: StrictInt
     processing: StrictInt
     queued: StrictInt
     success: StrictInt
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["failed", "processing", "queued", "success"]
+    __properties: ClassVar[List[str]] = ["failed", "pending", "processing", "queued", "success"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -93,6 +94,7 @@ class TaskStatsResponseDataByStatus(BaseModel):
 
         _obj = cls.model_validate({
             "failed": obj.get("failed"),
+            "pending": obj.get("pending"),
             "processing": obj.get("processing"),
             "queued": obj.get("queued"),
             "success": obj.get("success")
