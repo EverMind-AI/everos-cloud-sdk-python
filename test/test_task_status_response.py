@@ -45,7 +45,7 @@ class TestTaskStatusResponse(unittest.TestCase):
                     object = '', 
                     object_id = '', 
                     status = 'queued', 
-                    task_type = 'memory_add', ),
+                    task_type = '', ),
                 request_id = ''
             )
         else:
@@ -59,7 +59,7 @@ class TestTaskStatusResponse(unittest.TestCase):
                     object = '', 
                     object_id = '', 
                     status = 'queued', 
-                    task_type = 'memory_add', ),
+                    task_type = '', ),
         )
         """
 

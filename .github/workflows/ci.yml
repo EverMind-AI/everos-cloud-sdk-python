@@ -41,16 +41,44 @@ jobs:
         if: steps.detect.outputs.has_pkg == 'true'
         run: |
           python - <<'PY'
-          from everos_cloud import ApiClient, Configuration, MemoryApi, EverOS
+          from everos_cloud import (
+              ApiClient, Configuration, EverOS, KnowledgeApi, MemoryApi, StorageApi, TasksApi,
+          )
           cfg = Configuration(access_token="sk-test")
           assert cfg.host == "https://api.evermind.ai", cfg.host
           assert cfg.auth_settings()["BearerAuth"]["value"] == "Bearer sk-test"
           MemoryApi(ApiClient(cfg))
-          for m in ("add_memory", "search_memory", "get_memory", "delete_memory", "edit_profile"):
+          # generated method names — these are the operationIds, NOT the facade's
+          for m in ("add_memory", "search_memory", "get_memory", "delete_memory", "edit_profile",
+                    "bind_tags", "unbind_tags", "replace_tags"):
               assert hasattr(MemoryApi, m), m
+          for m in ("create_knowledge_base", "search_knowledge", "create_document",
+                    "replace_document", "list_documents"):
+              assert hasattr(KnowledgeApi, m), m
+          for m in ("list_tasks", "get_task_status", "get_task_stats"):
+              assert hasattr(TasksApi, m), m
           # ergonomic facade is exported at the top level
-          for m in ("add", "search", "get", "flush", "edit", "delete", "upload", "close"):
+          for m in ("add", "search", "get", "flush", "edit", "delete", "upload", "close",
+                    "tag_bind", "tag_unbind", "tag_replace",
+                    "kb_create", "kb_list", "kb_get", "kb_update", "kb_delete", "kb_search",
+                    "doc_ingest", "doc_list", "doc_get",
+                    "doc_update", "doc_delete",
+                    "task_get", "task_list", "task_wait"):
               assert hasattr(EverOS, m), m
+          # the facade's names must stay disjoint from the generated ones, so a reader
+          # never has to work out which layer a call went through
+          generated = set()
+          for cls in (KnowledgeApi, MemoryApi, StorageApi, TasksApi):
+              generated |= {m for m in dir(cls) if not m.startswith("_")
+                            and not m.endswith(("_with_http_info", "_without_preload_content"))}
+          facade = {m for m in dir(EverOS) if not m.startswith("_")}
+          assert not (facade & generated), sorted(facade & generated)
+          # every generated client is reachable through the facade (regression: the
+          # knowledge / tasks handles were missing, so those surfaces were unusable)
+          client = EverOS("sk-test")
+          for attr, cls in (("memory", MemoryApi), ("storage", StorageApi),
+                            ("knowledge", KnowledgeApi), ("tasks", TasksApi)):
+              assert isinstance(getattr(client, attr), cls), attr
           print("import + config OK")
           PY
 
@@ -64,9 +92,10 @@ jobs:
           python - <<'PY'
           import re
           import everos_cloud.models as models
-          from everos_cloud import EverOS, MemoryApi, StorageApi
+          from everos_cloud import EverOS, KnowledgeApi, MemoryApi, StorageApi, TasksApi
 
-          CLASSES = {"EverOS": EverOS, "MemoryApi": MemoryApi, "StorageApi": StorageApi}
+          CLASSES = {"EverOS": EverOS, "MemoryApi": MemoryApi, "StorageApi": StorageApi,
+                     "KnowledgeApi": KnowledgeApi, "TasksApi": TasksApi}
           text = open("quickstart.md").read()
           blocks = re.findall(r"```python\n(.*?)```", text, re.S)
           assert blocks, "no python code blocks found in quickstart.md"
@@ -87,7 +116,7 @@ jobs:
           # 3) every method called on an EverOS / MemoryApi / StorageApi instance
           #    must still exist (maps each instance var to its class from assignment).
           var_class = {v: CLASSES[c] for v, c in
-                       re.findall(r"(\w+)\s*=\s*(EverOS|MemoryApi|StorageApi)\(", code)}
+                       re.findall(r"(\w+)\s*=\s*(" + "|".join(CLASSES) + r")\(", code)}
           for var, cls in var_class.items():
               for meth in sorted(set(re.findall(rf"\b{re.escape(var)}\.(\w+)\(", code))):
                   assert hasattr(cls, meth), f"quickstart drift: {cls.__name__} has no {meth!r}"

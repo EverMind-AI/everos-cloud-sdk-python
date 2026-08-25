@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **object** | **str** | Resource type produced by the task (frozen field, cannot express a batch) | [optional] 
 **object_id** | **str** |  | [optional] 
 **status** | **str** |  | 
-**task_type** | **str** |  | [optional] 
+**task_type** | **str** | Async interface that produced the task, e.g. memory_add / knowledge_document / batch_import | [optional] 
 
 ## Example
 

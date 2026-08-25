@@ -398,6 +398,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagBindData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -465,6 +469,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagBindData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -532,6 +540,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagBindData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1816,6 +1828,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagReplaceData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1883,6 +1899,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagReplaceData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1950,6 +1970,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagReplaceData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2376,6 +2400,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagUnbindData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2443,6 +2471,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagUnbindData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2510,6 +2542,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTagUnbindData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,

@@ -119,6 +119,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "SuccessEnvelopeCategoryData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -190,6 +194,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "SuccessEnvelopeCategoryData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -261,6 +269,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "SuccessEnvelopeCategoryData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -408,6 +420,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '202': "SuccessEnvelopeDocIngestData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -479,6 +495,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '202': "SuccessEnvelopeDocIngestData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -550,6 +570,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '202': "SuccessEnvelopeDocIngestData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -693,6 +717,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -760,6 +788,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -827,6 +859,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -971,6 +1007,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1042,6 +1082,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1113,6 +1157,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1247,6 +1295,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1318,6 +1370,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1389,6 +1445,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1519,6 +1579,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1586,6 +1650,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1653,6 +1721,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbDeleteData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1784,6 +1856,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1855,6 +1931,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -1926,6 +2006,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2056,6 +2140,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2123,6 +2211,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2190,6 +2282,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2325,6 +2421,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicDetailData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2400,6 +2500,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicDetailData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2475,6 +2579,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicDetailData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2608,6 +2716,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2675,6 +2787,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2742,6 +2858,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2881,6 +3001,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2960,6 +3084,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3039,6 +3167,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3189,6 +3321,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3264,6 +3400,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3339,6 +3479,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3486,6 +3630,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3561,6 +3709,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3636,6 +3788,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicListData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3780,6 +3936,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '202': "SuccessEnvelopeDocIngestData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3855,6 +4015,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '202': "SuccessEnvelopeDocIngestData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3930,6 +4094,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '202': "SuccessEnvelopeDocIngestData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4080,6 +4248,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbSearchData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4151,6 +4323,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbSearchData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4222,6 +4398,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbSearchData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4373,6 +4553,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4448,6 +4632,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4523,6 +4711,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeCategoryData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4677,6 +4869,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocPatchData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4752,6 +4948,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocPatchData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4827,6 +5027,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeDocPatchData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4977,6 +5181,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -5048,6 +5256,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -5119,6 +5331,10 @@ class KnowledgeApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeKbData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,

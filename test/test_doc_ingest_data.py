@@ -42,7 +42,8 @@ class TestDocIngestData(unittest.TestCase):
             )
         else:
             return DocIngestData(
-                id = '',
+                status = 'queued',
+                task_id = '',
         )
         """
 

@@ -103,6 +103,9 @@ class TasksApi:
             '200': "TaskStatsResponse",
             '400': "TaskErrorResponse",
             '503': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -176,6 +179,9 @@ class TasksApi:
             '200': "TaskStatsResponse",
             '400': "TaskErrorResponse",
             '503': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -249,6 +255,9 @@ class TasksApi:
             '200': "TaskStatsResponse",
             '400': "TaskErrorResponse",
             '503': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -385,6 +394,10 @@ class TasksApi:
             '200': "TaskStatusResponse",
             '400': "TaskErrorResponse",
             '404': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -454,6 +467,10 @@ class TasksApi:
             '200': "TaskStatusResponse",
             '400': "TaskErrorResponse",
             '404': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -523,6 +540,10 @@ class TasksApi:
             '200': "TaskStatusResponse",
             '400': "TaskErrorResponse",
             '404': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -672,6 +693,9 @@ class TasksApi:
             '200': "TaskListResponse",
             '400': "TaskErrorResponse",
             '503': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -761,6 +785,9 @@ class TasksApi:
             '200': "TaskListResponse",
             '400': "TaskErrorResponse",
             '503': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -850,6 +877,9 @@ class TasksApi:
             '200': "TaskListResponse",
             '400': "TaskErrorResponse",
             '503': "TaskErrorResponse",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,

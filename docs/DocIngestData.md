@@ -6,9 +6,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** | Document id (engine-minted on create) | 
-**status** | **str** | Async task status (contract-nominal at the engine) | [optional] [default to 'queued']
-**task_id** | **str** | Async task handle (contract-nominal at the engine) | [optional] [default to '']
+**id** | **str** | Document id. Present only when the engine is called directly; the gateway&#39;s async ack omits it (the id is minted downstream), so SDK callers resolve it from GET .../documents by title. | [optional] 
+**status** | **str** | Async task status (contract-nominal at the engine) | [default to 'queued']
+**task_id** | **str** | Async task handle (contract-nominal at the engine) | [default to '']
 
 ## Example
 

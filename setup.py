@@ -24,7 +24,7 @@ from setuptools import setup, find_packages  # noqa: H301
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 NAME = "everos-cloud"
-VERSION = "1.1.0-rc1"
+VERSION = "1.1.0-rc2"
 PYTHON_REQUIRES = ">= 3.8"
 
 # PyPI renders this as the project page body. Use the repo README (which ships in

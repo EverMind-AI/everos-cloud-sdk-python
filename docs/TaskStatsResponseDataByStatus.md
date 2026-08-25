@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **failed** | **int** |  | 
+**pending** | **int** |  | 
 **processing** | **int** |  | 
 **queued** | **int** |  | 
 **success** | **int** |  | 
