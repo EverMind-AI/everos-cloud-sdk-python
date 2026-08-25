@@ -167,7 +167,14 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 ## Low-level typed client (advanced)
 
 `EverOS` wraps the generated clients, all four exposed as attributes: `client.memory`,
-`client.storage`, `client.knowledge`, `client.tasks`. Reach for them when you want typed
+`client.storage`, `client.knowledge`, `client.tasks`.
+
+**One rule to keep straight**: some facade methods share a name with the generated
+method they wrap — `client.list_documents(kb_id)` and
+`client.knowledge.list_documents(kb_id)` take the same arguments. They differ in what
+they return: the facade hands back the `.data` payload, the generated client hands back
+the envelope. That holds for every method on both sides, so `.data` is the only
+adjustment when you drop down. Reach for them when you want typed
 models, full control, or an endpoint the facade does not cover — knowledge-base
 *categories* and document *topics* live only there:
 

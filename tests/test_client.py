@@ -300,9 +300,8 @@ def test_create_kb_builds_input_and_drops_none():
     payload = kb.create_knowledge_base.call_args.args[0]
     assert isinstance(payload, KbCreateInput)
     assert payload.name == "Handbook"
-    # `_clean` drops the unset kwargs, so the MODEL defaults apply — and the spec's
-    # default for description is "" (not null); owner_id is genuinely nullable.
-    assert payload.description == "" and payload.owner_id is None
+    # Unset optionals must not reach the wire (see the wire-level tests below).
+    assert payload.description is None and payload.owner_id is None
 
 
 def test_kb_crud_passes_path_params_positionally():
@@ -623,3 +622,48 @@ def test_update_document_rejects_an_empty_patch():
     with pytest.raises(ValueError):
         c.update_document("kb-1", "doc-1")
     kb.update_document.assert_not_called()
+
+
+# ── wire-level: what actually leaves the process ─────────────────────────────
+# These assert on `to_dict()`, i.e. the serialized request body, not just the model.
+# A model field whose default is a non-None sentinel is invisible at the model level
+# and only shows up here.
+def test_unset_category_id_stays_off_the_wire():
+    """`DocIngestBody.category_id` defaults to "" and the contract reads
+    "omit for LLM auto-classify" — so an unset category must not be serialized."""
+    kb = MagicMock()
+    kb.create_document.return_value = SimpleNamespace(data=None)
+    c = _client(knowledge=kb)
+
+    c.ingest_document("kb-1", "T", "text")
+    body = kb.create_document.call_args.args[1].to_dict()
+    assert "category_id" not in body, body
+
+    c.ingest_document("kb-1", "T", "text", category_id="cat-1")
+    body = kb.create_document.call_args.args[1].to_dict()
+    assert body["category_id"] == "cat-1"
+
+
+def test_unset_kb_description_stays_off_the_wire():
+    kb = MagicMock()
+    kb.create_knowledge_base.return_value = SimpleNamespace(data=None)
+    c = _client(knowledge=kb)
+
+    c.create_kb("Handbook")
+    body = kb.create_knowledge_base.call_args.args[0].to_dict()
+    assert "description" not in body and "owner_id" not in body, body
+
+    c.create_kb("Handbook", description="HR")
+    assert kb.create_knowledge_base.call_args.args[0].to_dict()["description"] == "HR"
+
+
+def test_search_kb_does_materialize_its_defaults():
+    """Deliberate contrast with the two above: SearchBody's defaults ARE the server's
+    defaults, so sending them is a no-op — and memory `search` already behaves this way."""
+    kb = MagicMock()
+    kb.search_knowledge.return_value = SimpleNamespace(data=None)
+    c = _client(knowledge=kb)
+
+    c.search_kb("kb-1", "q")
+    body = kb.search_knowledge.call_args.args[1].to_dict()
+    assert body["method"] == "hybrid" and body["top_k"] == 10

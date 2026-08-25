@@ -90,7 +90,15 @@ def _guess_file_type(name: str) -> str:
 
 
 def _clean(**kwargs: Any) -> dict:
-    """Drop ``None`` values so model defaults (e.g. search ``method='hybrid'``) survive."""
+    """Drop ``None`` values so model defaults (e.g. search ``method='hybrid'``) survive.
+
+    Use this only where materializing the model default is what you want. For a field
+    whose default is a non-None SENTINEL — ``DocIngestBody.category_id`` defaults to
+    ``""``, which the contract distinguishes from "omitted" — pass the argument through
+    verbatim instead: the generated ``to_dict`` excludes ``None``, so an explicit
+    ``None`` is what keeps the key off the wire, while dropping the kwarg here would
+    put the sentinel ON it.
+    """
     return {k: v for k, v in kwargs.items() if v is not None}
 
 
@@ -390,7 +398,12 @@ class EverOS:
     # are lower-traffic; reach them through `client.knowledge`.
     def create_kb(self, name: str, *, description: str | None = None, owner_id: str | None = None) -> Any:
         """Create a knowledge base. Returns ``KbData``."""
-        payload = KbCreateInput(**_clean(name=name, description=description, owner_id=owner_id))
+        # Two different rules in one call, both about keeping unset fields OFF the wire:
+        # `description` is non-nullable with a "" default, so it must be passed through —
+        # an explicit None is excluded by to_dict, while dropping the kwarg would send "".
+        # `owner_id` IS nullable, so to_dict keeps an explicitly-set None as `null`; there
+        # the kwarg has to be dropped instead. The contract says "omit" for both.
+        payload = KbCreateInput(name=name, description=description, **_clean(owner_id=owner_id))
         return self._call(self.knowledge.create_knowledge_base, payload).data
 
     def list_kbs(
@@ -468,8 +481,12 @@ class EverOS:
 
         Returns ``DocIngestData`` (``status`` + ``task_id``).
         """
+        # category_id is passed through rather than `_clean`ed: its model default is
+        # "", and the contract reads "omit for LLM auto-classify" — so an unset category
+        # must leave the key OFF the wire, which an explicit None does and dropping the
+        # kwarg does not.
         payload = DocIngestBody(
-            **_clean(title=title, content=self._to_content(content), category_id=category_id)
+            title=title, content=self._to_content(content), category_id=category_id
         )
         if doc_id is not None:
             return self._call(self.knowledge.replace_document, kb_id, doc_id, payload).data
