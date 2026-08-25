@@ -11,10 +11,13 @@ facade covers the high-traffic calls of each.
     client.add(session_id="s1", messages=[{"role": "user", "content": "I love hiking"}])
     hits = client.search("outdoor hobbies")
 
-Naming: memory is the unprefixed default (``add`` / ``search`` / ``get`` / ``flush`` /
-``edit`` / ``delete``, frozen since 1.0.0); every other resource carries its own prefix
-— ``kb_`` / ``doc_`` / ``task_`` / ``tag_`` — so an editor's completion list groups by
-resource, and no facade method collides with the generated method it wraps.
+Naming: the nine methods 1.0.0 shipped are bare verbs and stay that way — ``add`` /
+``search`` / ``get`` / ``flush`` / ``edit`` / ``delete`` (memory), ``presign`` /
+``upload`` (storage), ``close``. They are public API and cannot be renamed. Everything
+added since carries its resource as a prefix — ``kb_`` / ``doc_`` / ``task_`` /
+``tag_`` — so completion groups by resource and no facade method collides with the
+generated method it wraps. The two styles sitting side by side is a consequence of that
+freeze, not a convention worth copying.
 
 Errors: every failure raised by this facade derives from :class:`EverOSError` —
 ``EverOSAPIError`` for HTTP errors, ``EverOSStorageError`` for object-upload failures,
@@ -68,6 +71,26 @@ DEFAULT_TASK_MAX_INTERVAL = 15.0  # ceiling for the backoff between task polls
 # ingest polled at a fixed interval is itself a source of 429s, and a wait that dies
 # on one blip is worse than useless — the caller has no way to resume it.
 _TRANSIENT_STATUS = frozenset({429, 500, 502, 503, 504})
+
+# Generated method name -> the facade method that covers it. Used only to answer an
+# AttributeError helpfully: the generated per-endpoint docs (docs/*.md) are the largest
+# body of documentation and they describe ONLY the generated clients, so a reader who
+# arrives from there types `client.create_knowledge_base(...)` and would otherwise get a
+# bare AttributeError with nowhere to go.
+_FACADE_FOR = {
+    "add_memory": "add", "search_memory": "search", "get_memory": "get",
+    "flush_memory": "flush", "edit_profile": "edit", "delete_memory": "delete",
+    "sign_objects": "presign",
+    "bind_tags": "tag_bind", "unbind_tags": "tag_unbind", "replace_tags": "tag_replace",
+    "create_knowledge_base": "kb_create", "list_knowledge_bases": "kb_list",
+    "get_knowledge_base": "kb_get", "update_knowledge_base": "kb_update",
+    "delete_knowledge_base": "kb_delete", "search_knowledge": "kb_search",
+    "create_document": "doc_ingest", "replace_document": "doc_ingest",
+    "list_documents": "doc_list", "get_document": "doc_get",
+    "update_document": "doc_update", "delete_document": "doc_delete",
+    "get_task_status": "task_get", "list_tasks": "task_list",
+}
+_API_ATTRS = ("memory", "storage", "knowledge", "tasks")
 
 # Statuses the gateway reports as finished. Deliberately paired with a `finished_at`
 # check in `_task_finished`: `status` is an OPEN set on a response field (a new
@@ -173,6 +196,26 @@ class EverOS:
         self._app_id = app_id
         self._project_id = project_id
         self._timeout = timeout
+
+    def __getattr__(self, name: str) -> Any:
+        """Point a generated method name at where it actually lives.
+
+        Python calls this only after normal lookup fails, so it costs nothing on the
+        happy path. Reads ``__dict__`` directly rather than ``getattr`` to stay safe
+        during ``__init__`` and to avoid recursing through itself.
+        """
+        for attr in _API_ATTRS:
+            api = self.__dict__.get(attr)
+            if api is not None and hasattr(api, name):
+                facade = _FACADE_FOR.get(name)
+                hint = f"The facade covers it as `client.{facade}(...)`. " if facade else ""
+                raise AttributeError(
+                    f"{type(self).__name__!r} has no attribute {name!r} — that is a "
+                    f"generated method name, not a facade one. {hint}"
+                    f"The generated client is at `client.{attr}.{name}(...)`, which "
+                    f"returns the response envelope rather than its `.data`."
+                )
+        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
 
     # -- lifecycle -----------------------------------------------------------
     def __enter__(self) -> "EverOS":

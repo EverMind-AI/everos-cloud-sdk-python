@@ -39,6 +39,8 @@ Add a conversation; EverOS turns it into structured, retrievable memory you can 
 - **Structured memory, not chat logs** — extracts episodes, user profiles, and reusable
   agent cases & skills from raw conversations, so retrieval returns meaning, not transcripts.
 - **Retrieval that fits the query** — keyword, vector, hybrid (default), or agentic multi-step search.
+- **Knowledge bases** — ingest documents into a searchable topic library alongside
+  conversational memory; ingest is async and reports progress through the task API.
 - **Multimodal** — attach images, audio, and documents to any message.
 - **Built for production** — fully managed (no vector DB or extraction pipeline to run),
   with low-latency retrieval and high-concurrency throughput. The engineering guarantees
@@ -74,9 +76,39 @@ with EverOS(api_key="sk-...") as client:
     print(results)
 ```
 
-**Full usage** — every memory operation, profile editing, and multimodal upload — is in
+Knowledge bases work the same way — ingest is asynchronous, so wait on the task:
+
+```python
+kb   = client.kb_create("Employee Handbook")
+ack  = client.doc_ingest(kb.id, "Leave policy", "Employees accrue 20 days...")
+task = client.task_wait(ack.task_id)          # polls until the document is queryable
+
+hits = client.kb_search(kb.id, "how much leave do I get")
+```
+
+**Full usage** — every memory operation, knowledge base, async task, profile editing, and
+multimodal upload — is in
 **[quickstart.md](https://github.com/EverMind-AI/everos-cloud-sdk-python/blob/v1/quickstart.md)**.
-Prefer typed control? The generated low-level client is exposed as `client.memory` / `client.storage`.
+
+### Two ways to call the API
+
+`EverOS` covers the common calls with plain kwargs in and the response's `.data` out.
+New methods are named `<resource>_<verb>` (`kb_create`, `doc_ingest`, `task_wait`,
+`tag_bind`), so typing `client.kb` lists the knowledge-base surface; the methods 1.0.0
+shipped are bare verbs (`add`, `search`, `get`, `flush`, `edit`, `delete`, `upload`).
+
+Everything the API offers — all 31 operations, including knowledge-base categories and
+document topics — is on the generated typed clients, reachable as `client.memory`,
+`client.storage`, `client.knowledge`, `client.tasks`. Those take and return the full
+typed models, so responses arrive as an envelope you read `.data` from. The
+per-endpoint reference for them is under
+[`docs/`](https://github.com/EverMind-AI/everos-cloud-sdk-python/tree/v1/docs).
+
+```python
+client.kb_create("Handbook")                          # facade   -> KbData
+client.knowledge.create_knowledge_base({"name": "…"})  # generated -> envelope, .data
+client.knowledge.list_topics(kb_id, doc_id)            # generated only
+```
 
 ## Documentation
 

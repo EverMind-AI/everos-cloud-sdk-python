@@ -143,9 +143,11 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 
 ## Method reference
 
-Facade methods are named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
-`client.task` / `client.tag` lists everything for that resource. The six memory methods
-carry no prefix — an unprefixed verb always means memory.
+New facade methods are named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
+`client.task` / `client.tag` lists everything for that resource. The nine methods 1.0.0
+shipped are bare verbs with no prefix (`add` / `search` / `get` / `flush` / `edit` /
+`delete` for memory, `presign` / `upload` for storage, plus `close`) — that split is
+historical, not a rule: those names are public API since 1.0.0 and cannot be changed.
 
 | Method | Endpoint | Notes |
 |---|---|---|

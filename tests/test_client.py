@@ -667,3 +667,40 @@ def test_search_kb_does_materialize_its_defaults():
     c.kb_search("kb-1", "q")
     body = kb.search_knowledge.call_args.args[1].to_dict()
     assert body["method"] == "hybrid" and body["top_k"] == 10
+
+
+# ── discovery: a generated name typed on the facade must say where to go ─────
+def test_generated_name_on_the_facade_points_at_the_real_one():
+    """docs/*.md documents only the generated clients, so readers arrive with those
+    names. A bare AttributeError leaves them stuck; this one carries the answer."""
+    c = EverOS("sk-test")
+
+    with pytest.raises(AttributeError) as ei:
+        c.create_knowledge_base
+    msg = str(ei.value)
+    assert "client.kb_create" in msg                          # facade equivalent
+    assert "client.knowledge.create_knowledge_base" in msg    # generated location
+
+    # a generated method the facade does NOT cover: still says where it lives
+    with pytest.raises(AttributeError) as ei:
+        c.list_topics
+    assert "client.knowledge.list_topics" in str(ei.value)
+    assert "facade covers it" not in str(ei.value)
+
+    # a genuinely unknown attribute stays an ordinary AttributeError
+    with pytest.raises(AttributeError) as ei:
+        c.totally_bogus
+    assert "generated method name" not in str(ei.value)
+
+
+def test_getattr_hook_does_not_break_normal_lookup():
+    c = EverOS("sk-test")
+    assert hasattr(c, "kb_create") and hasattr(c, "knowledge")
+    assert not hasattr(c, "nope")
+    # Dunders that copy/pickle probe for must fall through to a PLAIN AttributeError,
+    # never be answered with the generated-name hint. (`__getstate__` is not in this
+    # list: object gained a real one in 3.11, so it resolves before __getattr__ runs.)
+    for dunder in ("__deepcopy__", "__copy__", "__reduce_ex__x"):
+        with pytest.raises(AttributeError) as ei:
+            getattr(c, dunder)
+        assert "generated method name" not in str(ei.value)
