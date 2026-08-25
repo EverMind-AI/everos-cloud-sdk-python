@@ -62,8 +62,80 @@ client.delete(user_id="user-1", session_id="session-1")
 object_key = client.upload("photo.jpg")
 ```
 
+## Knowledge bases
+
+A knowledge base is a searchable document library. Ingest is **always asynchronous**:
+the gateway answers `202` with a `task_id`, and the document id is minted downstream —
+so poll the task to know when the document is queryable.
+
+```python
+from everos_cloud import EverOS
+
+client = EverOS(api_key="sk-...")
+
+# ── Create a knowledge base ───────────────────────────────────────────────────
+kb = client.create_kb("Employee Handbook", description="HR policies")
+kb_id = kb.id
+
+# ── Ingest a document ─────────────────────────────────────────────────────────
+# `content` takes a plain string for inline text. Omit category_id to let the
+# server auto-classify. Returns the 202 ack: status="queued" + task_id.
+ack = client.ingest_document(kb_id, "Leave policy", "Employees accrue 20 days...")
+
+# ── Wait for it to be processed ───────────────────────────────────────────────
+# Polls GET /tasks/{task_id} until the task reaches a terminal state. Raises
+# EverOSError if the task fails or outlives the timeout.
+task = client.wait_task(ack.task_id, timeout=300)
+print(task.status)                    # "success"
+
+# ── Ingest a non-text file ────────────────────────────────────────────────────
+# Upload it first; the returned object_key is the content `uri`.
+object_key = client.upload("handbook.pdf")
+client.ingest_document(kb_id, "Handbook", {
+    "type": "pdf", "uri": object_key, "name": "handbook.pdf",
+})
+
+# ── Search it ─────────────────────────────────────────────────────────────────
+hits = client.search_kb(kb_id, "how much leave do I get", top_k=5)
+
+# ── Browse and maintain ───────────────────────────────────────────────────────
+docs = client.list_documents(kb_id, page=1, page_size=20)
+client.update_kb(kb_id, description="HR policies (2026)")
+client.delete_kb(kb_id)               # deletes the kb and everything in it
+```
+
+## Async tasks
+
+Every async operation (memory add, document ingest) reports progress through the
+task API. `status` is one of `queued` / `processing` / `pending` / `success` /
+`failed` — and it is an **open set**, so treat an unrecognized value as terminal
+only when `finished_at` is present (which is what `wait_task` does).
+
+```python
+task = client.task(task_id)                     # one task
+page = client.list_tasks(status="failed")       # filter by status / session / window
+task = client.wait_task(task_id, interval=2)    # poll to completion
+
+# Inspect a failure instead of raising on it
+task = client.wait_task(task_id, raise_on_failure=False)
+if task.status == "failed":
+    print(task.error)
+```
+
+## Memory tags
+
+Tags are scoped by the memory ids themselves — no `app_id` / `project_id`.
+
+```python
+client.bind_tags("episode", ["mem-1", "mem-2"], ["onboarding"])   # add
+client.unbind_tags("episode", ["mem-1"], ["onboarding"])          # remove
+client.replace_tags("episode", ["mem-2"], ["archived"])           # overwrite
+```
+
 Every method returns the endpoint's `.data`. Failures raise `EverOSError`
-(`EverOSAPIError` for memory HTTP errors, `EverOSStorageError` for uploads). Set a
+(`EverOSAPIError` for HTTP errors, `EverOSStorageError` for uploads, and a plain
+`EverOSError` for a task that fails or outlives its `wait_task` timeout — the last
+task seen is on the error's `.task`). Set a
 per-client request timeout with `EverOS(api_key=..., timeout=30)`, or use it as a
 context manager (`with EverOS(...) as client:`) to release connections on exit.
 
@@ -78,11 +150,31 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 | `edit(user_id, operations)` | `POST /api/v2/memory/edit` | Bulk profile add / update / delete. |
 | `delete(...)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
 | `upload(path)` | `POST /api/v2/object/sign` + S3 | Presign + direct-to-S3, returns `object_key`. |
+| `bind_tags` / `unbind_tags` / `replace_tags` | `POST /api/v2/memory/tag/*` | Add / remove / overwrite tags on memory ids. |
+| `create_kb(name, ...)` | `POST /api/v2/knowledge_bases` | Create a knowledge base. |
+| `list_kbs(...)` | `GET /api/v2/knowledge_bases` | Paginated list. |
+| `get_kb` / `update_kb` / `delete_kb` | `GET/PATCH/DELETE .../{kb_id}` | Read, patch, delete (cascades). |
+| `search_kb(kb_id, query, ...)` | `POST .../{kb_id}/search` | Search one knowledge base. |
+| `ingest_document(kb_id, title, content, ...)` | `POST/PUT .../documents` | Async (202 + `task_id`); `doc_id=` replaces in place. |
+| `list_documents` / `get_document` | `GET .../documents[/{doc_id}]` | Browse ingested documents. |
+| `task(task_id)` | `GET /api/v2/tasks/{task_id}` | One task's status. |
+| `list_tasks(...)` | `GET /api/v2/tasks` | Filter by status / session / time window. |
+| `wait_task(task_id, ...)` | polls `GET /api/v2/tasks/{task_id}` | Blocks until terminal; raises on failure/timeout. |
 
 ## Low-level typed client (advanced)
 
-`EverOS` wraps the generated `MemoryApi` / `StorageApi`, exposed as `client.memory`
-and `client.storage`. Use them directly when you want typed models and full control
+`EverOS` wraps the generated clients, all four exposed as attributes: `client.memory`,
+`client.storage`, `client.knowledge`, `client.tasks`. Reach for them when you want typed
+models, full control, or an endpoint the facade does not cover — knowledge-base
+*categories* and document *topics* live only there:
+
+```python
+client.knowledge.create_category(kb_id, {"name": "Policies"})
+client.knowledge.list_topics(kb_id, doc_id)
+client.tasks.get_task_stats()
+```
+
+Use them directly when you want typed models and full control
 — every request is a pydantic v2 model and every response a typed envelope
 (`.data`). The full per-endpoint and model docs live under [`docs/`](docs/).
 

@@ -1,8 +1,9 @@
 """High-level ergonomic client for the EverOS Cloud Memory API.
 
-A thin, hand-maintained facade over the generated ``MemoryApi`` / ``StorageApi``:
-plain kwargs / dicts in, response ``.data`` out. The generated typed client stays
-available via ``client.memory`` / ``client.storage`` for full control.
+A thin, hand-maintained facade over the generated API clients: plain kwargs / dicts
+in, response ``.data`` out. Every generated client stays available for full control —
+``client.memory``, ``client.storage``, ``client.knowledge``, ``client.tasks`` — and the
+facade covers the high-traffic calls of each.
 
     from everos_cloud import EverOS
 
@@ -11,8 +12,8 @@ available via ``client.memory`` / ``client.storage`` for full control.
     hits = client.search("outdoor hobbies")
 
 Errors: every failure raised by this facade derives from :class:`EverOSError` —
-``EverOSAPIError`` for memory HTTP errors, ``EverOSStorageError`` for object-upload
-failures.
+``EverOSAPIError`` for HTTP errors, ``EverOSStorageError`` for object-upload failures,
+and a plain ``EverOSError`` for a task that fails or outlives its wait timeout.
 """
 from __future__ import annotations
 
@@ -23,28 +24,45 @@ from typing import Any, Mapping, Sequence, Union
 
 import urllib3
 
-from everos_cloud import ApiClient, Configuration, MemoryApi, StorageApi
+from everos_cloud import ApiClient, Configuration, KnowledgeApi, MemoryApi, StorageApi, TasksApi
 from everos_cloud.exceptions import ApiException
 from everos_cloud.models import (
     AddInput,
     AddOperation,
     Content,
+    ContentItem,
     DeleteInput,
     DeleteOperation,
+    DocIngestBody,
     EditInput,
     EditInputOperationsInner,
     FlushInput,
     GetInput,
+    KbCreateInput,
+    KbPatchBody,
     MessageItem,
+    SearchBody,
     SearchInput,
     SignObjectItem,
     SignRequest,
+    TagBindInput,
+    TagReplaceInput,
+    TagUnbindInput,
     UpdateOperation,
 )
 
 __all__ = ["EverOS", "EverOSError", "EverOSAPIError", "EverOSStorageError"]
 
 DEFAULT_TIMEOUT = 60.0  # seconds; agentic search / LLM rerank can be slow
+DEFAULT_TASK_TIMEOUT = 300.0  # seconds to wait for an async task before giving up
+DEFAULT_TASK_INTERVAL = 2.0  # seconds between task polls
+
+# Statuses the gateway reports as finished. Deliberately paired with a `finished_at`
+# check in `_task_finished`: `status` is an OPEN set on a response field (a new
+# terminal state such as `cancelled` must not make `wait_task` spin until timeout),
+# and the contract documents `finished_at` as "absent while the task is not in a
+# terminal state" — so the timestamp, not the enum, is the load-bearing signal.
+_TERMINAL_TASK_STATUS = frozenset({"success", "failed"})
 
 _OP_CLASSES = {"add": AddOperation, "update": UpdateOperation, "delete": DeleteOperation}
 
@@ -52,6 +70,7 @@ _IMAGE_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"}
 _VIDEO_EXT = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
 
 MessageLike = Union[MessageItem, Mapping[str, Any]]
+ContentLike = Union[ContentItem, Mapping[str, Any], str]
 
 
 def _guess_file_type(name: str) -> str:
@@ -66,6 +85,20 @@ def _guess_file_type(name: str) -> str:
 def _clean(**kwargs: Any) -> dict:
     """Drop ``None`` values so model defaults (e.g. search ``method='hybrid'``) survive."""
     return {k: v for k, v in kwargs.items() if v is not None}
+
+
+def _task_finished(item: Any) -> bool:
+    """Has this task reached a terminal state?
+
+    Checks ``finished_at`` as well as the status enum on purpose. ``status`` is an
+    open set on a response field — the gateway can add a terminal state the installed
+    SDK has never heard of, and treating that as "still running" would make
+    :meth:`EverOS.wait_task` spin until it times out. ``finished_at`` is documented as
+    absent until the task is terminal, so it answers the question directly.
+    """
+    if getattr(item, "finished_at", None) is not None:
+        return True
+    return getattr(item, "status", None) in _TERMINAL_TASK_STATUS
 
 
 class EverOSError(Exception):
@@ -115,6 +148,8 @@ class EverOS:
         # Escape hatches: the generated low-level clients, for anything the facade omits.
         self.memory = MemoryApi(self._api_client)
         self.storage = StorageApi(self._api_client)
+        self.knowledge = KnowledgeApi(self._api_client)
+        self.tasks = TasksApi(self._api_client)
         self._app_id = app_id
         self._project_id = project_id
         self._timeout = timeout
@@ -174,6 +209,22 @@ class EverOS:
         if cls is None:
             raise ValueError(f"unknown edit operation action: {op.get('action')!r}")
         return EditInputOperationsInner(cls(**op))
+
+    @staticmethod
+    def _to_content(content: ContentLike) -> ContentItem:
+        """Coerce a document body into a ``ContentItem``.
+
+        A plain string is the common case and becomes inline text. Pass a dict for
+        anything else — notably an object already uploaded through :meth:`upload`,
+        whose ``object_key`` is the ``uri``::
+
+            {"type": "pdf", "uri": client.upload("handbook.pdf"), "name": "handbook.pdf"}
+        """
+        if isinstance(content, ContentItem):
+            return content
+        if isinstance(content, str):
+            return ContentItem(type="text", text=content)
+        return ContentItem(**dict(content))
 
     # -- memory --------------------------------------------------------------
     def add(
@@ -307,6 +358,199 @@ class EverOS:
             )
         )
         return self._call(self.memory.delete_memory, payload).data
+
+    # -- memory tags ---------------------------------------------------------
+    # Tag calls carry NO app_id / project_id: the scope of a tag operation is the
+    # memory ids themselves, so `_scope` deliberately does not apply here.
+    def bind_tags(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
+        """Add ``tags`` to the given memories, keeping the tags they already carry."""
+        payload = TagBindInput(memory_type=memory_type, memory_ids=list(memory_ids), tags=list(tags))
+        return self._call(self.memory.bind_tags, payload).data
+
+    def unbind_tags(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
+        """Remove ``tags`` from the given memories, leaving their other tags in place."""
+        payload = TagUnbindInput(memory_type=memory_type, memory_ids=list(memory_ids), tags=list(tags))
+        return self._call(self.memory.unbind_tags, payload).data
+
+    def replace_tags(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
+        """Overwrite the given memories' tags with ``tags`` — existing tags are dropped."""
+        payload = TagReplaceInput(memory_type=memory_type, memory_ids=list(memory_ids), tags=list(tags))
+        return self._call(self.memory.replace_tags, payload).data
+
+    # -- knowledge base ------------------------------------------------------
+    # Knowledge calls are scoped by `kb_id` in the path, not by app_id / project_id —
+    # those fields do not exist on any knowledge request body. Categories and topics
+    # are lower-traffic; reach them through `client.knowledge`.
+    def create_kb(self, name: str, *, description: str | None = None, owner_id: str | None = None) -> Any:
+        """Create a knowledge base. Returns ``KbData``."""
+        payload = KbCreateInput(**_clean(name=name, description=description, owner_id=owner_id))
+        return self._call(self.knowledge.create_knowledge_base, payload).data
+
+    def list_kbs(
+        self,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+        owner_id: str | None = None,
+    ) -> Any:
+        """List knowledge bases (paginated). Returns ``KbListData``."""
+        return self._call(
+            self.knowledge.list_knowledge_bases,
+            **_clean(page=page, page_size=page_size, owner_id=owner_id),
+        ).data
+
+    def get_kb(self, kb_id: str) -> Any:
+        """Get one knowledge base. Returns ``KbData``."""
+        return self._call(self.knowledge.get_knowledge_base, kb_id).data
+
+    def update_kb(self, kb_id: str, *, name: str | None = None, description: str | None = None) -> Any:
+        """Patch a knowledge base's name / description. Returns ``KbData``."""
+        payload = KbPatchBody(**_clean(name=name, description=description))
+        return self._call(self.knowledge.update_knowledge_base, kb_id, payload).data
+
+    def delete_kb(self, kb_id: str) -> Any:
+        """Delete a knowledge base and everything in it. Returns ``KbDeleteData``."""
+        return self._call(self.knowledge.delete_knowledge_base, kb_id).data
+
+    def search_kb(
+        self,
+        kb_id: str,
+        query: str,
+        *,
+        method: str | None = None,
+        top_k: int | None = None,
+        score_threshold: float | None = None,
+        include: Any = None,
+        filters: Any = None,
+    ) -> Any:
+        """Search one knowledge base. Returns ``KbSearchData``."""
+        payload = SearchBody(
+            **_clean(
+                query=query,
+                method=method,
+                top_k=top_k,
+                score_threshold=score_threshold,
+                include=include,
+                filters=filters,
+            )
+        )
+        return self._call(self.knowledge.search_knowledge, kb_id, payload).data
+
+    def ingest_document(
+        self,
+        kb_id: str,
+        title: str,
+        content: ContentLike,
+        *,
+        category_id: str | None = None,
+        doc_id: str | None = None,
+    ) -> Any:
+        """Ingest a document — create one, or replace ``doc_id`` in place if given.
+
+        ``content`` takes a plain string for inline text, or a dict for any other
+        media (see :meth:`_to_content`). Omit ``category_id`` to let the server
+        auto-classify.
+
+        Ingest is ALWAYS asynchronous: the gateway validates, enqueues, and answers
+        202 with ``status='queued'`` and a ``task_id``. The document id is minted
+        downstream, so it is NOT in this response — pass the ``task_id`` to
+        :meth:`wait_task` to follow the work, e.g.::
+
+            ack = client.ingest_document(kb_id, "Handbook", text)
+            task = client.wait_task(ack.task_id)
+
+        Returns ``DocIngestData`` (``status`` + ``task_id``).
+        """
+        payload = DocIngestBody(
+            **_clean(title=title, content=self._to_content(content), category_id=category_id)
+        )
+        if doc_id is not None:
+            return self._call(self.knowledge.replace_document, kb_id, doc_id, payload).data
+        return self._call(self.knowledge.create_document, kb_id, payload).data
+
+    def list_documents(
+        self,
+        kb_id: str,
+        *,
+        category_id: str | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+    ) -> Any:
+        """List a knowledge base's documents (paginated). Returns ``DocListData``."""
+        return self._call(
+            self.knowledge.list_documents,
+            kb_id,
+            **_clean(category_id=category_id, page=page, page_size=page_size),
+        ).data
+
+    def get_document(self, kb_id: str, doc_id: str) -> Any:
+        """Get one document. Returns ``DocData``."""
+        return self._call(self.knowledge.get_document, kb_id, doc_id).data
+
+    # -- async tasks ---------------------------------------------------------
+    def task(self, task_id: str) -> Any:
+        """Read one async task's status. Returns ``TaskItem``."""
+        return self._call(self.tasks.get_task_status, task_id).data
+
+    def list_tasks(
+        self,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+        status: str | None = None,
+        session_id: str | None = None,
+        start: Any = None,
+        end: Any = None,
+    ) -> Any:
+        """List async tasks (paginated, filterable). Returns the list data."""
+        return self._call(
+            self.tasks.list_tasks,
+            **_clean(
+                page=page,
+                page_size=page_size,
+                status=status,
+                session_id=session_id,
+                start=start,
+                end=end,
+            ),
+        ).data
+
+    def wait_task(
+        self,
+        task_id: str,
+        *,
+        timeout: float = DEFAULT_TASK_TIMEOUT,
+        interval: float = DEFAULT_TASK_INTERVAL,
+        raise_on_failure: bool = True,
+    ) -> Any:
+        """Poll ``task_id`` until it finishes and return the terminal ``TaskItem``.
+
+        Raises ``EverOSError`` if the task fails (unless ``raise_on_failure=False``,
+        which returns the failed item instead) or if it is still running after
+        ``timeout`` seconds. The raised error carries the last ``TaskItem`` seen on
+        its ``.task`` attribute.
+        """
+        deadline = time.monotonic() + timeout
+        item = None
+        while True:
+            item = self.task(task_id)
+            if _task_finished(item):
+                break
+            if time.monotonic() >= deadline:
+                err = EverOSError(
+                    f"task {task_id} still {getattr(item, 'status', 'unknown')!r} "
+                    f"after {timeout}s"
+                )
+                err.task = item
+                raise err
+            time.sleep(interval)
+
+        if raise_on_failure and getattr(item, "status", None) == "failed":
+            reason = getattr(item, "error", None) or getattr(item, "error_code", None) or "no reason given"
+            err = EverOSError(f"task {task_id} failed: {reason}")
+            err.task = item
+            raise err
+        return item
 
     # -- storage -------------------------------------------------------------
     def presign(self, objects: Sequence[Any]) -> Any:
