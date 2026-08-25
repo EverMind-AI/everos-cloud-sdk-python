@@ -114,7 +114,7 @@ task API. `status` is one of `queued` / `processing` / `pending` / `success` /
 only when `finished_at` is present (which is what `wait_task` does).
 
 ```python
-task = client.task(task_id)                     # one task
+task = client.get_task(task_id)                 # one task
 page = client.list_tasks(status="failed")       # filter by status / session / window
 task = client.wait_task(task_id, interval=2)    # poll to completion
 
@@ -160,9 +160,9 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 | `ingest_document(kb_id, title, content, ...)` | `POST/PUT .../documents` | Async (202 + `task_id`); `doc_id=` replaces in place. |
 | `list_documents` / `get_document` | `GET .../documents[/{doc_id}]` | Browse ingested documents. |
 | `update_document` / `delete_document` | `PATCH/DELETE .../documents/{doc_id}` | Patch title / category; delete a document. |
-| `task(task_id)` | `GET /api/v2/tasks/{task_id}` | One task's status. |
+| `get_task(task_id)` | `GET /api/v2/tasks/{task_id}` | One task's status. |
 | `list_tasks(...)` | `GET /api/v2/tasks` | Filter by status / session / time window. |
-| `wait_task(task_id, ...)` | polls `GET /api/v2/tasks/{task_id}` | Blocks until terminal; raises on failure/timeout. |
+| `wait_task(task_id, ...)` | polls `GET /api/v2/tasks/{task_id}` | Blocks until terminal, backing off between polls and riding out transient 429/5xx; raises on failure/timeout. |
 
 ## Low-level typed client (advanced)
 

@@ -401,13 +401,13 @@ def _task(status, finished_at=None, error=None):
     return SimpleNamespace(id="t1", status=status, finished_at=finished_at, error=error, error_code=None)
 
 
-def test_task_and_list_tasks():
+def test_get_task_and_list_tasks():
     tasks = MagicMock()
     tasks.get_task_status.return_value = SimpleNamespace(data=_task("processing"))
     tasks.list_tasks.return_value = SimpleNamespace(data="LIST")
     c = _client(tasks=tasks)
 
-    assert c.task("t1").status == "processing"
+    assert c.get_task("t1").status == "processing"
     assert tasks.get_task_status.call_args.args == ("t1",)
 
     assert c.list_tasks(status="failed") == "LIST"
@@ -516,7 +516,7 @@ def test_knowledge_and_task_errors_are_wrapped():
     assert ei.value.status == 429
 
     with pytest.raises(EverOSAPIError) as ei:
-        c.task("t1")
+        c.get_task("t1")
     assert ei.value.status == 503
 
 
@@ -560,3 +560,66 @@ def test_document_patch_and_delete():
 
     assert c.delete_document("kb-1", "doc-1") == "DELETED"
     assert kb.delete_document.call_args.args == ("kb-1", "doc-1")
+
+
+def test_wait_task_rides_out_a_transient_rate_limit():
+    """A 429 mid-poll must not end the wait: the caller cannot resume one."""
+    tasks = MagicMock()
+    tasks.get_task_status.side_effect = [
+        SimpleNamespace(data=_task("processing")),
+        ApiException(status=429, reason="rate limited"),
+        ApiException(status=503, reason="unavailable"),
+        SimpleNamespace(data=_task("success", finished_at="2026-08-25T00:00:00Z")),
+    ]
+    c = _client(tasks=tasks)
+
+    assert c.wait_task("t1", interval=0).status == "success"
+    assert tasks.get_task_status.call_count == 4
+
+
+def test_wait_task_does_not_retry_a_permanent_error():
+    tasks = MagicMock()
+    tasks.get_task_status.side_effect = ApiException(status=404, reason="no such task")
+    c = _client(tasks=tasks)
+
+    with pytest.raises(EverOSAPIError) as ei:
+        c.wait_task("t1", interval=0)
+    assert ei.value.status == 404
+    assert tasks.get_task_status.call_count == 1     # no pointless retries
+
+
+def test_wait_task_gives_up_on_a_transient_error_past_the_deadline():
+    tasks = MagicMock()
+    tasks.get_task_status.side_effect = ApiException(status=429, reason="rate limited")
+    c = _client(tasks=tasks)
+
+    with pytest.raises(EverOSAPIError) as ei:
+        c.wait_task("t1", timeout=0, interval=0)
+    assert ei.value.status == 429
+
+
+def test_wait_task_backs_off_up_to_the_ceiling():
+    tasks = MagicMock()
+    tasks.get_task_status.return_value = SimpleNamespace(data=_task("processing"))
+    c = _client(tasks=tasks)
+    slept = []
+
+    import everos_cloud.client as mod
+    real_sleep = mod.time.sleep
+    mod.time.sleep = slept.append
+    try:
+        with pytest.raises(EverOSError):
+            c.wait_task("t1", timeout=0.001, interval=1, max_interval=4)
+    finally:
+        mod.time.sleep = real_sleep
+    # first gap is `interval`, then doubling, capped at max_interval
+    assert slept[:1] == [1]
+    assert all(s <= 4 for s in slept)
+
+
+def test_update_document_rejects_an_empty_patch():
+    kb = MagicMock()
+    c = _client(knowledge=kb)
+    with pytest.raises(ValueError):
+        c.update_document("kb-1", "doc-1")
+    kb.update_document.assert_not_called()

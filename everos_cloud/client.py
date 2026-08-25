@@ -56,7 +56,13 @@ __all__ = ["EverOS", "EverOSError", "EverOSAPIError", "EverOSStorageError"]
 
 DEFAULT_TIMEOUT = 60.0  # seconds; agentic search / LLM rerank can be slow
 DEFAULT_TASK_TIMEOUT = 300.0  # seconds to wait for an async task before giving up
-DEFAULT_TASK_INTERVAL = 2.0  # seconds between task polls
+DEFAULT_TASK_INTERVAL = 2.0  # seconds before the first task re-poll
+DEFAULT_TASK_MAX_INTERVAL = 15.0  # ceiling for the backoff between task polls
+
+# Statuses worth retrying DURING a poll rather than aborting the whole wait. A long
+# ingest polled at a fixed interval is itself a source of 429s, and a wait that dies
+# on one blip is worse than useless — the caller has no way to resume it.
+_TRANSIENT_STATUS = frozenset({429, 500, 502, 503, 504})
 
 # Statuses the gateway reports as finished. Deliberately paired with a `finished_at`
 # check in `_task_finished`: `status` is an OPEN set on a response field (a new
@@ -501,7 +507,10 @@ class EverOS:
         To change a document's CONTENT, call :meth:`ingest_document` with ``doc_id``:
         that replaces it and re-runs extraction asynchronously.
         """
-        payload = DocPatchBody(**_clean(title=title, category_id=category_id))
+        fields = _clean(title=title, category_id=category_id)
+        if not fields:
+            raise ValueError("update_document needs at least one of title / category_id")
+        payload = DocPatchBody(**fields)
         return self._call(self.knowledge.update_document, kb_id, doc_id, payload).data
 
     def delete_document(self, kb_id: str, doc_id: str) -> Any:
@@ -509,7 +518,7 @@ class EverOS:
         return self._call(self.knowledge.delete_document, kb_id, doc_id).data
 
     # -- async tasks ---------------------------------------------------------
-    def task(self, task_id: str) -> Any:
+    def get_task(self, task_id: str) -> Any:
         """Read one async task's status. Returns ``TaskItem``."""
         return self._call(self.tasks.get_task_status, task_id).data
 
@@ -542,29 +551,45 @@ class EverOS:
         *,
         timeout: float = DEFAULT_TASK_TIMEOUT,
         interval: float = DEFAULT_TASK_INTERVAL,
+        max_interval: float = DEFAULT_TASK_MAX_INTERVAL,
         raise_on_failure: bool = True,
     ) -> Any:
         """Poll ``task_id`` until it finishes and return the terminal ``TaskItem``.
 
+        Backs off from ``interval`` up to ``max_interval`` between polls, so a slow
+        ingest costs a handful of requests rather than one every ``interval`` for the
+        whole ``timeout`` window. Transient failures (429 / 5xx) are retried on the
+        same schedule instead of aborting the wait — the caller cannot resume a wait
+        that dies halfway, so a rate-limit blip must not end it.
+
         Raises ``EverOSError`` if the task fails (unless ``raise_on_failure=False``,
-        which returns the failed item instead) or if it is still running after
-        ``timeout`` seconds. The raised error carries the last ``TaskItem`` seen on
-        its ``.task`` attribute.
+        which returns the failed item instead) or if it is still unfinished at
+        ``timeout``; the last ``TaskItem`` seen, if any, is on the error's ``.task``.
+        A non-transient HTTP error propagates as ``EverOSAPIError``, as does a
+        transient one that outlives the deadline.
         """
         deadline = time.monotonic() + timeout
+        delay = interval
         item = None
         while True:
-            item = self.task(task_id)
-            if _task_finished(item):
-                break
-            if time.monotonic() >= deadline:
-                err = EverOSError(
-                    f"task {task_id} still {getattr(item, 'status', 'unknown')!r} "
-                    f"after {timeout}s"
-                )
-                err.task = item
-                raise err
-            time.sleep(interval)
+            try:
+                item = self.get_task(task_id)
+            except EverOSAPIError as exc:
+                # Out of budget, or not the kind of failure that will pass: give up.
+                if exc.status not in _TRANSIENT_STATUS or time.monotonic() >= deadline:
+                    raise
+            else:
+                if _task_finished(item):
+                    break
+                if time.monotonic() >= deadline:
+                    err = EverOSError(
+                        f"task {task_id} still {getattr(item, 'status', 'unknown')!r} "
+                        f"after {timeout}s"
+                    )
+                    err.task = item
+                    raise err
+            time.sleep(delay)
+            delay = min(delay * 2, max_interval) if delay else delay
 
         if raise_on_failure and getattr(item, "status", None) == "failed":
             reason = getattr(item, "error", None) or getattr(item, "error_code", None) or "no reason given"
