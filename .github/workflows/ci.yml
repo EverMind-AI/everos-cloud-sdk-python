@@ -48,6 +48,7 @@ jobs:
           assert cfg.host == "https://api.evermind.ai", cfg.host
           assert cfg.auth_settings()["BearerAuth"]["value"] == "Bearer sk-test"
           MemoryApi(ApiClient(cfg))
+          # generated method names — these are the operationIds, NOT the facade's
           for m in ("add_memory", "search_memory", "get_memory", "delete_memory", "edit_profile",
                     "bind_tags", "unbind_tags", "replace_tags"):
               assert hasattr(MemoryApi, m), m
@@ -58,12 +59,20 @@ jobs:
               assert hasattr(TasksApi, m), m
           # ergonomic facade is exported at the top level
           for m in ("add", "search", "get", "flush", "edit", "delete", "upload", "close",
-                    "bind_tags", "unbind_tags", "replace_tags",
-                    "create_kb", "list_kbs", "get_kb", "update_kb", "delete_kb", "search_kb",
-                    "ingest_document", "list_documents", "get_document",
-                    "update_document", "delete_document",
-                    "get_task", "list_tasks", "wait_task"):
+                    "tag_bind", "tag_unbind", "tag_replace",
+                    "kb_create", "kb_list", "kb_get", "kb_update", "kb_delete", "kb_search",
+                    "doc_ingest", "doc_list", "doc_get",
+                    "doc_update", "doc_delete",
+                    "task_get", "task_list", "task_wait"):
               assert hasattr(EverOS, m), m
+          # the facade's names must stay disjoint from the generated ones, so a reader
+          # never has to work out which layer a call went through
+          generated = set()
+          for cls in (KnowledgeApi, MemoryApi, StorageApi, TasksApi):
+              generated |= {m for m in dir(cls) if not m.startswith("_")
+                            and not m.endswith(("_with_http_info", "_without_preload_content"))}
+          facade = {m for m in dir(EverOS) if not m.startswith("_")}
+          assert not (facade & generated), sorted(facade & generated)
           # every generated client is reachable through the facade (regression: the
           # knowledge / tasks handles were missing, so those surfaces were unusable)
           client = EverOS("sk-test")

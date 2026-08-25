@@ -265,9 +265,9 @@ def test_tag_calls_build_inputs_and_return_data():
     mem.replace_tags.return_value = SimpleNamespace(data="R")
     c = _client(memory=mem)
 
-    assert c.bind_tags("episode", ["m1", "m2"], ["work"]) == "B"
-    assert c.unbind_tags("episode", ["m1"], ["work"]) == "U"
-    assert c.replace_tags("profile", ["m3"], ["home", "work"]) == "R"
+    assert c.tag_bind("episode", ["m1", "m2"], ["work"]) == "B"
+    assert c.tag_unbind("episode", ["m1"], ["work"]) == "U"
+    assert c.tag_replace("profile", ["m3"], ["home", "work"]) == "R"
 
     bind = mem.bind_tags.call_args.args[0]
     assert isinstance(bind, TagBindInput)
@@ -284,7 +284,7 @@ def test_tag_inputs_carry_no_scope():
     mem.bind_tags.return_value = SimpleNamespace(data=None)
     c = EverOS("sk-test", app_id="myapp", project_id="proj")
     c.memory = mem
-    c.bind_tags("episode", ["m1"], ["t"])
+    c.tag_bind("episode", ["m1"], ["t"])
     payload = mem.bind_tags.call_args.args[0]
     assert not hasattr(payload, "app_id") or payload.app_id is None
     assert not hasattr(payload, "project_id") or payload.project_id is None
@@ -296,7 +296,7 @@ def test_create_kb_builds_input_and_drops_none():
     kb.create_knowledge_base.return_value = SimpleNamespace(data="KB")
     c = _client(knowledge=kb)
 
-    assert c.create_kb("Handbook") == "KB"
+    assert c.kb_create("Handbook") == "KB"
     payload = kb.create_knowledge_base.call_args.args[0]
     assert isinstance(payload, KbCreateInput)
     assert payload.name == "Handbook"
@@ -310,15 +310,15 @@ def test_kb_crud_passes_path_params_positionally():
         getattr(kb, name).return_value = SimpleNamespace(data=name)
     c = _client(knowledge=kb)
 
-    assert c.get_kb("kb-1") == "get_knowledge_base"
+    assert c.kb_get("kb-1") == "get_knowledge_base"
     assert kb.get_knowledge_base.call_args.args == ("kb-1",)
 
-    assert c.update_kb("kb-1", description="notes") == "update_knowledge_base"
+    assert c.kb_update("kb-1", description="notes") == "update_knowledge_base"
     args = kb.update_knowledge_base.call_args.args
     assert args[0] == "kb-1"
     assert isinstance(args[1], KbPatchBody) and args[1].description == "notes"
 
-    assert c.delete_kb("kb-1") == "delete_knowledge_base"
+    assert c.kb_delete("kb-1") == "delete_knowledge_base"
     assert kb.delete_knowledge_base.call_args.args == ("kb-1",)
 
 
@@ -327,7 +327,7 @@ def test_list_kbs_omits_unset_query_params():
     kb.list_knowledge_bases.return_value = SimpleNamespace(data="L")
     c = _client(knowledge=kb)
 
-    assert c.list_kbs(page=2) == "L"
+    assert c.kb_list(page=2) == "L"
     kwargs = kb.list_knowledge_bases.call_args.kwargs
     assert kwargs["page"] == 2
     assert "page_size" not in kwargs and "owner_id" not in kwargs   # None dropped, server defaults win
@@ -338,7 +338,7 @@ def test_search_kb_builds_body():
     kb.search_knowledge.return_value = SimpleNamespace(data="HITS")
     c = _client(knowledge=kb)
 
-    assert c.search_kb("kb-1", "onboarding", top_k=5) == "HITS"
+    assert c.kb_search("kb-1", "onboarding", top_k=5) == "HITS"
     args = kb.search_knowledge.call_args.args
     assert args[0] == "kb-1"
     assert isinstance(args[1], SearchBody)
@@ -352,7 +352,7 @@ def test_ingest_document_creates_by_default():
     kb.create_document.return_value = SimpleNamespace(data=ack)
     c = _client(knowledge=kb)
 
-    out = c.ingest_document("kb-1", "Handbook", "body text", category_id="cat-1")
+    out = c.doc_ingest("kb-1", "Handbook", "body text", category_id="cat-1")
 
     # Regression: on 1.1.0rc1 the generated DocIngestData required `id`, so this very
     # ack — the only shape the gateway sends — raised a client-side ValidationError.
@@ -373,7 +373,7 @@ def test_ingest_document_replaces_when_doc_id_given():
     kb.replace_document.return_value = SimpleNamespace(data="REPLACED")
     c = _client(knowledge=kb)
 
-    assert c.ingest_document("kb-1", "T", "C", doc_id="doc-9") == "REPLACED"
+    assert c.doc_ingest("kb-1", "T", "C", doc_id="doc-9") == "REPLACED"
     args = kb.replace_document.call_args.args
     assert args[0] == "kb-1" and args[1] == "doc-9"
     assert isinstance(args[2], DocIngestBody)
@@ -386,12 +386,12 @@ def test_document_reads():
     kb.get_document.return_value = SimpleNamespace(data="DOC")
     c = _client(knowledge=kb)
 
-    assert c.list_documents("kb-1", page_size=50) == "DOCS"
+    assert c.doc_list("kb-1", page_size=50) == "DOCS"
     assert kb.list_documents.call_args.args == ("kb-1",)
     assert kb.list_documents.call_args.kwargs["page_size"] == 50
     assert "category_id" not in kb.list_documents.call_args.kwargs
 
-    assert c.get_document("kb-1", "doc-1") == "DOC"
+    assert c.doc_get("kb-1", "doc-1") == "DOC"
     assert kb.get_document.call_args.args == ("kb-1", "doc-1")
 
 
@@ -406,10 +406,10 @@ def test_get_task_and_list_tasks():
     tasks.list_tasks.return_value = SimpleNamespace(data="LIST")
     c = _client(tasks=tasks)
 
-    assert c.get_task("t1").status == "processing"
+    assert c.task_get("t1").status == "processing"
     assert tasks.get_task_status.call_args.args == ("t1",)
 
-    assert c.list_tasks(status="failed") == "LIST"
+    assert c.task_list(status="failed") == "LIST"
     kwargs = tasks.list_tasks.call_args.kwargs
     assert kwargs["status"] == "failed"
     assert "session_id" not in kwargs and "page" not in kwargs
@@ -424,7 +424,7 @@ def test_wait_task_polls_until_terminal():
     ]
     c = _client(tasks=tasks)
 
-    out = c.wait_task("t1", interval=0)
+    out = c.task_wait("t1", interval=0)
 
     assert out.status == "success"
     assert tasks.get_task_status.call_count == 3
@@ -438,7 +438,7 @@ def test_wait_task_treats_pending_as_still_running():
         SimpleNamespace(data=_task("success", finished_at="2026-08-25T00:00:00Z")),
     ]
     c = _client(tasks=tasks)
-    assert c.wait_task("t1", interval=0).status == "success"
+    assert c.task_wait("t1", interval=0).status == "success"
     assert tasks.get_task_status.call_count == 2
 
 
@@ -454,7 +454,7 @@ def test_wait_task_stops_on_unknown_terminal_status():
     )
     c = _client(tasks=tasks)
 
-    out = c.wait_task("t1", interval=0)
+    out = c.task_wait("t1", interval=0)
 
     assert out.status == "cancelled"
     assert tasks.get_task_status.call_count == 1
@@ -467,7 +467,7 @@ def test_wait_task_raises_on_failure_and_carries_the_task():
     c = _client(tasks=tasks)
 
     with pytest.raises(EverOSError) as ei:
-        c.wait_task("t1", interval=0)
+        c.task_wait("t1", interval=0)
     assert "parser blew up" in str(ei.value)
     assert ei.value.task is failed
 
@@ -478,7 +478,7 @@ def test_wait_task_can_return_the_failed_task_instead():
         data=_task("failed", finished_at="2026-08-25T00:00:00Z", error="boom")
     )
     c = _client(tasks=tasks)
-    assert c.wait_task("t1", interval=0, raise_on_failure=False).status == "failed"
+    assert c.task_wait("t1", interval=0, raise_on_failure=False).status == "failed"
 
 
 def test_wait_task_times_out():
@@ -487,7 +487,7 @@ def test_wait_task_times_out():
     c = _client(tasks=tasks)
 
     with pytest.raises(EverOSError) as ei:
-        c.wait_task("t1", timeout=0, interval=0)
+        c.task_wait("t1", timeout=0, interval=0)
     assert "processing" in str(ei.value)
     assert ei.value.task.status == "processing"
 
@@ -511,11 +511,11 @@ def test_knowledge_and_task_errors_are_wrapped():
     c = _client(knowledge=kb, tasks=tasks)
 
     with pytest.raises(EverOSAPIError) as ei:
-        c.list_kbs()
+        c.kb_list()
     assert ei.value.status == 429
 
     with pytest.raises(EverOSAPIError) as ei:
-        c.get_task("t1")
+        c.task_get("t1")
     assert ei.value.status == 503
 
 
@@ -527,7 +527,7 @@ def test_timeout_applies_to_knowledge_and_tasks():
     c = EverOS("sk-test", timeout=7)
     c.knowledge, c.tasks = kb, tasks
 
-    c.list_kbs()
+    c.kb_list()
     assert kb.list_knowledge_bases.call_args.kwargs.get("_request_timeout") == 7
 
 
@@ -552,12 +552,12 @@ def test_document_patch_and_delete():
     kb.delete_document.return_value = SimpleNamespace(data="DELETED")
     c = _client(knowledge=kb)
 
-    assert c.update_document("kb-1", "doc-1", category_id="cat-2") == "PATCHED"
+    assert c.doc_update("kb-1", "doc-1", category_id="cat-2") == "PATCHED"
     args = kb.update_document.call_args.args
     assert args[0] == "kb-1" and args[1] == "doc-1"
     assert args[2].category_id == "cat-2" and args[2].title is None   # metadata only
 
-    assert c.delete_document("kb-1", "doc-1") == "DELETED"
+    assert c.doc_delete("kb-1", "doc-1") == "DELETED"
     assert kb.delete_document.call_args.args == ("kb-1", "doc-1")
 
 
@@ -572,7 +572,7 @@ def test_wait_task_rides_out_a_transient_rate_limit():
     ]
     c = _client(tasks=tasks)
 
-    assert c.wait_task("t1", interval=0).status == "success"
+    assert c.task_wait("t1", interval=0).status == "success"
     assert tasks.get_task_status.call_count == 4
 
 
@@ -582,7 +582,7 @@ def test_wait_task_does_not_retry_a_permanent_error():
     c = _client(tasks=tasks)
 
     with pytest.raises(EverOSAPIError) as ei:
-        c.wait_task("t1", interval=0)
+        c.task_wait("t1", interval=0)
     assert ei.value.status == 404
     assert tasks.get_task_status.call_count == 1     # no pointless retries
 
@@ -593,7 +593,7 @@ def test_wait_task_gives_up_on_a_transient_error_past_the_deadline():
     c = _client(tasks=tasks)
 
     with pytest.raises(EverOSAPIError) as ei:
-        c.wait_task("t1", timeout=0, interval=0)
+        c.task_wait("t1", timeout=0, interval=0)
     assert ei.value.status == 429
 
 
@@ -608,7 +608,7 @@ def test_wait_task_backs_off_up_to_the_ceiling():
     mod.time.sleep = slept.append
     try:
         with pytest.raises(EverOSError):
-            c.wait_task("t1", timeout=0.001, interval=1, max_interval=4)
+            c.task_wait("t1", timeout=0.001, interval=1, max_interval=4)
     finally:
         mod.time.sleep = real_sleep
     # first gap is `interval`, then doubling, capped at max_interval
@@ -620,7 +620,7 @@ def test_update_document_rejects_an_empty_patch():
     kb = MagicMock()
     c = _client(knowledge=kb)
     with pytest.raises(ValueError):
-        c.update_document("kb-1", "doc-1")
+        c.doc_update("kb-1", "doc-1")
     kb.update_document.assert_not_called()
 
 
@@ -635,11 +635,11 @@ def test_unset_category_id_stays_off_the_wire():
     kb.create_document.return_value = SimpleNamespace(data=None)
     c = _client(knowledge=kb)
 
-    c.ingest_document("kb-1", "T", "text")
+    c.doc_ingest("kb-1", "T", "text")
     body = kb.create_document.call_args.args[1].to_dict()
     assert "category_id" not in body, body
 
-    c.ingest_document("kb-1", "T", "text", category_id="cat-1")
+    c.doc_ingest("kb-1", "T", "text", category_id="cat-1")
     body = kb.create_document.call_args.args[1].to_dict()
     assert body["category_id"] == "cat-1"
 
@@ -649,11 +649,11 @@ def test_unset_kb_description_stays_off_the_wire():
     kb.create_knowledge_base.return_value = SimpleNamespace(data=None)
     c = _client(knowledge=kb)
 
-    c.create_kb("Handbook")
+    c.kb_create("Handbook")
     body = kb.create_knowledge_base.call_args.args[0].to_dict()
     assert "description" not in body and "owner_id" not in body, body
 
-    c.create_kb("Handbook", description="HR")
+    c.kb_create("Handbook", description="HR")
     assert kb.create_knowledge_base.call_args.args[0].to_dict()["description"] == "HR"
 
 
@@ -664,6 +664,6 @@ def test_search_kb_does_materialize_its_defaults():
     kb.search_knowledge.return_value = SimpleNamespace(data=None)
     c = _client(knowledge=kb)
 
-    c.search_kb("kb-1", "q")
+    c.kb_search("kb-1", "q")
     body = kb.search_knowledge.call_args.args[1].to_dict()
     assert body["method"] == "hybrid" and body["top_k"] == 10

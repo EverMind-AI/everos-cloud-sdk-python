@@ -11,6 +11,11 @@ facade covers the high-traffic calls of each.
     client.add(session_id="s1", messages=[{"role": "user", "content": "I love hiking"}])
     hits = client.search("outdoor hobbies")
 
+Naming: memory is the unprefixed default (``add`` / ``search`` / ``get`` / ``flush`` /
+``edit`` / ``delete``, frozen since 1.0.0); every other resource carries its own prefix
+— ``kb_`` / ``doc_`` / ``task_`` / ``tag_`` — so an editor's completion list groups by
+resource, and no facade method collides with the generated method it wraps.
+
 Errors: every failure raised by this facade derives from :class:`EverOSError` —
 ``EverOSAPIError`` for HTTP errors, ``EverOSStorageError`` for object-upload failures,
 and a plain ``EverOSError`` for a task that fails or outlives its wait timeout.
@@ -66,7 +71,7 @@ _TRANSIENT_STATUS = frozenset({429, 500, 502, 503, 504})
 
 # Statuses the gateway reports as finished. Deliberately paired with a `finished_at`
 # check in `_task_finished`: `status` is an OPEN set on a response field (a new
-# terminal state such as `cancelled` must not make `wait_task` spin until timeout),
+# terminal state such as `cancelled` must not make `task_wait` spin until timeout),
 # and the contract documents `finished_at` as "absent while the task is not in a
 # terminal state" — so the timestamp, not the enum, is the load-bearing signal.
 _TERMINAL_TASK_STATUS = frozenset({"success", "failed"})
@@ -377,17 +382,17 @@ class EverOS:
     # -- memory tags ---------------------------------------------------------
     # Tag calls carry NO app_id / project_id: the scope of a tag operation is the
     # memory ids themselves, so `_scope` deliberately does not apply here.
-    def bind_tags(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
+    def tag_bind(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
         """Add ``tags`` to the given memories, keeping the tags they already carry."""
         payload = TagBindInput(memory_type=memory_type, memory_ids=list(memory_ids), tags=list(tags))
         return self._call(self.memory.bind_tags, payload).data
 
-    def unbind_tags(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
+    def tag_unbind(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
         """Remove ``tags`` from the given memories, leaving their other tags in place."""
         payload = TagUnbindInput(memory_type=memory_type, memory_ids=list(memory_ids), tags=list(tags))
         return self._call(self.memory.unbind_tags, payload).data
 
-    def replace_tags(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
+    def tag_replace(self, memory_type: str, memory_ids: Sequence[str], tags: Sequence[str]) -> Any:
         """Overwrite the given memories' tags with ``tags`` — existing tags are dropped."""
         payload = TagReplaceInput(memory_type=memory_type, memory_ids=list(memory_ids), tags=list(tags))
         return self._call(self.memory.replace_tags, payload).data
@@ -396,7 +401,7 @@ class EverOS:
     # Knowledge calls are scoped by `kb_id` in the path, not by app_id / project_id —
     # those fields do not exist on any knowledge request body. Categories and topics
     # are lower-traffic; reach them through `client.knowledge`.
-    def create_kb(self, name: str, *, description: str | None = None, owner_id: str | None = None) -> Any:
+    def kb_create(self, name: str, *, description: str | None = None, owner_id: str | None = None) -> Any:
         """Create a knowledge base. Returns ``KbData``."""
         # Two different rules in one call, both about keeping unset fields OFF the wire:
         # `description` is non-nullable with a "" default, so it must be passed through —
@@ -406,7 +411,7 @@ class EverOS:
         payload = KbCreateInput(name=name, description=description, **_clean(owner_id=owner_id))
         return self._call(self.knowledge.create_knowledge_base, payload).data
 
-    def list_kbs(
+    def kb_list(
         self,
         *,
         page: int | None = None,
@@ -419,20 +424,20 @@ class EverOS:
             **_clean(page=page, page_size=page_size, owner_id=owner_id),
         ).data
 
-    def get_kb(self, kb_id: str) -> Any:
+    def kb_get(self, kb_id: str) -> Any:
         """Get one knowledge base. Returns ``KbData``."""
         return self._call(self.knowledge.get_knowledge_base, kb_id).data
 
-    def update_kb(self, kb_id: str, *, name: str | None = None, description: str | None = None) -> Any:
+    def kb_update(self, kb_id: str, *, name: str | None = None, description: str | None = None) -> Any:
         """Patch a knowledge base's name / description. Returns ``KbData``."""
         payload = KbPatchBody(**_clean(name=name, description=description))
         return self._call(self.knowledge.update_knowledge_base, kb_id, payload).data
 
-    def delete_kb(self, kb_id: str) -> Any:
+    def kb_delete(self, kb_id: str) -> Any:
         """Delete a knowledge base and everything in it. Returns ``KbDeleteData``."""
         return self._call(self.knowledge.delete_knowledge_base, kb_id).data
 
-    def search_kb(
+    def kb_search(
         self,
         kb_id: str,
         query: str,
@@ -456,7 +461,7 @@ class EverOS:
         )
         return self._call(self.knowledge.search_knowledge, kb_id, payload).data
 
-    def ingest_document(
+    def doc_ingest(
         self,
         kb_id: str,
         title: str,
@@ -474,10 +479,10 @@ class EverOS:
         Ingest is ALWAYS asynchronous: the gateway validates, enqueues, and answers
         202 with ``status='queued'`` and a ``task_id``. The document id is minted
         downstream, so it is NOT in this response — pass the ``task_id`` to
-        :meth:`wait_task` to follow the work, e.g.::
+        :meth:`task_wait` to follow the work, e.g.::
 
-            ack = client.ingest_document(kb_id, "Handbook", text)
-            task = client.wait_task(ack.task_id)
+            ack = client.doc_ingest(kb_id, "Handbook", text)
+            task = client.task_wait(ack.task_id)
 
         Returns ``DocIngestData`` (``status`` + ``task_id``).
         """
@@ -492,7 +497,7 @@ class EverOS:
             return self._call(self.knowledge.replace_document, kb_id, doc_id, payload).data
         return self._call(self.knowledge.create_document, kb_id, payload).data
 
-    def list_documents(
+    def doc_list(
         self,
         kb_id: str,
         *,
@@ -507,11 +512,11 @@ class EverOS:
             **_clean(category_id=category_id, page=page, page_size=page_size),
         ).data
 
-    def get_document(self, kb_id: str, doc_id: str) -> Any:
+    def doc_get(self, kb_id: str, doc_id: str) -> Any:
         """Get one document. Returns ``DocData``."""
         return self._call(self.knowledge.get_document, kb_id, doc_id).data
 
-    def update_document(
+    def doc_update(
         self,
         kb_id: str,
         doc_id: str,
@@ -521,7 +526,7 @@ class EverOS:
     ) -> Any:
         """Patch a document's title / category — metadata only, no re-ingest.
 
-        To change a document's CONTENT, call :meth:`ingest_document` with ``doc_id``:
+        To change a document's CONTENT, call :meth:`doc_ingest` with ``doc_id``:
         that replaces it and re-runs extraction asynchronously.
         """
         fields = _clean(title=title, category_id=category_id)
@@ -530,16 +535,16 @@ class EverOS:
         payload = DocPatchBody(**fields)
         return self._call(self.knowledge.update_document, kb_id, doc_id, payload).data
 
-    def delete_document(self, kb_id: str, doc_id: str) -> Any:
+    def doc_delete(self, kb_id: str, doc_id: str) -> Any:
         """Delete one document and its derived topics. Returns ``DocDeleteData``."""
         return self._call(self.knowledge.delete_document, kb_id, doc_id).data
 
     # -- async tasks ---------------------------------------------------------
-    def get_task(self, task_id: str) -> Any:
+    def task_get(self, task_id: str) -> Any:
         """Read one async task's status. Returns ``TaskItem``."""
         return self._call(self.tasks.get_task_status, task_id).data
 
-    def list_tasks(
+    def task_list(
         self,
         *,
         page: int | None = None,
@@ -562,7 +567,7 @@ class EverOS:
             ),
         ).data
 
-    def wait_task(
+    def task_wait(
         self,
         task_id: str,
         *,
@@ -590,7 +595,7 @@ class EverOS:
         item = None
         while True:
             try:
-                item = self.get_task(task_id)
+                item = self.task_get(task_id)
             except EverOSAPIError as exc:
                 # Out of budget, or not the kind of failure that will pass: give up.
                 if exc.status not in _TRANSIENT_STATUS or time.monotonic() >= deadline:
