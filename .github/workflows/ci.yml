@@ -13,8 +13,16 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # Floor + latest. The floor is the version setup.py's `python_requires`
+      # promises (>=3.12): a promise nothing runs is how 1.0.0 and both release
+      # candidates shipped a Requires-Python they had never tested. Keep this in
+      # step with templates/setup.mustache in the factory.
+      matrix:
+        python-version: ["3.12", "3.14"]
     steps:
       - uses: actions/checkout@v5
 
@@ -31,7 +39,7 @@ jobs:
       - uses: actions/setup-python@v6
         if: steps.detect.outputs.has_pkg == 'true'
         with:
-          python-version: "3.14"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install
         if: steps.detect.outputs.has_pkg == 'true'
@@ -136,3 +144,19 @@ jobs:
         run: |
           python -m pip install --upgrade build
           python -m build
+
+  # Aggregate gate. Branch protection pins required checks BY NAME, and a matrix
+  # job reports as `test (3.12)` / `test (3.14)` — never as a single stable name.
+  # Without this job the required `build` check simply never arrives and the PR
+  # blocks forever; with it, the matrix can grow or shrink without anyone editing
+  # the ruleset.
+  build:
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gate on the matrix result
+        run: |
+          echo "matrix result: ${{ needs.test.result }}"
+          [ "${{ needs.test.result }}" = "success" ] || {
+            echo "::error::one or more Python versions failed"; exit 1; }
