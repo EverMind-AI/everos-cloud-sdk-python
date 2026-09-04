@@ -41,6 +41,8 @@ class TestSearchProfileItem(unittest.TestCase):
                 project_id = '',
                 user_id = '',
                 profile_data = { },
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 score = 1.337
             )
         else:

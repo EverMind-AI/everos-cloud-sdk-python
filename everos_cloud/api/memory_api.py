@@ -73,6 +73,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeAddData:
         """Add messages [OSS + Cloud]
 
+        Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
 
         :param add_input: (required)
         :type add_input: AddInput
@@ -145,6 +146,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeAddData]:
         """Add messages [OSS + Cloud]
 
+        Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
 
         :param add_input: (required)
         :type add_input: AddInput
@@ -217,6 +219,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Add messages [OSS + Cloud]
 
+        Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
 
         :param add_input: (required)
         :type add_input: AddInput
@@ -362,6 +365,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeTagBindData:
         """Bind tags to memory items [Cloud]
 
+        Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
 
         :param tag_bind_input: (required)
         :type tag_bind_input: TagBindInput
@@ -433,6 +437,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeTagBindData]:
         """Bind tags to memory items [Cloud]
 
+        Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
 
         :param tag_bind_input: (required)
         :type tag_bind_input: TagBindInput
@@ -504,6 +509,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Bind tags to memory items [Cloud]
 
+        Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
 
         :param tag_bind_input: (required)
         :type tag_bind_input: TagBindInput
@@ -648,6 +654,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeDeleteData:
         """Delete memories [Cloud-only]
 
+        Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -719,6 +726,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeDeleteData]:
         """Delete memories [Cloud-only]
 
+        Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -790,6 +798,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Delete memories [Cloud-only]
 
+        Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -934,6 +943,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeEditData:
         """Edit profile items [Cloud-only]
 
+        Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
 
         :param edit_input: (required)
         :type edit_input: EditInput
@@ -1005,6 +1015,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeEditData]:
         """Edit profile items [Cloud-only]
 
+        Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
 
         :param edit_input: (required)
         :type edit_input: EditInput
@@ -1076,6 +1087,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Edit profile items [Cloud-only]
 
+        Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
 
         :param edit_input: (required)
         :type edit_input: EditInput
@@ -1220,6 +1232,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeFlushData:
         """Force memory extraction [OSS + Cloud]
 
+        Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
 
         :param flush_input: (required)
         :type flush_input: FlushInput
@@ -1291,6 +1304,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeFlushData]:
         """Force memory extraction [OSS + Cloud]
 
+        Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
 
         :param flush_input: (required)
         :type flush_input: FlushInput
@@ -1362,6 +1376,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Force memory extraction [OSS + Cloud]
 
+        Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
 
         :param flush_input: (required)
         :type flush_input: FlushInput
@@ -1506,6 +1521,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeGetData:
         """Get memories (paginated) [OSS + Cloud]
 
+        List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
 
         :param get_input: (required)
         :type get_input: GetInput
@@ -1577,6 +1593,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeGetData]:
         """Get memories (paginated) [OSS + Cloud]
 
+        List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
 
         :param get_input: (required)
         :type get_input: GetInput
@@ -1648,6 +1665,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Get memories (paginated) [OSS + Cloud]
 
+        List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
 
         :param get_input: (required)
         :type get_input: GetInput
@@ -1792,6 +1810,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeTagReplaceData:
         """Replace (overwrite) tags on memory items [Cloud]
 
+        Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
         :param tag_replace_input: (required)
         :type tag_replace_input: TagReplaceInput
@@ -1863,6 +1882,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeTagReplaceData]:
         """Replace (overwrite) tags on memory items [Cloud]
 
+        Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
         :param tag_replace_input: (required)
         :type tag_replace_input: TagReplaceInput
@@ -1934,6 +1954,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Replace (overwrite) tags on memory items [Cloud]
 
+        Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
         :param tag_replace_input: (required)
         :type tag_replace_input: TagReplaceInput
@@ -2078,6 +2099,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeSearchData:
         """Search memories [OSS + Cloud]
 
+        Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
 
         :param search_input: (required)
         :type search_input: SearchInput
@@ -2149,6 +2171,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeSearchData]:
         """Search memories [OSS + Cloud]
 
+        Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
 
         :param search_input: (required)
         :type search_input: SearchInput
@@ -2220,6 +2243,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Search memories [OSS + Cloud]
 
+        Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
 
         :param search_input: (required)
         :type search_input: SearchInput
@@ -2364,6 +2388,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeTagUnbindData:
         """Unbind tags from memory items [Cloud]
 
+        Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
         :param tag_unbind_input: (required)
         :type tag_unbind_input: TagUnbindInput
@@ -2435,6 +2460,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeTagUnbindData]:
         """Unbind tags from memory items [Cloud]
 
+        Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
         :param tag_unbind_input: (required)
         :type tag_unbind_input: TagUnbindInput
@@ -2506,6 +2532,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Unbind tags from memory items [Cloud]
 
+        Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
         :param tag_unbind_input: (required)
         :type tag_unbind_input: TagUnbindInput

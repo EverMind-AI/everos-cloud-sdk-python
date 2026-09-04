@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.doc_data import DocData
 from typing import Optional, Set
@@ -28,8 +28,8 @@ class DocListData(BaseModel):
     """
     DocListData
     """ # noqa: E501
-    documents: Optional[List[DocData]] = None
-    total: Optional[StrictInt] = 0
+    documents: Optional[List[DocData]] = Field(default=None, description="This page of documents.")
+    total: Optional[StrictInt] = Field(default=0, description="How many documents match, across all pages.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["documents", "total"]
 

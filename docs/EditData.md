@@ -6,11 +6,11 @@ Response payload for a successful profile edit request.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**user_id** | **str** |  | 
-**version** | **int** |  | 
-**applied** | **int** |  | 
-**results** | [**List[EditResultItem]**](EditResultItem.md) |  | [optional] 
-**profile** | **Dict[str, object]** |  | [optional] 
+**user_id** | **str** | The user whose profile was edited. | 
+**version** | **int** | The profile&#39;s version after this edit. It advances every time the profile changes. | 
+**applied** | **int** | How many of the submitted operations took effect. | 
+**results** | [**List[EditResultItem]**](EditResultItem.md) | Per-operation outcome, in submission order — check this rather than assuming all applied. | [optional] 
+**profile** | **Dict[str, object]** | The profile as it stands after the edit, so no follow-up read is needed. | [optional] 
 
 ## Example
 

@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,17 +28,17 @@ class SearchAgentCaseItem(BaseModel):
     """
     SearchAgentCaseItem
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
-    agent_id: StrictStr
-    session_id: StrictStr
-    task_intent: StrictStr
-    approach: StrictStr
-    quality_score: Union[StrictFloat, StrictInt]
+    id: StrictStr = Field(description="Agent-case id.")
+    app_id: StrictStr = Field(description="The business-semantic scope this case was written under.")
+    project_id: StrictStr = Field(description="Second half of that scope.")
+    agent_id: StrictStr = Field(description="The agent that owns this case.")
+    session_id: StrictStr = Field(description="The session whose trajectory the case was distilled from.")
+    task_intent: StrictStr = Field(description="What the agent was trying to do in that trajectory.")
+    approach: StrictStr = Field(description="How it went about it — the reusable part of the case.")
+    quality_score: Union[StrictFloat, StrictInt] = Field(description="How good this case is judged to be. Nominally 0.0–1.0 with 0.5 as the no-opinion default, but the value is the extractor's own and nothing on the write path enforces the range — treat an out-of-range number as possible. One threshold is real: a case scoring below 0.2 is never distilled into a skill.")
     key_insight: Optional[StrictStr] = None
-    timestamp: datetime
-    score: Union[StrictFloat, StrictInt]
+    timestamp: datetime = Field(description="When the trajectory happened (ISO 8601).")
+    score: Union[StrictFloat, StrictInt] = Field(description="Relevance of this case to the query.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "agent_id", "session_id", "task_intent", "approach", "quality_score", "key_insight", "timestamp", "score"]
 

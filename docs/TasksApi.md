@@ -14,7 +14,7 @@ Method | HTTP request | Description
 
 Aggregate task counts by status
 
-Counts tasks per status over a time window. All four statuses are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
+Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.
 
 ### Example
 

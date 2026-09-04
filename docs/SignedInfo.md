@@ -6,8 +6,8 @@ Presigned POST form data for direct-to-S3 upload
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**url** | **str** |  | [optional] 
-**fields** | **Dict[str, str]** |  | [optional] 
+**url** | **str** | The URL to POST the file to. | [optional] 
+**fields** | **Dict[str, str]** | Form fields that must accompany the upload, exactly as given, with the file itself last. | [optional] 
 **max_size** | **int** | Maximum file size in bytes | [optional] 
 
 ## Example

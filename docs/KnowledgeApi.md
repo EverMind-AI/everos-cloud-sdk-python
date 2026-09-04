@@ -17,7 +17,10 @@ Method | HTTP request | Description
 [**list_documents**](KnowledgeApi.md#list_documents) | **GET** /api/v2/knowledge_bases/{kb_id}/documents | List documents in a knowledge base
 [**list_knowledge_bases**](KnowledgeApi.md#list_knowledge_bases) | **GET** /api/v2/knowledge_bases | List knowledge bases
 [**list_topics**](KnowledgeApi.md#list_topics) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics | List a document&#39;s topic tree (optionally with each topic&#39;s content)
+[**list_topics_by_tags**](KnowledgeApi.md#list_topics_by_tags) | **GET** /api/v2/knowledge_bases/{kb_id}/topics | List tag-matched topics in a knowledge base
+[**query_related_tags**](KnowledgeApi.md#query_related_tags) | **POST** /api/v2/knowledge_bases/{kb_id}/tags | Count candidate tags used by live documents in a knowledge base
 [**replace_document**](KnowledgeApi.md#replace_document) | **PUT** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Replace a document (async, atomic swap)
+[**replace_topic_tags**](KnowledgeApi.md#replace_topic_tags) | **POST** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}/tag/replace | Replace the complete materialized semantic tag snapshot of a topic
 [**search_knowledge**](KnowledgeApi.md#search_knowledge) | **POST** /api/v2/knowledge_bases/{kb_id}/search | Search within a knowledge base (keyword / vector / hybrid)
 [**update_category**](KnowledgeApi.md#update_category) | **PATCH** /api/v2/knowledge_bases/{kb_id}/categories/{category_id} | Update a category
 [**update_document**](KnowledgeApi.md#update_document) | **PATCH** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Update document metadata (title / category)
@@ -28,6 +31,8 @@ Method | HTTP request | Description
 > SuccessEnvelopeCategoryData create_category(kb_id, category_create_body)
 
 Create a category
+
+Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
 
 ### Example
 
@@ -113,6 +118,8 @@ Name | Type | Description  | Notes
 
 Upload a document (async ingest)
 
+Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -197,6 +204,8 @@ Name | Type | Description  | Notes
 
 Create a knowledge base
 
+Create a knowledge base — a searchable document library with its own category taxonomy. The returned id is the `kb_id` every other knowledge operation takes.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -278,6 +287,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeCategoryDeleteData delete_category(kb_id, category_id)
 
 Delete a category
+
+Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
 ### Example
 
@@ -362,6 +373,8 @@ Name | Type | Description  | Notes
 
 Delete a document (+ cascade nodes, P5)
 
+Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -445,6 +458,8 @@ Name | Type | Description  | Notes
 
 Delete a knowledge base
 
+Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -525,6 +540,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeDocData get_document(kb_id, doc_id)
 
 Get a document (with topic_count)
+
+Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
 ### Example
 
@@ -609,6 +626,8 @@ Name | Type | Description  | Notes
 
 Get a knowledge base
 
+Read one knowledge base's metadata, including its document count.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -690,6 +709,8 @@ Name | Type | Description  | Notes
 
 Get a topic's full content (inline / S3 transparent)
 
+Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -762,6 +783,7 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Successful Response |  -  |
+**404** | Topic absent or not owned by the path kb/document |  -  |
 **422** | Validation Error |  -  |
 **401** | Missing or invalid bearer token. |  -  |
 **403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
@@ -774,6 +796,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeCategoryListData list_categories(kb_id)
 
 List categories in a knowledge base
+
+List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
 ### Example
 
@@ -855,6 +879,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeDocListData list_documents(kb_id, category_id=category_id, page=page, page_size=page_size)
 
 List documents in a knowledge base
+
+Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
 ### Example
 
@@ -943,6 +969,8 @@ Name | Type | Description  | Notes
 
 List knowledge bases
 
+Paginated list of the account's knowledge bases, each with its document count.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -1028,6 +1056,8 @@ Name | Type | Description  | Notes
 
 List a document's topic tree (optionally with each topic's content)
 
+List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -1108,10 +1138,187 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **list_topics_by_tags**
+> SuccessEnvelopeTopicFilterListData list_topics_by_tags(kb_id, tag_ids, page=page, page_size=page_size)
+
+List tag-matched topics in a knowledge base
+
+Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.success_envelope_topic_filter_list_data import SuccessEnvelopeTopicFilterListData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.KnowledgeApi(api_client)
+    kb_id = 'kb_id_example' # str | The knowledge base to search within.
+    tag_ids = ['tag_ids_example'] # List[str] | Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything.
+    page = 1 # int | 1-based page number. (optional) (default to 1)
+    page_size = 20 # int | Items per page, 1 to 100 (default 20). (optional) (default to 20)
+
+    try:
+        # List tag-matched topics in a knowledge base
+        api_response = api_instance.list_topics_by_tags(kb_id, tag_ids, page=page, page_size=page_size)
+        print("The response of KnowledgeApi->list_topics_by_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling KnowledgeApi->list_topics_by_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **kb_id** | **str**| The knowledge base to search within. | 
+ **tag_ids** | [**List[str]**](str.md)| Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use &#x60;boost_tag_ids&#x60; on the search endpoint instead to reweight without excluding anything. | 
+ **page** | **int**| 1-based page number. | [optional] [default to 1]
+ **page_size** | **int**| Items per page, 1 to 100 (default 20). | [optional] [default to 20]
+
+### Return type
+
+[**SuccessEnvelopeTopicFilterListData**](SuccessEnvelopeTopicFilterListData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **query_related_tags**
+> SuccessEnvelopeRelatedTagUsageListData query_related_tags(kb_id, related_tag_usage_body)
+
+Count candidate tags used by live documents in a knowledge base
+
+Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.related_tag_usage_body import RelatedTagUsageBody
+from everos_cloud.models.success_envelope_related_tag_usage_list_data import SuccessEnvelopeRelatedTagUsageListData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.KnowledgeApi(api_client)
+    kb_id = 'kb_id_example' # str | 
+    related_tag_usage_body = everos_cloud.RelatedTagUsageBody() # RelatedTagUsageBody | 
+
+    try:
+        # Count candidate tags used by live documents in a knowledge base
+        api_response = api_instance.query_related_tags(kb_id, related_tag_usage_body)
+        print("The response of KnowledgeApi->query_related_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling KnowledgeApi->query_related_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **kb_id** | **str**|  | 
+ **related_tag_usage_body** | [**RelatedTagUsageBody**](RelatedTagUsageBody.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopeRelatedTagUsageListData**](SuccessEnvelopeRelatedTagUsageListData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **replace_document**
 > SuccessEnvelopeDocIngestData replace_document(kb_id, doc_id, doc_ingest_body)
 
 Replace a document (async, atomic swap)
+
+Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
 ### Example
 
@@ -1194,10 +1401,105 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **replace_topic_tags**
+> SuccessEnvelopeTopicTagWriteData replace_topic_tags(kb_id, doc_id, topic_id, topic_tag_replace_body)
+
+Replace the complete materialized semantic tag snapshot of a topic
+
+version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.success_envelope_topic_tag_write_data import SuccessEnvelopeTopicTagWriteData
+from everos_cloud.models.topic_tag_replace_body import TopicTagReplaceBody
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.KnowledgeApi(api_client)
+    kb_id = 'kb_id_example' # str | 
+    doc_id = 'doc_id_example' # str | 
+    topic_id = 'topic_id_example' # str | 
+    topic_tag_replace_body = everos_cloud.TopicTagReplaceBody() # TopicTagReplaceBody | 
+
+    try:
+        # Replace the complete materialized semantic tag snapshot of a topic
+        api_response = api_instance.replace_topic_tags(kb_id, doc_id, topic_id, topic_tag_replace_body)
+        print("The response of KnowledgeApi->replace_topic_tags:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling KnowledgeApi->replace_topic_tags: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **kb_id** | **str**|  | 
+ **doc_id** | **str**|  | 
+ **topic_id** | **str**|  | 
+ **topic_tag_replace_body** | [**TopicTagReplaceBody**](TopicTagReplaceBody.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopeTopicTagWriteData**](SuccessEnvelopeTopicTagWriteData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**404** | Topic absent or not owned by the path kb/document |  -  |
+**409** | Stale topic tag version (atomic zero-write conflict) |  -  |
+**500** | Storage or search projection failure. Mongo may already contain the snapshot; replay the same snapshot to converge. |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **search_knowledge**
 > SuccessEnvelopeKbSearchData search_knowledge(kb_id, search_body)
 
 Search within a knowledge base (keyword / vector / hybrid)
+
+Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
 ### Example
 
@@ -1282,6 +1584,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeCategoryData update_category(kb_id, category_id, category_patch_body)
 
 Update a category
+
+Rename a category or edit its description. Documents filed under it are not re-classified; they keep pointing at the same category id. Tenant-global preset categories are read-only.
 
 ### Example
 
@@ -1369,6 +1673,8 @@ Name | Type | Description  | Notes
 
 Update document metadata (title / category)
 
+Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -1454,6 +1760,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeKbData update_knowledge_base(kb_id, kb_patch_body)
 
 Update a knowledge base
+
+Patch a knowledge base's name or description. Metadata only — it does not touch the documents inside it.
 
 ### Example
 

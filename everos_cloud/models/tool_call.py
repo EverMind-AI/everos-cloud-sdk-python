@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.tool_call_function import ToolCallFunction
 from typing import Optional, Set
@@ -28,9 +28,9 @@ class ToolCall(BaseModel):
     """
     ToolCall
     """ # noqa: E501
-    id: StrictStr
-    type: Optional[StrictStr] = 'function'
-    function: ToolCallFunction
+    id: StrictStr = Field(description="Tool-call id; the matching \"tool\" message echoes it as `tool_call_id`.")
+    type: Optional[StrictStr] = Field(default='function', description="Tool-call kind. Always \"function\" today.")
+    function: ToolCallFunction = Field(description="The function invoked, with its arguments.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "type", "function"]
 

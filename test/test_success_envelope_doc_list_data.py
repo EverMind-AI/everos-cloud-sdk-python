@@ -48,6 +48,9 @@ class TestSuccessEnvelopeDocListData(unittest.TestCase):
                             summary = '', 
                             source_name = '', 
                             source_type = '', 
+                            tags = [
+                                { }
+                                ], 
                             topic_count = 56, 
                             created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                             updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
@@ -68,6 +71,9 @@ class TestSuccessEnvelopeDocListData(unittest.TestCase):
                             summary = '', 
                             source_name = '', 
                             source_type = '', 
+                            tags = [
+                                { }
+                                ], 
                             topic_count = 56, 
                             created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                             updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )

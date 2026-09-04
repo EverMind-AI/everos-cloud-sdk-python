@@ -18,8 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt
+from typing import Any, ClassVar, Dict, List, Union
 from everos_cloud.models.search_hit import SearchHit
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,9 +28,9 @@ class KbSearchData(BaseModel):
     """
     Knowledge search response payload. Prefixed ``Kb`` to stay distinct from ``memory_api.SearchData`` — two same-named models under ``SuccessEnvelope[...]`` collide to a non-deterministic OpenAPI component name (see openapi-sync / check-openapi).
     """ # noqa: E501
-    hits: Optional[List[SearchHit]] = None
-    total: Optional[StrictInt] = 0
-    took_ms: Optional[Union[StrictFloat, StrictInt]] = 0.0
+    hits: List[SearchHit] = Field(description="Matching topics, most relevant first.")
+    total: StrictInt = Field(description="How many topics matched.")
+    took_ms: Union[StrictFloat, StrictInt] = Field(description="How long the search took, in milliseconds.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["hits", "total", "took_ms"]
 
@@ -100,8 +100,8 @@ class KbSearchData(BaseModel):
 
         _obj = cls.model_validate({
             "hits": [SearchHit.from_dict(_item) for _item in obj["hits"]] if obj.get("hits") is not None else None,
-            "total": obj.get("total") if obj.get("total") is not None else 0,
-            "took_ms": obj.get("took_ms") if obj.get("took_ms") is not None else 0.0
+            "total": obj.get("total"),
+            "took_ms": obj.get("took_ms")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

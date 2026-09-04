@@ -57,6 +57,7 @@ class StorageApi:
     ) -> SignEnvelope:
         """Get multimodal upload URLs
 
+        Presign a direct-to-storage upload for multimodal data. POST the file to the returned URL yourself, then reference the returned object key as a message's content `uri` (/api/v2/memory/add) or as a document's content `uri` (.../documents). Uploading first and passing the key is the only path that gets a non-text item parsed — see `base64` on the content object. The Python SDK's `upload()` does both steps in one call.
 
         :param sign_request: (required)
         :type sign_request: SignRequest
@@ -127,6 +128,7 @@ class StorageApi:
     ) -> ApiResponse[SignEnvelope]:
         """Get multimodal upload URLs
 
+        Presign a direct-to-storage upload for multimodal data. POST the file to the returned URL yourself, then reference the returned object key as a message's content `uri` (/api/v2/memory/add) or as a document's content `uri` (.../documents). Uploading first and passing the key is the only path that gets a non-text item parsed — see `base64` on the content object. The Python SDK's `upload()` does both steps in one call.
 
         :param sign_request: (required)
         :type sign_request: SignRequest
@@ -197,6 +199,7 @@ class StorageApi:
     ) -> RESTResponseType:
         """Get multimodal upload URLs
 
+        Presign a direct-to-storage upload for multimodal data. POST the file to the returned URL yourself, then reference the returned object key as a message's content `uri` (/api/v2/memory/add) or as a document's content `uri` (.../documents). Uploading first and passing the key is the only path that gets a non-text item parsed — see `base64` on the content object. The Python SDK's `upload()` does both steps in one call.
 
         :param sign_request: (required)
         :type sign_request: SignRequest

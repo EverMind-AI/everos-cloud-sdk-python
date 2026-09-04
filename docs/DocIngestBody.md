@@ -6,7 +6,7 @@ Public POST/PUT documents request body (design §3.2 / §3.3). ``content`` is th
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**title** | **str** |  | 
+**title** | **str** | Human-readable name for the document. Until the async ingest finishes this is the only handle the caller has — the document id is minted downstream, so GET .../documents is resolved by title. | 
 **content** | [**ContentItem**](ContentItem.md) | The object to ingest (its uri &#x3D; the SMM object_key) | 
 **category_id** | **str** | Category id in this kb; omit for LLM auto-classify | [optional] [default to '']
 

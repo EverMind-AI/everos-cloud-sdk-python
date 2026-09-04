@@ -6,8 +6,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**trait** | **str** |  | 
-**description** | **str** |  | 
+**trait** | **str** | The inferred trait&#39;s name. Required, non-empty. | 
+**description** | **str** | What the trait means and how it shows up, up to 4000 characters. | 
 
 ## Example
 

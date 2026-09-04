@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.atomic_fact_item import AtomicFactItem
 from typing import Optional, Set
@@ -29,20 +29,20 @@ class EpisodeItem(BaseModel):
     """
     EpisodeItem
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
+    id: StrictStr = Field(description="Episode id. Use it to bind tags or to fetch this episode again.")
+    app_id: StrictStr = Field(description="The business-semantic scope this memory was written under.")
+    project_id: StrictStr = Field(description="Second half of that scope.")
     user_id: Optional[StrictStr] = None
     session_id: Optional[StrictStr] = None
-    timestamp: datetime
-    sender_ids: Optional[List[StrictStr]] = None
-    summary: StrictStr
-    subject: StrictStr
-    episode: StrictStr
+    timestamp: datetime = Field(description="When the remembered exchange happened (ISO 8601), not when it was extracted.")
+    sender_ids: Optional[List[StrictStr]] = Field(default=None, description="The senders that appear in the source exchange.")
+    summary: StrictStr = Field(description="Short summary of the episode — what a result list should show.")
+    subject: StrictStr = Field(description="What the episode is about, in a few words.")
+    episode: StrictStr = Field(description="The episode's stored narrative body. This is the indexed, searchable text.")
     readable_episode: Optional[StrictStr] = None
-    type: StrictStr
-    atomic_facts: Optional[List[AtomicFactItem]] = None
-    tags: Optional[List[StrictStr]] = None
+    type: StrictStr = Field(description="How the episode was produced — \"Conversation\" or \"AgentConversation\".")
+    atomic_facts: Optional[List[AtomicFactItem]] = Field(default=None, description="The individual facts extracted from this episode, nested rather than returned separately.")
+    tags: Optional[List[StrictStr]] = Field(default=None, description="Tags attached through /api/v2/memory/tag/*.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags"]
 

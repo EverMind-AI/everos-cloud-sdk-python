@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.agent_case_item import AgentCaseItem
 from everos_cloud.models.agent_skill_item import AgentSkillItem
@@ -31,12 +31,12 @@ class GetData(BaseModel):
     """
     GetData
     """ # noqa: E501
-    episodes: Optional[List[EpisodeItem]] = None
-    profiles: Optional[List[ProfileItem]] = None
-    agent_cases: Optional[List[AgentCaseItem]] = None
-    agent_skills: Optional[List[AgentSkillItem]] = None
-    total_count: Optional[StrictInt] = 0
-    count: Optional[StrictInt] = 0
+    episodes: Optional[List[EpisodeItem]] = Field(default=None, description="Episodes, when `memory_type` was \"episode\". Empty otherwise.")
+    profiles: Optional[List[ProfileItem]] = Field(default=None, description="Profiles, when `memory_type` was \"profile\". Empty otherwise.")
+    agent_cases: Optional[List[AgentCaseItem]] = Field(default=None, description="Agent cases, when `memory_type` was \"agent_case\". Empty otherwise.")
+    agent_skills: Optional[List[AgentSkillItem]] = Field(default=None, description="Agent skills, when `memory_type` was \"agent_skill\". Empty otherwise.")
+    total_count: Optional[StrictInt] = Field(default=0, description="How many memories match the request in total, across all pages.")
+    count: Optional[StrictInt] = Field(default=0, description="How many are in this page.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["episodes", "profiles", "agent_cases", "agent_skills", "total_count", "count"]
 

@@ -29,7 +29,7 @@ CONTENT_ANY_OF_SCHEMAS = ["List[ContentItem]", "str"]
 
 class Content(BaseModel):
     """
-    Content
+    The message body: a plain string (shorthand for a single text item), or a list of content items for multimodal input.
     """
 
     # data type: str

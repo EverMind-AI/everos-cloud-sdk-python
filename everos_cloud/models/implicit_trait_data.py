@@ -28,8 +28,8 @@ class ImplicitTraitData(BaseModel):
     """
     ``data`` payload for ``add implicit_traits`` — ``trait`` + ``description`` required (non-empty); other fields (``basis``, ``evidence``, ``sources``, …) pass through.
     """ # noqa: E501
-    trait: Annotated[str, Field(min_length=1, strict=True)]
-    description: Annotated[str, Field(min_length=1, strict=True, max_length=4000)]
+    trait: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The inferred trait's name. Required, non-empty.")
+    description: Annotated[str, Field(min_length=1, strict=True, max_length=4000)] = Field(description="What the trait means and how it shows up, up to 4000 characters.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["trait", "description"]
 

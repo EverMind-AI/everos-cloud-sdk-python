@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | [**TaskItem**](TaskItem.md) |  | 
-**request_id** | **str** |  | [optional] 
+**data** | [**TaskItem**](TaskItem.md) | The task. | 
+**request_id** | **str** | Id of this request — quote it when reporting a problem. | [optional] 
 
 ## Example
 

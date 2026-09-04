@@ -21,6 +21,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,6 +30,8 @@ class TopicListItem(BaseModel):
     Node-tree overview item. ``content`` only when the caller asks for it.
     """ # noqa: E501
     id: StrictStr = Field(description="Topic (node) id")
+    doc_id: Optional[StrictStr] = Field(default='', description="Owning document id")
+    kb_id: Optional[StrictStr] = Field(default='', description="Owning knowledge base id")
     name: StrictStr = Field(description="Node title. For the document-root item (`type=root`) this is the document title, i.e. the same value as the document's `title`")
     type: Optional[StrictStr] = Field(default='section', description="Structural role: `root` = the document-root container (exactly one per document, `depth=0`, `parent_id=null`, empty body), `section` = a real topic, `element` = rich media (reserved, not produced yet). Filter on this rather than on `depth==0` to tell the root apart from real topics")
     depth: Optional[StrictInt] = Field(default=0, description="Tree depth: 0 = document root, 1 = a top-level topic")
@@ -36,10 +39,12 @@ class TopicListItem(BaseModel):
     parent_id: Optional[StrictStr] = None
     summary: Optional[StrictStr] = Field(default='', description="Retrieval-oriented summary covering this node AND its subtree. On the root item it is the document-level summary")
     content: Optional[StrictStr] = None
+    tag_ids: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)]] = Field(default=None, description="Opaque final materialized semantic tag ids (maximum 50)")
+    version: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, description="Current topic tag CAS version")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "name", "type", "depth", "seq", "parent_id", "summary", "content", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "doc_id", "kb_id", "name", "type", "depth", "seq", "parent_id", "summary", "content", "tag_ids", "version", "created_at", "updated_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -120,6 +125,8 @@ class TopicListItem(BaseModel):
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
+            "doc_id": obj.get("doc_id") if obj.get("doc_id") is not None else '',
+            "kb_id": obj.get("kb_id") if obj.get("kb_id") is not None else '',
             "name": obj.get("name"),
             "type": obj.get("type") if obj.get("type") is not None else 'section',
             "depth": obj.get("depth") if obj.get("depth") is not None else 0,
@@ -127,6 +134,8 @@ class TopicListItem(BaseModel):
             "parent_id": obj.get("parent_id"),
             "summary": obj.get("summary") if obj.get("summary") is not None else '',
             "content": obj.get("content"),
+            "tag_ids": obj.get("tag_ids"),
+            "version": obj.get("version") if obj.get("version") is not None else 0,
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
         })

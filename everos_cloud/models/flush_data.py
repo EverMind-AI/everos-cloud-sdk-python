@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,7 +27,7 @@ class FlushData(BaseModel):
     """
     FlushData
     """ # noqa: E501
-    status: StrictStr
+    status: StrictStr = Field(description="\"extracted\" when the flush distilled new memories, \"no_extraction\" when there was nothing to extract — including the case of an async add still queued.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["status"]
 

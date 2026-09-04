@@ -5,10 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**app_id** | **str** |  | [optional] [default to 'default']
-**project_id** | **str** |  | [optional] [default to 'default']
-**session_id** | **str** |  | 
-**messages** | [**List[MessageItem]**](MessageItem.md) |  | 
+**app_id** | **str** | Business-semantic scope for this write, defaulting to \&quot;default\&quot;. Reads must use the same app_id / project_id pair to see what was written under it. Note this is a partition, not the security boundary — that is the tenant resolved from your API key. | [optional] [default to 'default']
+**project_id** | **str** | Second half of the business-semantic scope, defaulting to \&quot;default\&quot;. See &#x60;app_id&#x60;. | [optional] [default to 'default']
+**session_id** | **str** | The conversation these messages belong to (1–128 characters). It is the unit extraction works on: /api/v2/memory/flush takes this id, and a session boundary is what triggers extraction on its own. | 
+**messages** | [**List[MessageItem]**](MessageItem.md) | The turns to append, in order — 1 to 500 per call. Each carries its own sender and timestamp, so one call can hold a whole exchange. | 
 **async_mode** | **bool** | Selects the write path. true (default): validated and enqueued asynchronously → HTTP 202 with status \&quot;queued\&quot;. false: forwarded synchronously to the engine, returning its 200 result and surfacing write errors directly. Extraction is always asynchronous (flush-triggered). | [optional] [default to True]
 
 ## Example

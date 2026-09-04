@@ -6,10 +6,10 @@ Per-operation outcome returned in ``EditData.results``.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**op_index** | **int** |  | 
-**action** | **str** |  | 
-**type** | **str** |  | 
-**status** | **str** |  | 
+**op_index** | **int** | Which submitted operation this is, by 0-based position in the request. | 
+**action** | **str** | The action that was attempted — \&quot;add\&quot;, \&quot;update\&quot; or \&quot;delete\&quot;. | 
+**type** | **str** | The profile item type it targeted. | 
+**status** | **str** | \&quot;applied\&quot; or \&quot;rejected\&quot;. A rejected operation does not fail the request. | 
 **item_id** | **str** |  | [optional] 
 **new_item_id** | **str** |  | [optional] 
 **error** | **str** |  | [optional] 

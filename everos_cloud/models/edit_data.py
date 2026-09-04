@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.edit_result_item import EditResultItem
 from typing import Optional, Set
@@ -28,11 +28,11 @@ class EditData(BaseModel):
     """
     Response payload for a successful profile edit request.
     """ # noqa: E501
-    user_id: StrictStr
-    version: StrictInt
-    applied: StrictInt
-    results: Optional[List[EditResultItem]] = None
-    profile: Optional[Dict[str, Any]] = None
+    user_id: StrictStr = Field(description="The user whose profile was edited.")
+    version: StrictInt = Field(description="The profile's version after this edit. It advances every time the profile changes.")
+    applied: StrictInt = Field(description="How many of the submitted operations took effect.")
+    results: Optional[List[EditResultItem]] = Field(default=None, description="Per-operation outcome, in submission order — check this rather than assuming all applied.")
+    profile: Optional[Dict[str, Any]] = Field(default=None, description="The profile as it stands after the edit, so no follow-up read is needed.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["user_id", "version", "applied", "results", "profile"]
 

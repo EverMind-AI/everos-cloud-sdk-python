@@ -7,6 +7,7 @@ Optional hard filters. ``category_id`` is a soft filter on recall (design 01 §3
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **category_id** | **str** |  | [optional] 
+**tag_ids** | **List[str]** | Hard filter that does not affect scoring: only topics carrying EVERY one of these tag ids are eligible. Use &#x60;boost_tag_ids&#x60; when the intent is to reweight rather than exclude. | [optional] [default to []]
 
 ## Example
 

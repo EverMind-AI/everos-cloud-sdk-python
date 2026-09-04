@@ -29,9 +29,9 @@ class DeleteOperation(BaseModel):
     Delete an existing profile item by ``item_id`` (carries no ``data``).
     """ # noqa: E501
     reason: Optional[Annotated[str, Field(strict=True, max_length=256)]] = None
-    action: StrictStr
-    type: StrictStr
-    item_id: StrictStr
+    action: StrictStr = Field(description="Always \"delete\" for this variant.")
+    type: StrictStr = Field(description="Which profile item this edit targets — \"explicit_info\" or \"implicit_traits\". It must match the `item_id` prefix.")
+    item_id: StrictStr = Field(description="The item to delete. Its prefix must match the item type (\"ei_\" / \"it_\") followed by 24 hex characters.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["reason", "action", "type", "item_id"]
 

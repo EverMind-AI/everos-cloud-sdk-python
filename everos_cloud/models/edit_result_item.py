@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,10 +27,10 @@ class EditResultItem(BaseModel):
     """
     Per-operation outcome returned in ``EditData.results``.
     """ # noqa: E501
-    op_index: StrictInt
-    action: StrictStr
-    type: StrictStr
-    status: StrictStr
+    op_index: StrictInt = Field(description="Which submitted operation this is, by 0-based position in the request.")
+    action: StrictStr = Field(description="The action that was attempted — \"add\", \"update\" or \"delete\".")
+    type: StrictStr = Field(description="The profile item type it targeted.")
+    status: StrictStr = Field(description="\"applied\" or \"rejected\". A rejected operation does not fail the request.")
     item_id: Optional[StrictStr] = None
     new_item_id: Optional[StrictStr] = None
     error: Optional[StrictStr] = None

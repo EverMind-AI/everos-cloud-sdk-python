@@ -1,13 +1,14 @@
 # Data
 
+The item to add. Its required keys depend on `type`; other keys (evidence, sources, basis, …) ride through untouched.
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**category** | **str** |  | 
-**description** | **str** |  | 
-**trait** | **str** |  | 
+**category** | **str** | What kind of fact this is, e.g. \&quot;hobby\&quot;. Required, non-empty. | 
+**description** | **str** | What the trait means and how it shows up, up to 4000 characters. | 
+**trait** | **str** | The inferred trait&#39;s name. Required, non-empty. | 
 
 ## Example
 

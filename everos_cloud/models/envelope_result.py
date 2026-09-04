@@ -25,7 +25,7 @@ from typing_extensions import Self
 
 class EnvelopeResult(BaseModel):
     """
-    EnvelopeResult
+    The response payload.
     """ # noqa: E501
     data: Optional[Any] = None
     additional_properties: Dict[str, Any] = {}

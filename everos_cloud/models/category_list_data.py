@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.category_data import CategoryData
 from typing import Optional, Set
@@ -28,7 +28,7 @@ class CategoryListData(BaseModel):
     """
     CategoryListData
     """ # noqa: E501
-    categories: Optional[List[CategoryData]] = None
+    categories: Optional[List[CategoryData]] = Field(default=None, description="Every category available in this knowledge base — the ones created here plus the tenant-global presets.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["categories"]
 

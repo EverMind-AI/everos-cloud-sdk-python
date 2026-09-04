@@ -1,5 +1,6 @@
 # Content
 
+The message body: a plain string (shorthand for a single text item), or a list of content items for multimodal input.
 
 ## Properties
 

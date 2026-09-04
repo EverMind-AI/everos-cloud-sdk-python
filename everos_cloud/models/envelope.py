@@ -29,7 +29,7 @@ class Envelope(BaseModel):
     Common response envelope
     """ # noqa: E501
     error: Optional[StrictStr] = Field(default=None, description="`\"OK\"` on success, otherwise a human-readable error message decoded from the business error. ")
-    request_id: Optional[StrictStr] = None
+    request_id: Optional[StrictStr] = Field(default=None, description="Id of this request — quote it when reporting a problem.")
     status: Optional[StrictInt] = Field(default=None, description="Business status code; 0 means success")
     result: Optional[EnvelopeResult] = None
     additional_properties: Dict[str, Any] = {}

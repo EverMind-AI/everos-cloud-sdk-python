@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message_count** | **int** |  | 
+**message_count** | **int** | How many messages this call accepted. | 
 **status** | **str** | \&quot;queued\&quot; — async enqueue accepted (HTTP 202). \&quot;accumulated\&quot;/\&quot;extracted\&quot; — synchronous write outcome (HTTP 200, async_mode&#x3D;false). | 
 
 ## Example

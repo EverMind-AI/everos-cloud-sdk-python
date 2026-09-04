@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class TaskStatsResponseData(BaseModel):
     """
-    TaskStatsResponseData
+    The per-status counts and the window they cover.
     """ # noqa: E501
     by_status: TaskStatsResponseDataByStatus
     end: datetime = Field(description="End of the window actually aggregated")

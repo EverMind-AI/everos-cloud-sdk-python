@@ -27,7 +27,7 @@ class ContentItem(BaseModel):
     """
     A single content element (appendix A). Current phase: only ``type=\"text\"``.
     """ # noqa: E501
-    type: StrictStr
+    type: StrictStr = Field(description="What this item is: \"text\", \"image\", \"audio\", \"doc\", \"pdf\", \"html\" or \"email\". It selects how the content is parsed, so it must match the payload.")
     text: Optional[StrictStr] = None
     source: Optional[StrictStr] = None
     var_base64: Optional[StrictStr] = Field(default=None, alias="base64")

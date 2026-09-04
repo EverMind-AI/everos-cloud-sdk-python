@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,8 +27,8 @@ class ToolCallFunction(BaseModel):
     """
     ToolCallFunction
     """ # noqa: E501
-    name: StrictStr
-    arguments: StrictStr
+    name: StrictStr = Field(description="Name of the function the assistant called.")
+    arguments: StrictStr = Field(description="The call's arguments as a JSON-encoded string (OpenAI shape), not an object.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["name", "arguments"]
 

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.task_item import TaskItem
 from typing import Optional, Set
@@ -28,8 +28,8 @@ class TaskStatusResponse(BaseModel):
     """
     TaskStatusResponse
     """ # noqa: E501
-    data: TaskItem
-    request_id: Optional[StrictStr] = None
+    data: TaskItem = Field(description="The task.")
+    request_id: Optional[StrictStr] = Field(default=None, description="Id of this request — quote it when reporting a problem.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["data", "request_id"]
 

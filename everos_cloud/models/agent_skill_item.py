@@ -18,7 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,18 +28,20 @@ class AgentSkillItem(BaseModel):
     """
     AgentSkillItem
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
-    agent_id: StrictStr
-    name: StrictStr
-    description: StrictStr
-    content: StrictStr
-    confidence: Union[StrictFloat, StrictInt]
-    maturity_score: Union[StrictFloat, StrictInt]
-    source_case_ids: Optional[List[StrictStr]] = None
+    id: StrictStr = Field(description="Agent-skill id.")
+    app_id: StrictStr = Field(description="The business-semantic scope this skill was written under.")
+    project_id: StrictStr = Field(description="Second half of that scope.")
+    agent_id: StrictStr = Field(description="The agent that owns this skill.")
+    name: StrictStr = Field(description="The skill's name.")
+    description: StrictStr = Field(description="What the skill is for, in a sentence.")
+    content: StrictStr = Field(description="The skill itself — the reusable procedure, ready to put in a prompt.")
+    confidence: Union[StrictFloat, StrictInt] = Field(description="How much the distillation trusts this skill. Nominally 0.0–1.0, defaulting to 0.0 before anything scores it; the range is not enforced on the write path. Nothing in retrieval filters on it today, and how it divides labour with `maturity_score` is still open — so do not build a threshold on it yet.")
+    maturity_score: Union[StrictFloat, StrictInt] = Field(description="How well-established the skill is. Nominally 0.0–1.0 and unenforced, and — unlike the other two scores — its default is 0.6 rather than 0.0, chosen so an unscored skill starts mid-optimistic. The cost is that an unscored 0.6 is indistinguishable from a scored 0.6: there is no \"not evaluated\" sentinel, and maturity scoring is skipped by default. Filtering near 0.6 is therefore unreliable.")
+    source_case_ids: Optional[List[StrictStr]] = Field(default=None, description="The agent cases this skill was distilled from. Fetch them for the underlying evidence.")
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "agent_id", "name", "description", "content", "confidence", "maturity_score", "source_case_ids"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "agent_id", "name", "description", "content", "confidence", "maturity_score", "source_case_ids", "created_at", "updated_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -86,6 +89,16 @@ class AgentSkillItem(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if created_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.created_at is None and "created_at" in self.model_fields_set:
+            _dict['created_at'] = None
+
+        # set to None if updated_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.updated_at is None and "updated_at" in self.model_fields_set:
+            _dict['updated_at'] = None
+
         return _dict
 
     @classmethod
@@ -107,7 +120,9 @@ class AgentSkillItem(BaseModel):
             "content": obj.get("content"),
             "confidence": obj.get("confidence"),
             "maturity_score": obj.get("maturity_score"),
-            "source_case_ids": obj.get("source_case_ids")
+            "source_case_ids": obj.get("source_case_ids"),
+            "created_at": obj.get("created_at"),
+            "updated_at": obj.get("updated_at")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

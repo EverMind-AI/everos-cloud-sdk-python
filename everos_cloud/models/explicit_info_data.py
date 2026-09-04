@@ -28,8 +28,8 @@ class ExplicitInfoData(BaseModel):
     """
     ``data`` payload for ``add explicit_info`` — ``category`` + ``description`` required (non-empty); other fields (``evidence``, ``sources``, …) pass through.
     """ # noqa: E501
-    category: Annotated[str, Field(min_length=1, strict=True)]
-    description: Annotated[str, Field(min_length=1, strict=True, max_length=4000)]
+    category: Annotated[str, Field(min_length=1, strict=True)] = Field(description="What kind of fact this is, e.g. \"hobby\". Required, non-empty.")
+    description: Annotated[str, Field(min_length=1, strict=True, max_length=4000)] = Field(description="The fact itself, up to 4000 characters. Required, non-empty.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["category", "description"]
 

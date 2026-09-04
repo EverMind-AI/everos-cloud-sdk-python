@@ -6,9 +6,9 @@ Full replacement (PUT semantics): overwrite each item's tag set with ``tags``.  
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**memory_type** | **str** |  | 
-**memory_ids** | **List[str]** |  | 
-**tags** | **List[str]** |  | 
+**memory_type** | **str** | The type of the memories being retagged, e.g. \&quot;episode\&quot;. | 
+**memory_ids** | **List[str]** | The memories to retag, by id (1–200 per request). | 
+**tags** | **List[str]** | The complete tag set to store (up to 100, each 1–32 characters). Tags absent from this list are dropped, and an empty list clears them all. Duplicates collapse. | 
 
 ## Example
 

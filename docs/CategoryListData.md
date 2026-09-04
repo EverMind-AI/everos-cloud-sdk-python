@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**categories** | [**List[CategoryData]**](CategoryData.md) |  | [optional] 
+**categories** | [**List[CategoryData]**](CategoryData.md) | Every category available in this knowledge base — the ones created here plus the tenant-global presets. | [optional] 
 
 ## Example
 

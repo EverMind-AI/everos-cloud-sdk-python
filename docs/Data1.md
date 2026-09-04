@@ -1,5 +1,6 @@
 # Data1
 
+Partial patch, shallow-merged into the stored item. At least one of the type's own keys must be present.
 
 ## Properties
 

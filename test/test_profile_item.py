@@ -40,7 +40,9 @@ class TestProfileItem(unittest.TestCase):
                 app_id = '',
                 project_id = '',
                 user_id = '',
-                profile_data = { }
+                profile_data = { },
+                created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
+                updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
             )
         else:
             return ProfileItem(

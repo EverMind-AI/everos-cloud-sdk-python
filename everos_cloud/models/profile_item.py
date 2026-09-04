@@ -18,7 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,13 +28,15 @@ class ProfileItem(BaseModel):
     """
     ProfileItem
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
-    user_id: StrictStr
-    profile_data: Optional[Dict[str, Any]] = None
+    id: StrictStr = Field(description="Profile id.")
+    app_id: StrictStr = Field(description="The business-semantic scope this profile was written under.")
+    project_id: StrictStr = Field(description="Second half of that scope.")
+    user_id: StrictStr = Field(description="The user this profile describes.")
+    profile_data: Optional[Dict[str, Any]] = Field(default=None, description="The profile itself — the explicit_info and implicit_traits items maintained by extraction and by /api/v2/memory/edit. Each item's id is what an edit operation targets.")
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "profile_data"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "profile_data", "created_at", "updated_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -81,6 +84,16 @@ class ProfileItem(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if created_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.created_at is None and "created_at" in self.model_fields_set:
+            _dict['created_at'] = None
+
+        # set to None if updated_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.updated_at is None and "updated_at" in self.model_fields_set:
+            _dict['updated_at'] = None
+
         return _dict
 
     @classmethod
@@ -97,7 +110,9 @@ class ProfileItem(BaseModel):
             "app_id": obj.get("app_id"),
             "project_id": obj.get("project_id"),
             "user_id": obj.get("user_id"),
-            "profile_data": obj.get("profile_data")
+            "profile_data": obj.get("profile_data"),
+            "created_at": obj.get("created_at"),
+            "updated_at": obj.get("updated_at")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

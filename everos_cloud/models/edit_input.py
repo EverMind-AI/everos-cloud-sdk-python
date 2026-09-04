@@ -29,11 +29,11 @@ class EditInput(BaseModel):
     """
     Bulk profile edit request [Cloud-only].  Carries 1–50 ``EditOperation`` items targeting a single user's profile. ``memory_type`` is pinned to ``\"profile\"``; ``source`` is server-set and not accepted from the client.
     """ # noqa: E501
-    app_id: Optional[StrictStr] = 'default'
-    project_id: Optional[StrictStr] = 'default'
-    user_id: Annotated[str, Field(min_length=1, strict=True)]
-    memory_type: Optional[StrictStr] = 'profile'
-    operations: Annotated[List[EditInputOperationsInner], Field(min_length=1, max_length=50)]
+    app_id: Optional[StrictStr] = Field(default='default', description="Scope the profile lives in, defaulting to \"default\".")
+    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
+    user_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The user whose profile is being edited.")
+    memory_type: Optional[StrictStr] = Field(default='profile', description="Pinned to \"profile\" — this endpoint edits nothing else.")
+    operations: Annotated[List[EditInputOperationsInner], Field(min_length=1, max_length=50)] = Field(description="1 to 50 edits applied in one call. \"add\" mints the item id and must not carry one; \"update\" and \"delete\" require an `item_id` whose prefix matches the item type (\"ei_\" for explicit_info, \"it_\" for implicit_traits). Each operation's outcome is reported separately, so one can be rejected while the rest apply.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "memory_type", "operations"]
 

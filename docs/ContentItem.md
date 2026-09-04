@@ -6,7 +6,7 @@ A single content element (appendix A). Current phase: only ``type=\"text\"``.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** |  | 
+**type** | **str** | What this item is: \&quot;text\&quot;, \&quot;image\&quot;, \&quot;audio\&quot;, \&quot;doc\&quot;, \&quot;pdf\&quot;, \&quot;html\&quot; or \&quot;email\&quot;. It selects how the content is parsed, so it must match the payload. | 
 **text** | **str** |  | [optional] 
 **source** | **str** |  | [optional] 
 **var_base64** | **str** |  | [optional] 

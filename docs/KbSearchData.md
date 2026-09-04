@@ -6,9 +6,9 @@ Knowledge search response payload. Prefixed ``Kb`` to stay distinct from ``memor
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**hits** | [**List[SearchHit]**](SearchHit.md) |  | [optional] 
-**total** | **int** |  | [optional] [default to 0]
-**took_ms** | **float** |  | [optional] [default to 0.0]
+**hits** | [**List[SearchHit]**](SearchHit.md) | Matching topics, most relevant first. | 
+**total** | **int** | How many topics matched. | 
+**took_ms** | **float** | How long the search took, in milliseconds. | 
 
 ## Example
 

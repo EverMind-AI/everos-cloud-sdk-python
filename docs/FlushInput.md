@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**app_id** | **str** |  | [optional] [default to 'default']
-**project_id** | **str** |  | [optional] [default to 'default']
-**session_id** | **str** |  | 
+**app_id** | **str** | Scope the session lives in, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
+**project_id** | **str** | Second half of the scope, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
+**session_id** | **str** | The session to extract from. Only messages already accumulated for this session are considered, so a still-queued async add yields \&quot;no_extraction\&quot;. | 
 
 ## Example
 

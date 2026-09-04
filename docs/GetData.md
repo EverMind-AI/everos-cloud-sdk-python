@@ -5,12 +5,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**episodes** | [**List[EpisodeItem]**](EpisodeItem.md) |  | [optional] 
-**profiles** | [**List[ProfileItem]**](ProfileItem.md) |  | [optional] 
-**agent_cases** | [**List[AgentCaseItem]**](AgentCaseItem.md) |  | [optional] 
-**agent_skills** | [**List[AgentSkillItem]**](AgentSkillItem.md) |  | [optional] 
-**total_count** | **int** |  | [optional] [default to 0]
-**count** | **int** |  | [optional] [default to 0]
+**episodes** | [**List[EpisodeItem]**](EpisodeItem.md) | Episodes, when &#x60;memory_type&#x60; was \&quot;episode\&quot;. Empty otherwise. | [optional] 
+**profiles** | [**List[ProfileItem]**](ProfileItem.md) | Profiles, when &#x60;memory_type&#x60; was \&quot;profile\&quot;. Empty otherwise. | [optional] 
+**agent_cases** | [**List[AgentCaseItem]**](AgentCaseItem.md) | Agent cases, when &#x60;memory_type&#x60; was \&quot;agent_case\&quot;. Empty otherwise. | [optional] 
+**agent_skills** | [**List[AgentSkillItem]**](AgentSkillItem.md) | Agent skills, when &#x60;memory_type&#x60; was \&quot;agent_skill\&quot;. Empty otherwise. | [optional] 
+**total_count** | **int** | How many memories match the request in total, across all pages. | [optional] [default to 0]
+**count** | **int** | How many are in this page. | [optional] [default to 0]
 
 ## Example
 

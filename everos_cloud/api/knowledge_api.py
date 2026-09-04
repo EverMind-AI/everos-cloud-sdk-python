@@ -26,6 +26,7 @@ from everos_cloud.models.doc_ingest_body import DocIngestBody
 from everos_cloud.models.doc_patch_body import DocPatchBody
 from everos_cloud.models.kb_create_input import KbCreateInput
 from everos_cloud.models.kb_patch_body import KbPatchBody
+from everos_cloud.models.related_tag_usage_body import RelatedTagUsageBody
 from everos_cloud.models.search_body import SearchBody
 from everos_cloud.models.success_envelope_category_data import SuccessEnvelopeCategoryData
 from everos_cloud.models.success_envelope_category_delete_data import SuccessEnvelopeCategoryDeleteData
@@ -39,8 +40,12 @@ from everos_cloud.models.success_envelope_kb_data import SuccessEnvelopeKbData
 from everos_cloud.models.success_envelope_kb_delete_data import SuccessEnvelopeKbDeleteData
 from everos_cloud.models.success_envelope_kb_list_data import SuccessEnvelopeKbListData
 from everos_cloud.models.success_envelope_kb_search_data import SuccessEnvelopeKbSearchData
+from everos_cloud.models.success_envelope_related_tag_usage_list_data import SuccessEnvelopeRelatedTagUsageListData
 from everos_cloud.models.success_envelope_topic_detail_data import SuccessEnvelopeTopicDetailData
+from everos_cloud.models.success_envelope_topic_filter_list_data import SuccessEnvelopeTopicFilterListData
 from everos_cloud.models.success_envelope_topic_list_data import SuccessEnvelopeTopicListData
+from everos_cloud.models.success_envelope_topic_tag_write_data import SuccessEnvelopeTopicTagWriteData
+from everos_cloud.models.topic_tag_replace_body import TopicTagReplaceBody
 
 from everos_cloud.api_client import ApiClient, RequestSerialized
 from everos_cloud.api_response import ApiResponse
@@ -80,6 +85,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeCategoryData:
         """Create a category
 
+        Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -155,6 +161,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeCategoryData]:
         """Create a category
 
+        Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -230,6 +237,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Create a category
 
+        Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -381,6 +389,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeDocIngestData:
         """Upload a document (async ingest)
 
+        Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -456,6 +465,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeDocIngestData]:
         """Upload a document (async ingest)
 
+        Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -531,6 +541,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Upload a document (async ingest)
 
+        Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -681,6 +692,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbData:
         """Create a knowledge base
 
+        Create a knowledge base — a searchable document library with its own category taxonomy. The returned id is the `kb_id` every other knowledge operation takes.
 
         :param kb_create_input: (required)
         :type kb_create_input: KbCreateInput
@@ -752,6 +764,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbData]:
         """Create a knowledge base
 
+        Create a knowledge base — a searchable document library with its own category taxonomy. The returned id is the `kb_id` every other knowledge operation takes.
 
         :param kb_create_input: (required)
         :type kb_create_input: KbCreateInput
@@ -823,6 +836,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Create a knowledge base
 
+        Create a knowledge base — a searchable document library with its own category taxonomy. The returned id is the `kb_id` every other knowledge operation takes.
 
         :param kb_create_input: (required)
         :type kb_create_input: KbCreateInput
@@ -968,6 +982,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeCategoryDeleteData:
         """Delete a category
 
+        Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1043,6 +1058,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeCategoryDeleteData]:
         """Delete a category
 
+        Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1118,6 +1134,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Delete a category
 
+        Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1256,6 +1273,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeDocDeleteData:
         """Delete a document (+ cascade nodes, P5)
 
+        Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1331,6 +1349,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeDocDeleteData]:
         """Delete a document (+ cascade nodes, P5)
 
+        Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1406,6 +1425,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Delete a document (+ cascade nodes, P5)
 
+        Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1543,6 +1563,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbDeleteData:
         """Delete a knowledge base
 
+        Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1614,6 +1635,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbDeleteData]:
         """Delete a knowledge base
 
+        Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1685,6 +1707,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Delete a knowledge base
 
+        Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1817,6 +1840,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeDocData:
         """Get a document (with topic_count)
 
+        Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1892,6 +1916,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeDocData]:
         """Get a document (with topic_count)
 
+        Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1967,6 +1992,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Get a document (with topic_count)
 
+        Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2104,6 +2130,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbData:
         """Get a knowledge base
 
+        Read one knowledge base's metadata, including its document count.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2175,6 +2202,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbData]:
         """Get a knowledge base
 
+        Read one knowledge base's metadata, including its document count.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2246,6 +2274,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Get a knowledge base
 
+        Read one knowledge base's metadata, including its document count.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2379,6 +2408,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeTopicDetailData:
         """Get a topic's full content (inline / S3 transparent)
 
+        Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2420,6 +2450,7 @@ class KnowledgeApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicDetailData",
+            '404': None,
             '422': "HTTPValidationError",
             '401': "Dict[str, object]",
             '403': "Dict[str, object]",
@@ -2458,6 +2489,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeTopicDetailData]:
         """Get a topic's full content (inline / S3 transparent)
 
+        Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2499,6 +2531,7 @@ class KnowledgeApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicDetailData",
+            '404': None,
             '422': "HTTPValidationError",
             '401': "Dict[str, object]",
             '403': "Dict[str, object]",
@@ -2537,6 +2570,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Get a topic's full content (inline / S3 transparent)
 
+        Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2578,6 +2612,7 @@ class KnowledgeApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeTopicDetailData",
+            '404': None,
             '422': "HTTPValidationError",
             '401': "Dict[str, object]",
             '403': "Dict[str, object]",
@@ -2680,6 +2715,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeCategoryListData:
         """List categories in a knowledge base
 
+        List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2751,6 +2787,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeCategoryListData]:
         """List categories in a knowledge base
 
+        List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2822,6 +2859,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """List categories in a knowledge base
 
+        List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2956,6 +2994,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeDocListData:
         """List documents in a knowledge base
 
+        Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3039,6 +3078,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeDocListData]:
         """List documents in a knowledge base
 
+        Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3122,6 +3162,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """List documents in a knowledge base
 
+        Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3261,8 +3302,8 @@ class KnowledgeApi:
     @validate_call
     def list_knowledge_bases(
         self,
-        page: Optional[StrictInt] = None,
-        page_size: Optional[StrictInt] = None,
+        page: Optional[Annotated[int, Field(strict=True, ge=1)]] = None,
+        page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         owner_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -3279,6 +3320,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbListData:
         """List knowledge bases
 
+        Paginated list of the account's knowledge bases, each with its document count.
 
         :param page:
         :type page: int
@@ -3340,8 +3382,8 @@ class KnowledgeApi:
     @validate_call
     def list_knowledge_bases_with_http_info(
         self,
-        page: Optional[StrictInt] = None,
-        page_size: Optional[StrictInt] = None,
+        page: Optional[Annotated[int, Field(strict=True, ge=1)]] = None,
+        page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         owner_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -3358,6 +3400,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbListData]:
         """List knowledge bases
 
+        Paginated list of the account's knowledge bases, each with its document count.
 
         :param page:
         :type page: int
@@ -3419,8 +3462,8 @@ class KnowledgeApi:
     @validate_call
     def list_knowledge_bases_without_preload_content(
         self,
-        page: Optional[StrictInt] = None,
-        page_size: Optional[StrictInt] = None,
+        page: Optional[Annotated[int, Field(strict=True, ge=1)]] = None,
+        page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         owner_id: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
@@ -3437,6 +3480,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """List knowledge bases
 
+        Paginated list of the account's knowledge bases, each with its document count.
 
         :param page:
         :type page: int
@@ -3588,6 +3632,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeTopicListData:
         """List a document's topic tree (optionally with each topic's content)
 
+        List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3667,6 +3712,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeTopicListData]:
         """List a document's topic tree (optionally with each topic's content)
 
+        List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3746,6 +3792,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """List a document's topic tree (optionally with each topic's content)
 
+        List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3874,6 +3921,638 @@ class KnowledgeApi:
 
 
     @validate_call
+    def list_topics_by_tags(
+        self,
+        kb_id: Annotated[StrictStr, Field(description="The knowledge base to search within.")],
+        tag_ids: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1, max_length=100, description="Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything.")],
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="1-based page number.")] = None,
+        page_size: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page, 1 to 100 (default 20).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeTopicFilterListData:
+        """List tag-matched topics in a knowledge base
+
+        Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+
+        :param kb_id: The knowledge base to search within. (required)
+        :type kb_id: str
+        :param tag_ids: Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything. (required)
+        :type tag_ids: List[str]
+        :param page: 1-based page number.
+        :type page: int
+        :param page_size: Items per page, 1 to 100 (default 20).
+        :type page_size: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_topics_by_tags_serialize(
+            kb_id=kb_id,
+            tag_ids=tag_ids,
+            page=page,
+            page_size=page_size,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeTopicFilterListData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_topics_by_tags_with_http_info(
+        self,
+        kb_id: Annotated[StrictStr, Field(description="The knowledge base to search within.")],
+        tag_ids: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1, max_length=100, description="Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything.")],
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="1-based page number.")] = None,
+        page_size: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page, 1 to 100 (default 20).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeTopicFilterListData]:
+        """List tag-matched topics in a knowledge base
+
+        Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+
+        :param kb_id: The knowledge base to search within. (required)
+        :type kb_id: str
+        :param tag_ids: Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything. (required)
+        :type tag_ids: List[str]
+        :param page: 1-based page number.
+        :type page: int
+        :param page_size: Items per page, 1 to 100 (default 20).
+        :type page_size: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_topics_by_tags_serialize(
+            kb_id=kb_id,
+            tag_ids=tag_ids,
+            page=page,
+            page_size=page_size,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeTopicFilterListData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_topics_by_tags_without_preload_content(
+        self,
+        kb_id: Annotated[StrictStr, Field(description="The knowledge base to search within.")],
+        tag_ids: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1, max_length=100, description="Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything.")],
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="1-based page number.")] = None,
+        page_size: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page, 1 to 100 (default 20).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List tag-matched topics in a knowledge base
+
+        Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+
+        :param kb_id: The knowledge base to search within. (required)
+        :type kb_id: str
+        :param tag_ids: Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything. (required)
+        :type tag_ids: List[str]
+        :param page: 1-based page number.
+        :type page: int
+        :param page_size: Items per page, 1 to 100 (default 20).
+        :type page_size: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_topics_by_tags_serialize(
+            kb_id=kb_id,
+            tag_ids=tag_ids,
+            page=page,
+            page_size=page_size,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeTopicFilterListData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_topics_by_tags_serialize(
+        self,
+        kb_id,
+        tag_ids,
+        page,
+        page_size,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+            'tag_ids': 'multi',
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if kb_id is not None:
+            _path_params['kb_id'] = kb_id
+        # process the query parameters
+        if tag_ids is not None:
+            
+            _query_params.append(('tag_ids', tag_ids))
+            
+        if page is not None:
+            
+            _query_params.append(('page', page))
+            
+        if page_size is not None:
+            
+            _query_params.append(('page_size', page_size))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v2/knowledge_bases/{kb_id}/topics',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def query_related_tags(
+        self,
+        kb_id: StrictStr,
+        related_tag_usage_body: RelatedTagUsageBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeRelatedTagUsageListData:
+        """Count candidate tags used by live documents in a knowledge base
+
+        Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+
+        :param kb_id: (required)
+        :type kb_id: str
+        :param related_tag_usage_body: (required)
+        :type related_tag_usage_body: RelatedTagUsageBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._query_related_tags_serialize(
+            kb_id=kb_id,
+            related_tag_usage_body=related_tag_usage_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRelatedTagUsageListData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def query_related_tags_with_http_info(
+        self,
+        kb_id: StrictStr,
+        related_tag_usage_body: RelatedTagUsageBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeRelatedTagUsageListData]:
+        """Count candidate tags used by live documents in a knowledge base
+
+        Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+
+        :param kb_id: (required)
+        :type kb_id: str
+        :param related_tag_usage_body: (required)
+        :type related_tag_usage_body: RelatedTagUsageBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._query_related_tags_serialize(
+            kb_id=kb_id,
+            related_tag_usage_body=related_tag_usage_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRelatedTagUsageListData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def query_related_tags_without_preload_content(
+        self,
+        kb_id: StrictStr,
+        related_tag_usage_body: RelatedTagUsageBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Count candidate tags used by live documents in a knowledge base
+
+        Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+
+        :param kb_id: (required)
+        :type kb_id: str
+        :param related_tag_usage_body: (required)
+        :type related_tag_usage_body: RelatedTagUsageBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._query_related_tags_serialize(
+            kb_id=kb_id,
+            related_tag_usage_body=related_tag_usage_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRelatedTagUsageListData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _query_related_tags_serialize(
+        self,
+        kb_id,
+        related_tag_usage_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if kb_id is not None:
+            _path_params['kb_id'] = kb_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if related_tag_usage_body is not None:
+            _body_params = related_tag_usage_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/knowledge_bases/{kb_id}/tags',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def replace_document(
         self,
         kb_id: StrictStr,
@@ -3894,6 +4573,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeDocIngestData:
         """Replace a document (async, atomic swap)
 
+        Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3973,6 +4653,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeDocIngestData]:
         """Replace a document (async, atomic swap)
 
+        Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4052,6 +4733,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Replace a document (async, atomic swap)
 
+        Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4190,6 +4872,349 @@ class KnowledgeApi:
 
 
     @validate_call
+    def replace_topic_tags(
+        self,
+        kb_id: StrictStr,
+        doc_id: StrictStr,
+        topic_id: StrictStr,
+        topic_tag_replace_body: TopicTagReplaceBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeTopicTagWriteData:
+        """Replace the complete materialized semantic tag snapshot of a topic
+
+        version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+
+        :param kb_id: (required)
+        :type kb_id: str
+        :param doc_id: (required)
+        :type doc_id: str
+        :param topic_id: (required)
+        :type topic_id: str
+        :param topic_tag_replace_body: (required)
+        :type topic_tag_replace_body: TopicTagReplaceBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._replace_topic_tags_serialize(
+            kb_id=kb_id,
+            doc_id=doc_id,
+            topic_id=topic_id,
+            topic_tag_replace_body=topic_tag_replace_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeTopicTagWriteData",
+            '404': None,
+            '409': "ErrorEnvelope",
+            '500': "ErrorEnvelope",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def replace_topic_tags_with_http_info(
+        self,
+        kb_id: StrictStr,
+        doc_id: StrictStr,
+        topic_id: StrictStr,
+        topic_tag_replace_body: TopicTagReplaceBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeTopicTagWriteData]:
+        """Replace the complete materialized semantic tag snapshot of a topic
+
+        version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+
+        :param kb_id: (required)
+        :type kb_id: str
+        :param doc_id: (required)
+        :type doc_id: str
+        :param topic_id: (required)
+        :type topic_id: str
+        :param topic_tag_replace_body: (required)
+        :type topic_tag_replace_body: TopicTagReplaceBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._replace_topic_tags_serialize(
+            kb_id=kb_id,
+            doc_id=doc_id,
+            topic_id=topic_id,
+            topic_tag_replace_body=topic_tag_replace_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeTopicTagWriteData",
+            '404': None,
+            '409': "ErrorEnvelope",
+            '500': "ErrorEnvelope",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def replace_topic_tags_without_preload_content(
+        self,
+        kb_id: StrictStr,
+        doc_id: StrictStr,
+        topic_id: StrictStr,
+        topic_tag_replace_body: TopicTagReplaceBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Replace the complete materialized semantic tag snapshot of a topic
+
+        version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+
+        :param kb_id: (required)
+        :type kb_id: str
+        :param doc_id: (required)
+        :type doc_id: str
+        :param topic_id: (required)
+        :type topic_id: str
+        :param topic_tag_replace_body: (required)
+        :type topic_tag_replace_body: TopicTagReplaceBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._replace_topic_tags_serialize(
+            kb_id=kb_id,
+            doc_id=doc_id,
+            topic_id=topic_id,
+            topic_tag_replace_body=topic_tag_replace_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeTopicTagWriteData",
+            '404': None,
+            '409': "ErrorEnvelope",
+            '500': "ErrorEnvelope",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _replace_topic_tags_serialize(
+        self,
+        kb_id,
+        doc_id,
+        topic_id,
+        topic_tag_replace_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if kb_id is not None:
+            _path_params['kb_id'] = kb_id
+        if doc_id is not None:
+            _path_params['doc_id'] = doc_id
+        if topic_id is not None:
+            _path_params['topic_id'] = topic_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if topic_tag_replace_body is not None:
+            _body_params = topic_tag_replace_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}/tag/replace',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def search_knowledge(
         self,
         kb_id: StrictStr,
@@ -4209,6 +5234,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbSearchData:
         """Search within a knowledge base (keyword / vector / hybrid)
 
+        Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4284,6 +5310,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbSearchData]:
         """Search within a knowledge base (keyword / vector / hybrid)
 
+        Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4359,6 +5386,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Search within a knowledge base (keyword / vector / hybrid)
 
+        Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4511,6 +5539,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeCategoryData:
         """Update a category
 
+        Rename a category or edit its description. Documents filed under it are not re-classified; they keep pointing at the same category id. Tenant-global preset categories are read-only.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4590,6 +5619,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeCategoryData]:
         """Update a category
 
+        Rename a category or edit its description. Documents filed under it are not re-classified; they keep pointing at the same category id. Tenant-global preset categories are read-only.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4669,6 +5699,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Update a category
 
+        Rename a category or edit its description. Documents filed under it are not re-classified; they keep pointing at the same category id. Tenant-global preset categories are read-only.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4827,6 +5858,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeDocPatchData:
         """Update document metadata (title / category)
 
+        Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4906,6 +5938,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeDocPatchData]:
         """Update document metadata (title / category)
 
+        Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4985,6 +6018,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Update document metadata (title / category)
 
+        Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5142,6 +6176,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbData:
         """Update a knowledge base
 
+        Patch a knowledge base's name or description. Metadata only — it does not touch the documents inside it.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5217,6 +6252,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbData]:
         """Update a knowledge base
 
+        Patch a knowledge base's name or description. Metadata only — it does not touch the documents inside it.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5292,6 +6328,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Update a knowledge base
 
+        Patch a knowledge base's name or description. Metadata only — it does not touch the documents inside it.
 
         :param kb_id: (required)
         :type kb_id: str

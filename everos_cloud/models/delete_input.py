@@ -28,8 +28,8 @@ class DeleteInput(BaseModel):
     """
     DeleteInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = 'default'
-    project_id: Optional[StrictStr] = 'default'
+    app_id: Optional[StrictStr] = Field(default='default', description="Scope to delete within, defaulting to \"default\".")
+    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
     user_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
     agent_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
     session_id: Optional[StrictStr] = None

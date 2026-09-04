@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.content import Content
 from everos_cloud.models.tool_call import ToolCall
@@ -29,10 +29,10 @@ class MessageItem(BaseModel):
     """
     One message in an /add batch (spec §2). ``content`` accepts a plain string (shorthand for a single text ContentItem) or an explicit ContentItem list.
     """ # noqa: E501
-    sender_id: StrictStr
+    sender_id: StrictStr = Field(description="Who produced this message — the user id for a user turn, the agent id for an assistant turn. This is the identifier /api/v2/memory/get and /api/v2/memory/search later scope by (`user_id` / `agent_id`).")
     sender_name: Optional[StrictStr] = None
-    role: StrictStr
-    timestamp: StrictInt
+    role: StrictStr = Field(description="Turn type: \"user\", \"assistant\", or \"tool\" for a tool result. An agent trajectory uses the OpenAI shape — an \"assistant\" message carrying `tool_calls`, followed by a \"tool\" message carrying `tool_call_id`.")
+    timestamp: StrictInt = Field(description="When the message was produced, as a UNIX timestamp in MILLISECONDS. A seconds-scale value is rejected with 422 rather than silently rescaled, because a window mixing the two would mis-order and mis-split.")
     content: Content
     tool_calls: Optional[List[ToolCall]] = None
     tool_call_id: Optional[StrictStr] = None

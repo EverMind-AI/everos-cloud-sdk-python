@@ -30,7 +30,7 @@ DATA1_ANY_OF_SCHEMAS = ["ExplicitInfoPatch", "ImplicitTraitPatch"]
 
 class Data1(BaseModel):
     """
-    Data1
+    Partial patch, shallow-merged into the stored item. At least one of the type's own keys must be present.
     """
 
     # data type: ExplicitInfoPatch

@@ -27,8 +27,8 @@ class SignedInfo(BaseModel):
     """
     Presigned POST form data for direct-to-S3 upload
     """ # noqa: E501
-    url: Optional[StrictStr] = None
-    fields: Optional[Dict[str, StrictStr]] = None
+    url: Optional[StrictStr] = Field(default=None, description="The URL to POST the file to.")
+    fields: Optional[Dict[str, StrictStr]] = Field(default=None, description="Form fields that must accompany the upload, exactly as given, with the file itself last.")
     max_size: Optional[StrictInt] = Field(default=None, description="Maximum file size in bytes", alias="maxSize")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["url", "fields", "maxSize"]

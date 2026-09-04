@@ -29,18 +29,18 @@ class SearchInput(BaseModel):
     """
     SearchInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = 'default'
-    project_id: Optional[StrictStr] = 'default'
+    app_id: Optional[StrictStr] = Field(default='default', description="Scope to search in, defaulting to \"default\". Must match the pair used on write.")
+    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
     user_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
     agent_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
-    query: Annotated[str, Field(min_length=1, strict=True)]
-    method: Optional[StrictStr] = 'hybrid'
-    top_k: Optional[StrictInt] = -1
+    query: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The natural-language query to retrieve against.")
+    method: Optional[StrictStr] = Field(default='hybrid', description="Retrieval strategy. \"keyword\" is lexical, \"vector\" is embedding similarity, \"hybrid\" (default) combines both, and \"agentic\" lets the engine run a multi-round LLM-guided retrieval — more thorough, slower.")
+    top_k: Optional[StrictInt] = Field(default=-1, description="Maximum number of hits. Either -1 (the default, letting the engine decide) or a value from 1 to 100; anything else is rejected with 422.")
     radius: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
     min_score: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
-    include_profile: Optional[StrictBool] = False
-    with_readable_episode: Optional[StrictBool] = False
-    enable_llm_rerank: Optional[StrictBool] = False
+    include_profile: Optional[StrictBool] = Field(default=False, description="Also return the user's profile alongside the hits, saving a second call. Ignored for an agent owner, whose results carry no profiles.")
+    with_readable_episode: Optional[StrictBool] = Field(default=False, description="Attach a human-readable rendering of each episode to the returned items, for display only — it is not indexed, filterable or scored, and callers fall back to `episode` when it is null. Ignored for an agent owner.")
+    enable_llm_rerank: Optional[StrictBool] = Field(default=False, description="Opt-in LLM rerank, and only for hybrid agent_case / agent_skill retrieval. The episode hybrid path has its own fact eviction and ignores this, as do keyword, vector and agentic.")
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "query", "method", "top_k", "radius", "min_score", "include_profile", "with_readable_episode", "enable_llm_rerank", "filters"]

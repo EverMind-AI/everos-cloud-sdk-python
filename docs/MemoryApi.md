@@ -20,6 +20,8 @@ Method | HTTP request | Description
 
 Add messages [OSS + Cloud]
 
+Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -103,6 +105,8 @@ Name | Type | Description  | Notes
 
 Bind tags to memory items [Cloud]
 
+Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -184,6 +188,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeDeleteData delete_memory(delete_input)
 
 Delete memories [Cloud-only]
+
+Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
 
 ### Example
 
@@ -267,6 +273,8 @@ Name | Type | Description  | Notes
 
 Edit profile items [Cloud-only]
 
+Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -348,6 +356,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeFlushData flush_memory(flush_input)
 
 Force memory extraction [OSS + Cloud]
+
+Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
 
 ### Example
 
@@ -431,6 +441,8 @@ Name | Type | Description  | Notes
 
 Get memories (paginated) [OSS + Cloud]
 
+List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -512,6 +524,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeTagReplaceData replace_tags(tag_replace_input)
 
 Replace (overwrite) tags on memory items [Cloud]
+
+Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
 ### Example
 
@@ -595,6 +609,8 @@ Name | Type | Description  | Notes
 
 Search memories [OSS + Cloud]
 
+Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
+
 ### Example
 
 * Bearer Authentication (BearerAuth):
@@ -676,6 +692,8 @@ Name | Type | Description  | Notes
 > SuccessEnvelopeTagUnbindData unbind_tags(tag_unbind_input)
 
 Unbind tags from memory items [Cloud]
+
+Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
 ### Example
 

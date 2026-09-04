@@ -1,5 +1,6 @@
 # TaskStatsResponseData
 
+The per-status counts and the window they cover.
 
 ## Properties
 

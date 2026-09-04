@@ -19,8 +19,9 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,24 +29,34 @@ class TopicDetailData(BaseModel):
     """
     Full topic (node), with content transparently restored (inline or from S3).
     """ # noqa: E501
-    id: StrictStr
-    doc_id: StrictStr
-    kb_id: StrictStr
-    category_id: Optional[StrictStr] = ''
+    id: StrictStr = Field(description="Topic id.")
+    doc_id: StrictStr = Field(description="The document this topic was extracted from.")
+    kb_id: StrictStr = Field(description="The knowledge base that document belongs to.")
+    type: StrictStr = Field(description="Structural role of this topic node")
+    category_id: Optional[StrictStr] = Field(default='', description="The category the document is filed under; empty when uncategorized.")
     category_name: Optional[StrictStr] = None
-    name: StrictStr
-    depth: Optional[StrictInt] = 0
-    seq: Optional[StrictInt] = 0
-    summary: Optional[StrictStr] = ''
+    name: StrictStr = Field(description="The topic's title.")
+    depth: Optional[StrictInt] = Field(default=0, description="Depth in the document tree — 0 is the document root, 1 a top-level topic.")
+    seq: Optional[StrictInt] = Field(default=0, description="Depth-first position within the document. Use it as an ordering, not as an index to compute with.")
+    summary: Optional[StrictStr] = Field(default='', description="Retrieval-oriented summary covering this topic and everything under it.")
     content: Optional[StrictStr] = None
-    labels: Optional[List[StrictStr]] = None
+    labels: Optional[List[StrictStr]] = Field(default=None, description="Labels attached to the topic during extraction.")
     parent_id: Optional[StrictStr] = None
-    children_ids: Optional[List[StrictStr]] = None
-    metadata: Optional[Dict[str, Any]] = None
+    children_ids: Optional[List[StrictStr]] = Field(default=None, description="The topics directly beneath this one.")
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Extraction metadata carried alongside the topic.")
+    tag_ids: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=50)] = Field(description="Opaque final materialized semantic tag ids (maximum 50)")
+    version: Annotated[int, Field(strict=True, ge=0)] = Field(description="Current topic tag CAS version")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "doc_id", "kb_id", "category_id", "category_name", "name", "depth", "seq", "summary", "content", "labels", "parent_id", "children_ids", "metadata", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "doc_id", "kb_id", "type", "category_id", "category_name", "name", "depth", "seq", "summary", "content", "labels", "parent_id", "children_ids", "metadata", "tag_ids", "version", "created_at", "updated_at"]
+
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['root', 'section', 'element']):
+            raise ValueError("must be one of enum values ('root', 'section', 'element')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -133,6 +144,7 @@ class TopicDetailData(BaseModel):
             "id": obj.get("id"),
             "doc_id": obj.get("doc_id"),
             "kb_id": obj.get("kb_id"),
+            "type": obj.get("type"),
             "category_id": obj.get("category_id") if obj.get("category_id") is not None else '',
             "category_name": obj.get("category_name"),
             "name": obj.get("name"),
@@ -144,6 +156,8 @@ class TopicDetailData(BaseModel):
             "parent_id": obj.get("parent_id"),
             "children_ids": obj.get("children_ids"),
             "metadata": obj.get("metadata"),
+            "tag_ids": obj.get("tag_ids"),
+            "version": obj.get("version"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")
         })

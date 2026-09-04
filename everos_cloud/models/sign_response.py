@@ -28,7 +28,7 @@ class SignResponse(BaseModel):
     """
     SignResponse
     """ # noqa: E501
-    object_list: Optional[List[SignResponseItem]] = Field(default=None, alias="objectList")
+    object_list: Optional[List[SignResponseItem]] = Field(default=None, description="One signed entry per requested file, in the same order.", alias="objectList")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["objectList"]
 

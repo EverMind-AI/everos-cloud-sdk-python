@@ -27,7 +27,7 @@ class AddData(BaseModel):
     """
     AddData
     """ # noqa: E501
-    message_count: StrictInt
+    message_count: StrictInt = Field(description="How many messages this call accepted.")
     status: StrictStr = Field(description="\"queued\" — async enqueue accepted (HTTP 202). \"accumulated\"/\"extracted\" — synchronous write outcome (HTTP 200, async_mode=false).")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["message_count", "status"]

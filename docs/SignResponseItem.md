@@ -5,12 +5,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_id** | **str** |  | [optional] 
-**file_name** | **str** |  | [optional] 
-**file_type** | **str** |  | [optional] 
-**object_key** | **str** |  | [optional] 
+**file_id** | **str** | The id you supplied for this file. | [optional] 
+**file_name** | **str** | The file&#39;s name, echoed back. | [optional] 
+**file_type** | **str** | The type the service resolved for it. | [optional] 
+**object_key** | **str** | The stored object&#39;s key — this is the value to pass later as a content &#x60;uri&#x60; on /api/v2/memory/add or a document ingest. | [optional] 
 **object_url** | **str** | Present in the response struct for parity with the find endpoint, but not populated on the sign path (omitted from the JSON).  | [optional] 
-**object_signed_info** | [**SignedInfo**](SignedInfo.md) |  | [optional] 
+**object_signed_info** | [**SignedInfo**](SignedInfo.md) | Where and how to upload the bytes. | [optional] 
 
 ## Example
 

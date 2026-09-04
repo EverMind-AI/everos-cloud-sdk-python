@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**type** | **str** |  | [optional] [default to 'function']
-**function** | [**ToolCallFunction**](ToolCallFunction.md) |  | 
+**id** | **str** | Tool-call id; the matching \&quot;tool\&quot; message echoes it as &#x60;tool_call_id&#x60;. | 
+**type** | **str** | Tool-call kind. Always \&quot;function\&quot; today. | [optional] [default to 'function']
+**function** | [**ToolCallFunction**](ToolCallFunction.md) | The function invoked, with its arguments. | 
 
 ## Example
 

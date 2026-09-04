@@ -7,9 +7,9 @@ Update an existing profile item (partial ``data`` shallow-merge).
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **reason** | **str** |  | [optional] 
-**action** | **str** |  | 
-**type** | **str** |  | 
-**item_id** | **str** |  | 
+**action** | **str** | Always \&quot;update\&quot; for this variant. | 
+**type** | **str** | Which profile item this edit targets — \&quot;explicit_info\&quot; or \&quot;implicit_traits\&quot;. It must match the &#x60;item_id&#x60; prefix. | 
+**item_id** | **str** | The item to update. Its prefix must match the item type — \&quot;ei_\&quot; for explicit_info, \&quot;it_\&quot; for implicit_traits — followed by 24 hex characters. | 
 **data** | [**Data1**](Data1.md) |  | 
 
 ## Example

@@ -7,9 +7,9 @@ A category as returned to clients. ``id`` is the system-generated stable key.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Category id (system-generated, stable) | 
-**name** | **str** |  | 
-**description** | **str** |  | [optional] [default to '']
-**document_count** | **int** |  | [optional] [default to 0]
+**name** | **str** | The category&#39;s display name. | 
+**description** | **str** | What belongs in this category. The classifier matches documents against this text, so it is functional, not decorative. | [optional] [default to '']
+**document_count** | **int** | How many documents are filed under it. | [optional] [default to 0]
 **scope** | **str** | &#39;kb&#39; &#x3D; user-created in this kb; &#39;tenant&#39; &#x3D; global preset (read-only) | [optional] [default to 'kb']
 **editable** | **bool** | False for tenant-global preset categories (read-only) | [optional] [default to True]
 

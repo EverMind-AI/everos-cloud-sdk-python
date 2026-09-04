@@ -28,9 +28,9 @@ class TagReplaceInput(BaseModel):
     """
     Full replacement (PUT semantics): overwrite each item's tag set with ``tags``.  ``tags`` may be empty — an empty list clears all tags on the targeted items. Duplicates collapse (tags is a set; the service dedups before ``$set``).
     """ # noqa: E501
-    memory_type: Annotated[str, Field(min_length=1, strict=True)]
-    memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=200)]
-    tags: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(max_length=100)]
+    memory_type: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The type of the memories being retagged, e.g. \"episode\".")
+    memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=200)] = Field(description="The memories to retag, by id (1–200 per request).")
+    tags: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(max_length=100)] = Field(description="The complete tag set to store (up to 100, each 1–32 characters). Tags absent from this list are dropped, and an empty list clears them all. Duplicates collapse.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "tags"]
 

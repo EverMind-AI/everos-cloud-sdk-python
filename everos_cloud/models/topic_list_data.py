@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.topic_list_item import TopicListItem
 from typing import Optional, Set
@@ -28,7 +28,7 @@ class TopicListData(BaseModel):
     """
     A document's topic tree, DFS-ordered (flat list; build the tree from `parent_id`).  The list INCLUDES the synthetic document-root item (`type=root`), so ``len(topics) == document.topic_count + 1`` — the document's ``topic_count`` counts real topics only. Two consumer recipes:  * **Full tree** — root at the item whose ``parent_id`` is null, link the rest by   ``parent_id``. Returned order is already DFS, so children keep document order. * **Real topics only** (to match ``topic_count``) — drop the ``type=root`` item AND   null out the ``parent_id`` of its direct children, otherwise those now point at an id   that is no longer in the set.  Robust root test for either recipe: ``parent_id is null OR parent_id not in the returned ids`` — that also survives an orphan row left behind by a partial cascade delete.  ``include=content`` hydrates every item's body, which can grow the response by orders of magnitude. Ask for it to render a whole document, not to draw the tree.
     """ # noqa: E501
-    topics: Optional[List[TopicListItem]] = None
+    topics: Optional[List[TopicListItem]] = Field(default=None, description="The document's topics, flat and depth-first ordered — build the tree from `parent_id`. Includes the synthetic document-root item, so this list holds exactly one more entry than the document's `topic_count`.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["topics"]
 

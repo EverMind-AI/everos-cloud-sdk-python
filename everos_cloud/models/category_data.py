@@ -28,9 +28,9 @@ class CategoryData(BaseModel):
     A category as returned to clients. ``id`` is the system-generated stable key.
     """ # noqa: E501
     id: StrictStr = Field(description="Category id (system-generated, stable)")
-    name: StrictStr
-    description: Optional[StrictStr] = ''
-    document_count: Optional[StrictInt] = 0
+    name: StrictStr = Field(description="The category's display name.")
+    description: Optional[StrictStr] = Field(default='', description="What belongs in this category. The classifier matches documents against this text, so it is functional, not decorative.")
+    document_count: Optional[StrictInt] = Field(default=0, description="How many documents are filed under it.")
     scope: Optional[StrictStr] = Field(default='kb', description="'kb' = user-created in this kb; 'tenant' = global preset (read-only)")
     editable: Optional[StrictBool] = Field(default=True, description="False for tenant-global preset categories (read-only)")
     additional_properties: Dict[str, Any] = {}

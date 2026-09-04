@@ -1,5 +1,6 @@
 # EnvelopeResult
 
+The response payload.
 
 ## Properties
 

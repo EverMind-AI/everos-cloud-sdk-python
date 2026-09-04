@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** |  | 
-**arguments** | **str** |  | 
+**name** | **str** | Name of the function the assistant called. | 
+**arguments** | **str** | The call&#39;s arguments as a JSON-encoded string (OpenAI shape), not an object. | 
 
 ## Example
 

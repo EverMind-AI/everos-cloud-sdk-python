@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**status** | **str** |  | 
+**status** | **str** | \&quot;extracted\&quot; when the flush distilled new memories, \&quot;no_extraction\&quot; when there was nothing to extract — including the case of an async add still queued. | 
 
 ## Example
 

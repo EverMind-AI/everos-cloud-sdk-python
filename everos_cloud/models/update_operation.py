@@ -30,9 +30,9 @@ class UpdateOperation(BaseModel):
     Update an existing profile item (partial ``data`` shallow-merge).
     """ # noqa: E501
     reason: Optional[Annotated[str, Field(strict=True, max_length=256)]] = None
-    action: StrictStr
-    type: StrictStr
-    item_id: StrictStr
+    action: StrictStr = Field(description="Always \"update\" for this variant.")
+    type: StrictStr = Field(description="Which profile item this edit targets — \"explicit_info\" or \"implicit_traits\". It must match the `item_id` prefix.")
+    item_id: StrictStr = Field(description="The item to update. Its prefix must match the item type — \"ei_\" for explicit_info, \"it_\" for implicit_traits — followed by 24 hex characters.")
     data: Data1
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["reason", "action", "type", "item_id", "data"]

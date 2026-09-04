@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**documents** | [**List[DocData]**](DocData.md) |  | [optional] 
-**total** | **int** |  | [optional] [default to 0]
+**documents** | [**List[DocData]**](DocData.md) | This page of documents. | [optional] 
+**total** | **int** | How many documents match, across all pages. | [optional] [default to 0]
 
 ## Example
 

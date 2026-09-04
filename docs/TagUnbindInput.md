@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**memory_type** | **str** |  | 
-**memory_ids** | **List[str]** |  | 
-**tags** | **List[str]** |  | 
+**memory_type** | **str** | The type of the memories being untagged, e.g. \&quot;episode\&quot;. | 
+**memory_ids** | **List[str]** | The memories to untag, by id (1–200 per request). | 
+**tags** | **List[str]** | Tags to remove (1–100 per request). Tags not listed here are left in place. | 
 
 ## Example
 

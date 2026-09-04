@@ -118,10 +118,31 @@ class TestKnowledgeApi(unittest.TestCase):
         """
         pass
 
+    def test_list_topics_by_tags(self) -> None:
+        """Test case for list_topics_by_tags
+
+        List tag-matched topics in a knowledge base
+        """
+        pass
+
+    def test_query_related_tags(self) -> None:
+        """Test case for query_related_tags
+
+        Count candidate tags used by live documents in a knowledge base
+        """
+        pass
+
     def test_replace_document(self) -> None:
         """Test case for replace_document
 
         Replace a document (async, atomic swap)
+        """
+        pass
+
+    def test_replace_topic_tags(self) -> None:
+        """Test case for replace_topic_tags
+
+        Replace the complete materialized semantic tag snapshot of a topic
         """
         pass
 
