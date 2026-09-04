@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**loc** | [**List[ValidationErrorLocInner]**](ValidationErrorLocInner.md) |  | 
-**msg** | **str** |  | 
-**type** | **str** |  | 
+**loc** | [**List[ValidationErrorLocInner]**](ValidationErrorLocInner.md) | Path to the offending field, from the body root. | 
+**msg** | **str** | What is wrong with it. | 
+**type** | **str** | Machine-readable validation-error kind. | 
 
 ## Example
 

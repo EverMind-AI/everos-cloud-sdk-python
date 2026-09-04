@@ -6,15 +6,15 @@ Buffered raw message not yet extracted (no owner — inference happens after bou
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**app_id** | **str** |  | 
-**project_id** | **str** |  | 
-**session_id** | **str** |  | 
-**sender_id** | **str** |  | 
+**id** | **str** | Buffered-message id. | 
+**app_id** | **str** | The business-semantic scope the message was written under. | 
+**project_id** | **str** | Second half of that scope. | 
+**session_id** | **str** | The session the message is buffered under. | 
+**sender_id** | **str** | Who sent it. | 
 **sender_name** | **str** |  | [optional] 
-**role** | **str** |  | 
-**content** | [**Content**](Content.md) |  | 
-**timestamp** | **datetime** |  | 
+**role** | **str** | \&quot;user\&quot;, \&quot;assistant\&quot; or \&quot;tool\&quot;, as submitted. | 
+**content** | [**Content1**](Content1.md) |  | 
+**timestamp** | **datetime** | When the message was produced (ISO 8601). | 
 **tool_calls** | [**List[ToolCall]**](ToolCall.md) |  | [optional] 
 **tool_call_id** | **str** |  | [optional] 
 

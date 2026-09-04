@@ -7,13 +7,14 @@ A document as returned to clients. ``topic_count`` = the node_count (>0 = ingest
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Document id (bare primary key) | 
-**kb_id** | **str** |  | 
-**category_id** | **str** |  | [optional] [default to '']
+**kb_id** | **str** | The knowledge base this document belongs to. | 
+**category_id** | **str** | The category it is filed under; empty when it is uncategorized. | [optional] [default to '']
 **category_name** | **str** |  | [optional] 
-**title** | **str** |  | 
+**title** | **str** | The document&#39;s title. | 
 **summary** | **str** |  | [optional] 
 **source_name** | **str** |  | [optional] 
 **source_type** | **str** |  | [optional] 
+**tags** | [**List[TagRef]**](TagRef.md) | Distinct opaque ids from the document&#39;s read-only topic-tag union. Cloud leaves name unset; KHS may validate and expand display names. This document aggregate is read-only and carries no topic ownership field. | 
 **topic_count** | **int** | Number of real topics extracted (0 &#x3D; not ingested yet / ingest failed). EXCLUDES the synthetic document-root node, so &#x60;GET .../topics&#x60; — which includes it — returns exactly one more item than this | [optional] [default to 0]
 **created_at** | **datetime** |  | [optional] 
 **updated_at** | **datetime** |  | [optional] 

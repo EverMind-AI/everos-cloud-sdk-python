@@ -7,8 +7,8 @@ Add a new profile item (``item_id`` forbidden — the server mints it).
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **reason** | **str** |  | [optional] 
-**action** | **str** |  | 
-**type** | **str** |  | 
+**action** | **str** | Always \&quot;add\&quot; for this variant. | 
+**type** | **str** | Which profile item this edit targets — \&quot;explicit_info\&quot; (a stated fact, needing &#x60;category&#x60; + &#x60;description&#x60;) or \&quot;implicit_traits\&quot; (an inferred trait, needing &#x60;trait&#x60; + &#x60;description&#x60;). | 
 **data** | [**Data**](Data.md) |  | 
 
 ## Example

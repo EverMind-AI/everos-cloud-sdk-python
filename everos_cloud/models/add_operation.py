@@ -30,8 +30,8 @@ class AddOperation(BaseModel):
     Add a new profile item (``item_id`` forbidden — the server mints it).
     """ # noqa: E501
     reason: Optional[Annotated[str, Field(strict=True, max_length=256)]] = None
-    action: StrictStr
-    type: StrictStr
+    action: StrictStr = Field(description="Always \"add\" for this variant.")
+    type: StrictStr = Field(description="Which profile item this edit targets — \"explicit_info\" (a stated fact, needing `category` + `description`) or \"implicit_traits\" (an inferred trait, needing `trait` + `description`).")
     data: Data
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["reason", "action", "type", "data"]

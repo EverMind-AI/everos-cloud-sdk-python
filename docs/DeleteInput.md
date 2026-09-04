@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**app_id** | **str** |  | [optional] [default to 'default']
-**project_id** | **str** |  | [optional] [default to 'default']
+**app_id** | **str** | Scope to delete within, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
+**project_id** | **str** | Second half of the scope, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
 **user_id** | **str** |  | [optional] 
 **agent_id** | **str** |  | [optional] 
 **session_id** | **str** |  | [optional] 

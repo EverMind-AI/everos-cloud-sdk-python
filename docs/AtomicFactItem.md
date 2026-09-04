@@ -6,8 +6,8 @@ Atomic fact nested in an episode. Spec appendix E references it but does not enu
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**content** | **str** |  | 
+**id** | **str** | Atomic-fact id. | 
+**content** | **str** | The fact itself, as a single statement. | 
 
 ## Example
 

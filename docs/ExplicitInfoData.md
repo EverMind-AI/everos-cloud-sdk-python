@@ -6,8 +6,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**category** | **str** |  | 
-**description** | **str** |  | 
+**category** | **str** | What kind of fact this is, e.g. \&quot;hobby\&quot;. Required, non-empty. | 
+**description** | **str** | The fact itself, up to 4000 characters. Required, non-empty. | 
 
 ## Example
 

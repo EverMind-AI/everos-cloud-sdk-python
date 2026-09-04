@@ -29,10 +29,10 @@ class AddInput(BaseModel):
     """
     AddInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = 'default'
-    project_id: Optional[StrictStr] = 'default'
-    session_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
-    messages: Annotated[List[MessageItem], Field(min_length=1, max_length=500)]
+    app_id: Optional[StrictStr] = Field(default='default', description="Business-semantic scope for this write, defaulting to \"default\". Reads must use the same app_id / project_id pair to see what was written under it. Note this is a partition, not the security boundary — that is the tenant resolved from your API key.")
+    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the business-semantic scope, defaulting to \"default\". See `app_id`.")
+    session_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The conversation these messages belong to (1–128 characters). It is the unit extraction works on: /api/v2/memory/flush takes this id, and a session boundary is what triggers extraction on its own.")
+    messages: Annotated[List[MessageItem], Field(min_length=1, max_length=500)] = Field(description="The turns to append, in order — 1 to 500 per call. Each carries its own sender and timestamp, so one call can hold a whole exchange.")
     async_mode: Optional[StrictBool] = Field(default=True, description="Selects the write path. true (default): validated and enqueued asynchronously → HTTP 202 with status \"queued\". false: forwarded synchronously to the engine, returning its 200 result and surfacing write errors directly. Extraction is always asynchronous (flush-triggered).")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "session_id", "messages", "async_mode"]

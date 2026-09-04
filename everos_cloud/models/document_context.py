@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,8 +27,8 @@ class DocumentContext(BaseModel):
     """
     The parent document a hit belongs to (rolled up for display).
     """ # noqa: E501
-    doc_id: StrictStr
-    title: Optional[StrictStr] = ''
+    doc_id: StrictStr = Field(description="The parent document's id.")
+    title: Optional[StrictStr] = Field(default='', description="Its title.")
     summary: Optional[StrictStr] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["doc_id", "title", "summary"]

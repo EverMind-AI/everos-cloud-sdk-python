@@ -29,16 +29,16 @@ class GetInput(BaseModel):
     """
     GetInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = 'default'
-    project_id: Optional[StrictStr] = 'default'
+    app_id: Optional[StrictStr] = Field(default='default', description="Scope to read from, defaulting to \"default\". Must match the pair used on write.")
+    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
     user_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
     agent_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
-    memory_type: StrictStr
-    page: Optional[Annotated[int, Field(strict=True, ge=1)]] = 1
-    page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = 20
-    sort_by: Optional[StrictStr] = 'timestamp'
-    sort_order: Optional[StrictStr] = 'desc'
-    with_readable_episode: Optional[StrictBool] = False
+    memory_type: StrictStr = Field(description="Which kind of memory to list: \"episode\" (narrative summaries of past sessions), \"profile\" (stable identity and preferences), \"agent_case\" (a distilled past trajectory) or \"agent_skill\" (a reusable skill). It must match the owner — the mismatched pairings are rejected with 422.")
+    page: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, description="1-based page number.")
+    page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(default=20, description="Items per page, 1 to 100 (default 20).")
+    sort_by: Optional[StrictStr] = Field(default='timestamp', description="Order by \"timestamp\" (when the memory happened, default) or \"updated_at\" (when it was last written). Profiles and agent skills have no temporal column and always sort by \"updated_at\".")
+    sort_order: Optional[StrictStr] = Field(default='desc', description="\"desc\" (default, newest first) or \"asc\".")
+    with_readable_episode: Optional[StrictBool] = Field(default=False, description="Attach a human-readable rendering to each returned episode, for display only. Ignored for every non-episode `memory_type` rather than rejected.")
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "memory_type", "page", "page_size", "sort_by", "sort_order", "with_readable_episode", "filters"]

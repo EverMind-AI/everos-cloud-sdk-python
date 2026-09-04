@@ -7,7 +7,7 @@ Common response envelope
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **error** | **str** | &#x60;\&quot;OK\&quot;&#x60; on success, otherwise a human-readable error message decoded from the business error.  | [optional] 
-**request_id** | **str** |  | [optional] 
+**request_id** | **str** | Id of this request — quote it when reporting a problem. | [optional] 
 **status** | **int** | Business status code; 0 means success | [optional] 
 **result** | [**EnvelopeResult**](EnvelopeResult.md) |  | [optional] 
 

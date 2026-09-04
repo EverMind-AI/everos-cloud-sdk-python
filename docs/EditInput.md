@@ -6,11 +6,11 @@ Bulk profile edit request [Cloud-only].  Carries 1–50 ``EditOperation`` items 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**app_id** | **str** |  | [optional] [default to 'default']
-**project_id** | **str** |  | [optional] [default to 'default']
-**user_id** | **str** |  | 
-**memory_type** | **str** |  | [optional] [default to 'profile']
-**operations** | [**List[EditInputOperationsInner]**](EditInputOperationsInner.md) |  | 
+**app_id** | **str** | Scope the profile lives in, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
+**project_id** | **str** | Second half of the scope, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
+**user_id** | **str** | The user whose profile is being edited. | 
+**memory_type** | **str** | Pinned to \&quot;profile\&quot; — this endpoint edits nothing else. | [optional] [default to 'profile']
+**operations** | [**List[EditInputOperationsInner]**](EditInputOperationsInner.md) | 1 to 50 edits applied in one call. \&quot;add\&quot; mints the item id and must not carry one; \&quot;update\&quot; and \&quot;delete\&quot; require an &#x60;item_id&#x60; whose prefix matches the item type (\&quot;ei_\&quot; for explicit_info, \&quot;it_\&quot; for implicit_traits). Each operation&#39;s outcome is reported separately, so one can be rejected while the rest apply. | 
 
 ## Example
 

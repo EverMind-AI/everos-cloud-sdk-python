@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,8 +27,8 @@ class TagUnbindData(BaseModel):
     """
     TagUnbindData
     """ # noqa: E501
-    matched: Optional[StrictInt] = 0
-    requested: Optional[StrictInt] = 0
+    matched: Optional[StrictInt] = Field(default=0, description="How many of the submitted memories the operation matched. Matching is not the same as changing: re-binding a tag an item already carries matches without modifying it.")
+    requested: Optional[StrictInt] = Field(default=0, description="How many ids were submitted. `matched` below `requested` means some ids were not found — deleted, another tenant's, or (for bind) already at the per-memory tag limit.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["matched", "requested"]
 

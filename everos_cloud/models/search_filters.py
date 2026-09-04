@@ -18,8 +18,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,8 +29,9 @@ class SearchFilters(BaseModel):
     Optional hard filters. ``category_id`` is a soft filter on recall (design 01 §3.9).
     """ # noqa: E501
     category_id: Optional[StrictStr] = None
+    tag_ids: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=100)]] = Field(default=None, description="Hard filter that does not affect scoring: only topics carrying EVERY one of these tag ids are eligible. Use `boost_tag_ids` when the intent is to reweight rather than exclude.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["category_id"]
+    __properties: ClassVar[List[str]] = ["category_id", "tag_ids"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -94,7 +96,8 @@ class SearchFilters(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "category_id": obj.get("category_id")
+            "category_id": obj.get("category_id"),
+            "tag_ids": obj.get("tag_ids")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

@@ -37,6 +37,8 @@ class TestTopicListItem(unittest.TestCase):
         if include_optional:
             return TopicListItem(
                 id = '',
+                doc_id = '',
+                kb_id = '',
                 name = '',
                 type = 'section',
                 depth = 56,
@@ -44,6 +46,10 @@ class TestTopicListItem(unittest.TestCase):
                 parent_id = '',
                 summary = '',
                 content = '',
+                tag_ids = [
+                    '0'
+                    ],
+                version = 0.0,
                 created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f')
             )

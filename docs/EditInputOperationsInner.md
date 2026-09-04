@@ -6,10 +6,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **reason** | **str** |  | [optional] 
-**action** | **str** |  | 
-**type** | **str** |  | 
+**action** | **str** | Always \&quot;delete\&quot; for this variant. | 
+**type** | **str** | Which profile item this edit targets — \&quot;explicit_info\&quot; (a stated fact, needing &#x60;category&#x60; + &#x60;description&#x60;) or \&quot;implicit_traits\&quot; (an inferred trait, needing &#x60;trait&#x60; + &#x60;description&#x60;). | 
 **data** | [**Data1**](Data1.md) |  | 
-**item_id** | **str** |  | 
+**item_id** | **str** | The item to delete. Its prefix must match the item type (\&quot;ei_\&quot; / \&quot;it_\&quot;) followed by 24 hex characters. | 
 
 ## Example
 

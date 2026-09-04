@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,8 +28,8 @@ class DocPatchData(BaseModel):
     """
     DocPatchData
     """ # noqa: E501
-    id: StrictStr
-    updated_fields: Optional[List[StrictStr]] = None
+    id: StrictStr = Field(description="The document that was patched.")
+    updated_fields: Optional[List[StrictStr]] = Field(default=None, description="Which fields actually changed — omitted fields are not listed.")
     updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "updated_fields", "updated_at"]

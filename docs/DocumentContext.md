@@ -6,8 +6,8 @@ The parent document a hit belongs to (rolled up for display).
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**doc_id** | **str** |  | 
-**title** | **str** |  | [optional] [default to '']
+**doc_id** | **str** | The parent document&#39;s id. | 
+**title** | **str** | Its title. | [optional] [default to '']
 **summary** | **str** |  | [optional] 
 
 ## Example

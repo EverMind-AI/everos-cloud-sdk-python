@@ -7,10 +7,10 @@ A knowledge base as returned to clients (create / get / list item / patch).
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | Knowledge base id (bare primary key) | 
-**name** | **str** |  | 
-**description** | **str** |  | [optional] [default to '']
+**name** | **str** | The knowledge base&#39;s display name. | 
+**description** | **str** | Its description. | [optional] [default to '']
 **owner_id** | **str** |  | [optional] 
-**document_count** | **int** |  | [optional] [default to 0]
+**document_count** | **int** | How many documents it holds. | [optional] [default to 0]
 **created_at** | **datetime** |  | [optional] 
 **updated_at** | **datetime** |  | [optional] 
 

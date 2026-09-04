@@ -1,5 +1,6 @@
 # TaskErrorResponseError
 
+What went wrong, with a machine-readable code and a message.
 
 ## Properties
 

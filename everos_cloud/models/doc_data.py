@@ -21,6 +21,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from everos_cloud.models.tag_ref import TagRef
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,18 +30,19 @@ class DocData(BaseModel):
     A document as returned to clients. ``topic_count`` = the node_count (>0 = ingested).  Contract note — ``topic_count`` vs ``GET .../topics``: the count is of REAL topics and excludes the synthetic document-root node, while the topics list INCLUDES it. So ``len(topics) == topic_count + 1`` for an ingested document. See ``TopicListData``.
     """ # noqa: E501
     id: StrictStr = Field(description="Document id (bare primary key)")
-    kb_id: StrictStr
-    category_id: Optional[StrictStr] = ''
+    kb_id: StrictStr = Field(description="The knowledge base this document belongs to.")
+    category_id: Optional[StrictStr] = Field(default='', description="The category it is filed under; empty when it is uncategorized.")
     category_name: Optional[StrictStr] = None
-    title: StrictStr
+    title: StrictStr = Field(description="The document's title.")
     summary: Optional[StrictStr] = None
     source_name: Optional[StrictStr] = None
     source_type: Optional[StrictStr] = None
+    tags: List[TagRef] = Field(description="Distinct opaque ids from the document's read-only topic-tag union. Cloud leaves name unset; KHS may validate and expand display names. This document aggregate is read-only and carries no topic ownership field.")
     topic_count: Optional[StrictInt] = Field(default=0, description="Number of real topics extracted (0 = not ingested yet / ingest failed). EXCLUDES the synthetic document-root node, so `GET .../topics` — which includes it — returns exactly one more item than this")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "kb_id", "category_id", "category_name", "title", "summary", "source_name", "source_type", "topic_count", "created_at", "updated_at"]
+    __properties: ClassVar[List[str]] = ["id", "kb_id", "category_id", "category_name", "title", "summary", "source_name", "source_type", "tags", "topic_count", "created_at", "updated_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -83,6 +85,13 @@ class DocData(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in tags (list)
+        _items = []
+        if self.tags:
+            for _item_tags in self.tags:
+                if _item_tags:
+                    _items.append(_item_tags.to_dict())
+            _dict['tags'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -138,6 +147,7 @@ class DocData(BaseModel):
             "summary": obj.get("summary"),
             "source_name": obj.get("source_name"),
             "source_type": obj.get("source_type"),
+            "tags": [TagRef.from_dict(_item) for _item in obj["tags"]] if obj.get("tags") is not None else None,
             "topic_count": obj.get("topic_count") if obj.get("topic_count") is not None else 0,
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at")

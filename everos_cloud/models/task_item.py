@@ -28,14 +28,14 @@ class TaskItem(BaseModel):
     """
     TaskItem
     """ # noqa: E501
-    created_at: Optional[datetime] = None
+    created_at: Optional[datetime] = Field(default=None, description="When the task was accepted.")
     error: Optional[StrictStr] = Field(default=None, description="Failure reason; present only when status is failed")
-    error_code: Optional[StrictStr] = None
+    error_code: Optional[StrictStr] = Field(default=None, description="Machine-readable failure code, alongside the human-readable `error`.")
     finished_at: Optional[datetime] = Field(default=None, description="Completion time; absent while the task is not in a terminal state")
     id: StrictStr = Field(description="Task id (the request's X-Request-Id), not a database primary key")
     object: Optional[StrictStr] = Field(default=None, description="Resource type produced by the task (frozen field, cannot express a batch)")
-    object_id: Optional[StrictStr] = None
-    status: StrictStr
+    object_id: Optional[StrictStr] = Field(default=None, description="Id of the resource the task produced, once there is one.")
+    status: StrictStr = Field(description="Where the task is: \"queued\", \"processing\", \"pending\", \"success\" or \"failed\". Treat it as an open set — a value you do not recognise is terminal only when `finished_at` is set.")
     task_type: Optional[StrictStr] = Field(default=None, description="Async interface that produced the task, e.g. memory_add / knowledge_document / batch_import")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["created_at", "error", "error_code", "finished_at", "id", "object", "object_id", "status", "task_type"]

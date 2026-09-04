@@ -7,9 +7,9 @@ Delete an existing profile item by ``item_id`` (carries no ``data``).
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **reason** | **str** |  | [optional] 
-**action** | **str** |  | 
-**type** | **str** |  | 
-**item_id** | **str** |  | 
+**action** | **str** | Always \&quot;delete\&quot; for this variant. | 
+**type** | **str** | Which profile item this edit targets — \&quot;explicit_info\&quot; or \&quot;implicit_traits\&quot;. It must match the &#x60;item_id&#x60; prefix. | 
+**item_id** | **str** | The item to delete. Its prefix must match the item type (\&quot;ei_\&quot; / \&quot;it_\&quot;) followed by 24 hex characters. | 
 
 ## Example
 

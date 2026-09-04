@@ -19,9 +19,9 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from everos_cloud.models.content import Content
+from everos_cloud.models.content1 import Content1
 from everos_cloud.models.tool_call import ToolCall
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,15 +30,15 @@ class UnprocessedMessageDTO(BaseModel):
     """
     Buffered raw message not yet extracted (no owner — inference happens after boundary detection). Returned by /search only when ``filters.session_id`` is a top-level eq scalar (spec §4 / appendix E).
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
-    session_id: StrictStr
-    sender_id: StrictStr
+    id: StrictStr = Field(description="Buffered-message id.")
+    app_id: StrictStr = Field(description="The business-semantic scope the message was written under.")
+    project_id: StrictStr = Field(description="Second half of that scope.")
+    session_id: StrictStr = Field(description="The session the message is buffered under.")
+    sender_id: StrictStr = Field(description="Who sent it.")
     sender_name: Optional[StrictStr] = None
-    role: StrictStr
-    content: Content
-    timestamp: datetime
+    role: StrictStr = Field(description="\"user\", \"assistant\" or \"tool\", as submitted.")
+    content: Content1
+    timestamp: datetime = Field(description="When the message was produced (ISO 8601).")
     tool_calls: Optional[List[ToolCall]] = None
     tool_call_id: Optional[StrictStr] = None
     additional_properties: Dict[str, Any] = {}
@@ -141,7 +141,7 @@ class UnprocessedMessageDTO(BaseModel):
             "sender_id": obj.get("sender_id"),
             "sender_name": obj.get("sender_name"),
             "role": obj.get("role"),
-            "content": Content.from_dict(obj["content"]) if obj.get("content") is not None else None,
+            "content": Content1.from_dict(obj["content"]) if obj.get("content") is not None else None,
             "timestamp": obj.get("timestamp"),
             "tool_calls": [ToolCall.from_dict(_item) for _item in obj["tool_calls"]] if obj.get("tool_calls") is not None else None,
             "tool_call_id": obj.get("tool_call_id")

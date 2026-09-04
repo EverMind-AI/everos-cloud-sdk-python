@@ -1,5 +1,6 @@
 # TaskListResponseData
 
+The page of tasks, with its paging counters.
 
 ## Properties
 

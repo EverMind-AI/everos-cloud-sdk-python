@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**object_list** | [**List[SignResponseItem]**](SignResponseItem.md) |  | [optional] 
+**object_list** | [**List[SignResponseItem]**](SignResponseItem.md) | One signed entry per requested file, in the same order. | [optional] 
 
 ## Example
 

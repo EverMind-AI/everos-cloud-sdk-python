@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**knowledge_bases** | [**List[KbData]**](KbData.md) |  | [optional] 
-**total** | **int** |  | [optional] [default to 0]
+**knowledge_bases** | [**List[KbData]**](KbData.md) | This page of knowledge bases. | [optional] 
+**total** | **int** | How many exist in total, across all pages. | [optional] [default to 0]
 
 ## Example
 

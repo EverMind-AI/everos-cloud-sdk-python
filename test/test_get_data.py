@@ -67,7 +67,9 @@ class TestGetData(unittest.TestCase):
                         app_id = '', 
                         project_id = '', 
                         user_id = '', 
-                        profile_data = { }, )
+                        profile_data = { }, 
+                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                     ],
                 agent_cases = [
                     everos_cloud.models.agent_case_item.AgentCaseItem(
@@ -95,7 +97,9 @@ class TestGetData(unittest.TestCase):
                         maturity_score = 1.337, 
                         source_case_ids = [
                             ''
-                            ], )
+                            ], 
+                        created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                     ],
                 total_count = 56,
                 count = 56

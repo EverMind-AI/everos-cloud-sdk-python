@@ -30,7 +30,7 @@ DATA_ANY_OF_SCHEMAS = ["ExplicitInfoData", "ImplicitTraitData"]
 
 class Data(BaseModel):
     """
-    Data
+    The item to add. Its required keys depend on `type`; other keys (evidence, sources, basis, …) ride through untouched.
     """
 
     # data type: ExplicitInfoData

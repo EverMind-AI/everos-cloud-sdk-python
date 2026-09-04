@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.validation_error import ValidationError
 from typing import Optional, Set
@@ -28,7 +28,7 @@ class HTTPValidationError(BaseModel):
     """
     HTTPValidationError
     """ # noqa: E501
-    detail: Optional[List[ValidationError]] = None
+    detail: Optional[List[ValidationError]] = Field(default=None, description="One entry per field that failed validation.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["detail"]
 

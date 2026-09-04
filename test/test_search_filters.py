@@ -36,7 +36,10 @@ class TestSearchFilters(unittest.TestCase):
         model = SearchFilters()
         if include_optional:
             return SearchFilters(
-                category_id = ''
+                category_id = '',
+                tag_ids = [
+                    '0'
+                    ]
             )
         else:
             return SearchFilters(

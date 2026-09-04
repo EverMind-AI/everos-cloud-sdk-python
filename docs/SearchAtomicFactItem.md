@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**content** | **str** |  | 
-**score** | **float** |  | 
+**id** | **str** | Atomic-fact id. | 
+**content** | **str** | The fact itself, as a single statement. | 
+**score** | **float** | Relevance of this fact to the query. | 
 
 ## Example
 

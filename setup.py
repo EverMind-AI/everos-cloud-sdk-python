@@ -24,8 +24,13 @@ from setuptools import setup, find_packages  # noqa: H301
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 NAME = "everos-cloud"
-VERSION = "1.1.0-rc2"
-PYTHON_REQUIRES = ">= 3.8"
+VERSION = "1.1.0"
+# Floor = the oldest interpreter CI actually runs (see .github/workflows/ci.yml in
+# the public repo). Nothing in the generated code needs it this high — the tree
+# parses as 3.8 — so this is a support policy, not a technical bound, and it is set
+# on the reversible side: lowering it later costs nobody anything, raising it later
+# breaks whoever had already installed on the old floor.
+PYTHON_REQUIRES = ">=3.12"
 
 # PyPI renders this as the project page body. Use the repo README (which ships in
 # the SDK tree — propose_sdk.sh preserves it), falling back to the spec description
@@ -37,7 +42,9 @@ except FileNotFoundError:
 REQUIRES = [
     "urllib3 >= 1.25.3, < 3.0.0",
     "python-dateutil >= 2.8.2",
-    "pydantic >= 2",
+    # Upper bound deliberate: the generated models are written against pydantic v2's
+    # API, so a 3.0 release would break every fresh install with no change on our side.
+    "pydantic >= 2, < 3",
     "typing-extensions >= 4.7.1",
 ]
 
@@ -49,6 +56,7 @@ setup(
     author_email="service@evermind.ai",
     url="https://github.com/EverMind-AI/everos-cloud-sdk-python",
     keywords=["OpenAPI", "OpenAPI-Generator", "EverOS Cloud Memory API"],
+    python_requires=PYTHON_REQUIRES,
     install_requires=REQUIRES,
     packages=find_packages(exclude=["test", "tests"]),
     include_package_data=True,

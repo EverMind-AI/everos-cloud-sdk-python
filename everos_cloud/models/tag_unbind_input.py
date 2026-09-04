@@ -28,9 +28,9 @@ class TagUnbindInput(BaseModel):
     """
     TagUnbindInput
     """ # noqa: E501
-    memory_type: Annotated[str, Field(min_length=1, strict=True)]
-    memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=200)]
-    tags: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(min_length=1, max_length=100)]
+    memory_type: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The type of the memories being untagged, e.g. \"episode\".")
+    memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=200)] = Field(description="The memories to untag, by id (1–200 per request).")
+    tags: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(min_length=1, max_length=100)] = Field(description="Tags to remove (1–100 per request). Tags not listed here are left in place.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "tags"]
 

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,8 +27,8 @@ class AtomicFactItem(BaseModel):
     """
     Atomic fact nested in an episode. Spec appendix E references it but does not enumerate its fields — minimal shape until the contract is detailed.
     """ # noqa: E501
-    id: StrictStr
-    content: StrictStr
+    id: StrictStr = Field(description="Atomic-fact id.")
+    content: StrictStr = Field(description="The fact itself, as a single statement.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "content"]
 

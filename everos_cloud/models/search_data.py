@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.search_agent_case_item import SearchAgentCaseItem
 from everos_cloud.models.search_agent_skill_item import SearchAgentSkillItem
@@ -32,11 +32,11 @@ class SearchData(BaseModel):
     """
     SearchData
     """ # noqa: E501
-    episodes: Optional[List[SearchEpisodeItem]] = None
-    profiles: Optional[List[SearchProfileItem]] = None
-    agent_cases: Optional[List[SearchAgentCaseItem]] = None
-    agent_skills: Optional[List[SearchAgentSkillItem]] = None
-    unprocessed_messages: Optional[List[UnprocessedMessageDTO]] = None
+    episodes: Optional[List[SearchEpisodeItem]] = Field(default=None, description="Matching episodes, for a user owner. Always present, empty when not applicable.")
+    profiles: Optional[List[SearchProfileItem]] = Field(default=None, description="The user's profile, when `include_profile` asked for it.")
+    agent_cases: Optional[List[SearchAgentCaseItem]] = Field(default=None, description="Matching agent cases, for an agent owner.")
+    agent_skills: Optional[List[SearchAgentSkillItem]] = Field(default=None, description="Matching agent skills, for an agent owner.")
+    unprocessed_messages: Optional[List[UnprocessedMessageDTO]] = Field(default=None, description="Raw buffered messages not yet extracted. Returned only when the request filtered on a single `session_id`, so a caller can see what is still in flight.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["episodes", "profiles", "agent_cases", "agent_skills", "unprocessed_messages"]
 

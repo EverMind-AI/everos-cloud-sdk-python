@@ -6,7 +6,7 @@ A document's topic tree, DFS-ordered (flat list; build the tree from `parent_id`
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**topics** | [**List[TopicListItem]**](TopicListItem.md) |  | [optional] 
+**topics** | [**List[TopicListItem]**](TopicListItem.md) | The document&#39;s topics, flat and depth-first ordered — build the tree from &#x60;parent_id&#x60;. Includes the synthetic document-root item, so this list holds exactly one more entry than the document&#39;s &#x60;topic_count&#x60;. | [optional] 
 
 ## Example
 

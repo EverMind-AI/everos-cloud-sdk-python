@@ -36,18 +36,21 @@ class TestSearchBody(unittest.TestCase):
         model = SearchBody()
         if include_optional:
             return SearchBody(
-                query = '0',
+                query = '',
                 method = 'hybrid',
+                page = 1.0,
                 top_k = 1.0,
                 score_threshold = 1.337,
                 include = [
                     ''
                     ],
+                boost_tag_ids = [
+                    '0'
+                    ],
                 filters = { }
             )
         else:
             return SearchBody(
-                query = '0',
         )
         """
 

@@ -26,7 +26,7 @@ from typing_extensions import Self
 
 class TaskListResponseData(BaseModel):
     """
-    TaskListResponseData
+    The page of tasks, with its paging counters.
     """ # noqa: E501
     items: List[TaskItem]
     page: StrictInt

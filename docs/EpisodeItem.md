@@ -5,20 +5,20 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**app_id** | **str** |  | 
-**project_id** | **str** |  | 
+**id** | **str** | Episode id. Use it to bind tags or to fetch this episode again. | 
+**app_id** | **str** | The business-semantic scope this memory was written under. | 
+**project_id** | **str** | Second half of that scope. | 
 **user_id** | **str** |  | [optional] 
 **session_id** | **str** |  | [optional] 
-**timestamp** | **datetime** |  | 
-**sender_ids** | **List[str]** |  | [optional] 
-**summary** | **str** |  | 
-**subject** | **str** |  | 
-**episode** | **str** |  | 
+**timestamp** | **datetime** | When the remembered exchange happened (ISO 8601), not when it was extracted. | 
+**sender_ids** | **List[str]** | The senders that appear in the source exchange. | [optional] 
+**summary** | **str** | Short summary of the episode — what a result list should show. | 
+**subject** | **str** | What the episode is about, in a few words. | 
+**episode** | **str** | The episode&#39;s stored narrative body. This is the indexed, searchable text. | 
 **readable_episode** | **str** |  | [optional] 
-**type** | **str** |  | 
-**atomic_facts** | [**List[AtomicFactItem]**](AtomicFactItem.md) |  | [optional] 
-**tags** | **List[str]** |  | [optional] 
+**type** | **str** | How the episode was produced — \&quot;Conversation\&quot; or \&quot;AgentConversation\&quot;. | 
+**atomic_facts** | [**List[AtomicFactItem]**](AtomicFactItem.md) | The individual facts extracted from this episode, nested rather than returned separately. | [optional] 
+**tags** | **List[str]** | Tags attached through /api/v2/memory/tag/*. | [optional] 
 
 ## Example
 

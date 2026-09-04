@@ -49,18 +49,48 @@ class TestKbSearchData(unittest.TestCase):
                         summary = '', 
                         content = '', 
                         score = 1.337, 
-                        retrieval_method = 'hybrid', 
+                        retrieval_method = 'keyword', 
                         source = '', 
                         document = everos_cloud.models.document_context.DocumentContext(
                             doc_id = '', 
                             title = '', 
-                            summary = '', ), )
+                            summary = '', ), 
+                        tags = [
+                            { }
+                            ], 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                     ],
                 total = 56,
                 took_ms = 1.337
             )
         else:
             return KbSearchData(
+                hits = [
+                    everos_cloud.models.search_hit.SearchHit(
+                        object = 'topic', 
+                        id = '', 
+                        doc_id = '', 
+                        kb_id = '', 
+                        category_id = '', 
+                        category_name = '', 
+                        name = '', 
+                        depth = 56, 
+                        summary = '', 
+                        content = '', 
+                        score = 1.337, 
+                        retrieval_method = 'keyword', 
+                        source = '', 
+                        document = everos_cloud.models.document_context.DocumentContext(
+                            doc_id = '', 
+                            title = '', 
+                            summary = '', ), 
+                        tags = [
+                            { }
+                            ], 
+                        updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
+                    ],
+                total = 56,
+                took_ms = 1.337,
         )
         """
 

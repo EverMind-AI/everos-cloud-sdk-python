@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.kb_data import KbData
 from typing import Optional, Set
@@ -28,8 +28,8 @@ class KbListData(BaseModel):
     """
     KbListData
     """ # noqa: E501
-    knowledge_bases: Optional[List[KbData]] = None
-    total: Optional[StrictInt] = 0
+    knowledge_bases: Optional[List[KbData]] = Field(default=None, description="This page of knowledge bases.")
+    total: Optional[StrictInt] = Field(default=0, description="How many exist in total, across all pages.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["knowledge_bases", "total"]
 

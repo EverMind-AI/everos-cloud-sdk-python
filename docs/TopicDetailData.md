@@ -6,20 +6,23 @@ Full topic (node), with content transparently restored (inline or from S3).
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**doc_id** | **str** |  | 
-**kb_id** | **str** |  | 
-**category_id** | **str** |  | [optional] [default to '']
+**id** | **str** | Topic id. | 
+**doc_id** | **str** | The document this topic was extracted from. | 
+**kb_id** | **str** | The knowledge base that document belongs to. | 
+**type** | **str** | Structural role of this topic node | 
+**category_id** | **str** | The category the document is filed under; empty when uncategorized. | [optional] [default to '']
 **category_name** | **str** |  | [optional] 
-**name** | **str** |  | 
-**depth** | **int** |  | [optional] [default to 0]
-**seq** | **int** |  | [optional] [default to 0]
-**summary** | **str** |  | [optional] [default to '']
+**name** | **str** | The topic&#39;s title. | 
+**depth** | **int** | Depth in the document tree — 0 is the document root, 1 a top-level topic. | [optional] [default to 0]
+**seq** | **int** | Depth-first position within the document. Use it as an ordering, not as an index to compute with. | [optional] [default to 0]
+**summary** | **str** | Retrieval-oriented summary covering this topic and everything under it. | [optional] [default to '']
 **content** | **str** |  | [optional] 
-**labels** | **List[str]** |  | [optional] 
+**labels** | **List[str]** | Labels attached to the topic during extraction. | [optional] 
 **parent_id** | **str** |  | [optional] 
-**children_ids** | **List[str]** |  | [optional] 
-**metadata** | **Dict[str, object]** |  | [optional] 
+**children_ids** | **List[str]** | The topics directly beneath this one. | [optional] 
+**metadata** | **Dict[str, object]** | Extraction metadata carried alongside the topic. | [optional] 
+**tag_ids** | **List[str]** | Opaque final materialized semantic tag ids (maximum 50) | 
+**version** | **int** | Current topic tag CAS version | 
 **created_at** | **datetime** |  | [optional] 
 **updated_at** | **datetime** |  | [optional] 
 

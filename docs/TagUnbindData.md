@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**matched** | **int** |  | [optional] [default to 0]
-**requested** | **int** |  | [optional] [default to 0]
+**matched** | **int** | How many of the submitted memories the operation matched. Matching is not the same as changing: re-binding a tag an item already carries matches without modifying it. | [optional] [default to 0]
+**requested** | **int** | How many ids were submitted. &#x60;matched&#x60; below &#x60;requested&#x60; means some ids were not found — deleted, another tenant&#39;s, or (for bind) already at the per-memory tag limit. | [optional] [default to 0]
 
 ## Example
 

@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**memory_type** | **str** |  | 
-**memory_ids** | **List[str]** |  | 
-**tags** | **List[str]** |  | 
+**memory_type** | **str** | The type of the memories being tagged. \&quot;episode\&quot; is what this phase supports; agent cases and skills onboard later without an API change. | 
+**memory_ids** | **List[str]** | The memories to tag, by id (1–200 per request). Ids come from /api/v2/memory/get or /api/v2/memory/search. | 
+**tags** | **List[str]** | Tags to add (1–100 per request, each 1–32 characters). Tags the memories already carry are left in place. | 
 
 ## Example
 

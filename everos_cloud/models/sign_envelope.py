@@ -29,7 +29,7 @@ class SignEnvelope(BaseModel):
     Response envelope for the sign endpoint. The `result.data` shape depends on `status`:  - `status: 0` (success) — `result.data` is a `SignResponse`, as   modelled below. - `status: 2018` (validation failed) — `result.data` is a plain   string carrying the validator error message, not a `SignResponse`. - all other non-zero statuses — `result.data` is `null`.  Generated clients should treat `result.data` as populated only when `status` is 0. 
     """ # noqa: E501
     error: Optional[StrictStr] = Field(default=None, description="`\"OK\"` on success, otherwise a human-readable error message decoded from the business error. ")
-    request_id: Optional[StrictStr] = None
+    request_id: Optional[StrictStr] = Field(default=None, description="Id of this request — quote it when reporting a problem.")
     status: Optional[StrictInt] = Field(default=None, description="Business status code; 0 means success")
     result: Optional[SignEnvelopeAllOfResult] = None
     additional_properties: Dict[str, Any] = {}

@@ -29,10 +29,10 @@ class KbData(BaseModel):
     A knowledge base as returned to clients (create / get / list item / patch).
     """ # noqa: E501
     id: StrictStr = Field(description="Knowledge base id (bare primary key)")
-    name: StrictStr
-    description: Optional[StrictStr] = ''
+    name: StrictStr = Field(description="The knowledge base's display name.")
+    description: Optional[StrictStr] = Field(default='', description="Its description.")
     owner_id: Optional[StrictStr] = None
-    document_count: Optional[StrictInt] = 0
+    document_count: Optional[StrictInt] = Field(default=0, description="How many documents it holds.")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}

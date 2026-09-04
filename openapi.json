@@ -103,7 +103,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous \u2014 it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1\u2013500 messages."
       }
     },
     "/api/v2/memory/delete": {
@@ -184,7 +185,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types."
       }
     },
     "/api/v2/memory/edit": {
@@ -265,7 +267,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Apply 1\u201350 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits \u2014 `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply."
       }
     },
     "/api/v2/memory/flush": {
@@ -346,7 +349,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract \u2014 note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing."
       }
     },
     "/api/v2/memory/get": {
@@ -427,7 +431,8 @@
               }
             }
           }
-        }
+        },
+        "description": "List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" \u2014 the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds."
       }
     },
     "/api/v2/memory/search": {
@@ -508,7 +513,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds \u2014 to read back something just extracted, use /api/v2/memory/get."
       }
     },
     "/api/v2/memory/tag/bind": {
@@ -589,7 +595,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves \u2014 pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags."
       }
     },
     "/api/v2/memory/tag/replace": {
@@ -670,7 +677,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing."
       }
     },
     "/api/v2/memory/tag/unbind": {
@@ -751,7 +759,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/categories": {
@@ -843,7 +852,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration \u2014 it is what the classifier matches against."
       },
       "get": {
         "tags": [
@@ -923,7 +933,8 @@
               }
             }
           }
-        }
+        },
+        "description": "List this knowledge base's categories \u2014 both the ones created here and the tenant-global presets \u2014 each with the number of documents filed under it."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/documents": {
@@ -1015,7 +1026,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream \u2014 poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy."
       },
       "get": {
         "tags": [
@@ -1131,7 +1143,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category."
       }
     },
     "/api/v2/knowledge_bases": {
@@ -1212,7 +1225,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Create a knowledge base \u2014 a searchable document library with its own category taxonomy. The returned id is the `kb_id` every other knowledge operation takes."
       },
       "get": {
         "tags": [
@@ -1227,6 +1241,7 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "minimum": 1,
               "default": 1,
               "title": "Page"
             }
@@ -1237,6 +1252,8 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
               "default": 20,
               "title": "Page Size"
             }
@@ -1319,7 +1336,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Paginated list of the account's knowledge bases, each with its document count."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/categories/{category_id}": {
@@ -1410,7 +1428,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent \u2014 deleting one that is already gone returns `deleted: false` rather than 404."
       },
       "patch": {
         "tags": [
@@ -1509,7 +1528,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Rename a category or edit its description. Documents filed under it are not re-classified; they keep pointing at the same category id. Tenant-global preset categories are read-only."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}": {
@@ -1600,7 +1620,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent \u2014 deleting one that is already gone returns `deleted: false` rather than 404."
       },
       "get": {
         "tags": [
@@ -1689,7 +1710,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Read one document's metadata, including how many topics were extracted from it \u2014 `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics."
       },
       "patch": {
         "tags": [
@@ -1788,13 +1810,15 @@
               }
             }
           }
-        }
+        },
+        "description": "Patch a document's metadata \u2014 its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed."
       },
       "put": {
         "tags": [
           "Knowledge"
         ],
         "summary": "Replace a document (async, atomic swap)",
+        "description": "Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id \u2014 the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.",
         "operationId": "replaceDocument",
         "parameters": [
           {
@@ -1969,7 +1993,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent \u2014 deleting a base that is already gone returns `deleted: false` rather than 404."
       },
       "get": {
         "tags": [
@@ -2049,7 +2074,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Read one knowledge base's metadata, including its document count."
       },
       "patch": {
         "tags": [
@@ -2139,7 +2165,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Patch a knowledge base's name or description. Metadata only \u2014 it does not touch the documents inside it."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}": {
@@ -2185,6 +2212,244 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SuccessEnvelope_TopicDetailData_"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic absent or not owned by the path kb/document"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way."
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List a document's topic tree (optionally with each topic's content)",
+        "operationId": "listTopics",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Extra fields to hydrate, e.g. `include=content` for full bodies",
+              "title": "Include"
+            },
+            "description": "Extra fields to hydrate, e.g. `include=content` for full bodies"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TopicListData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        },
+        "description": "List a document's topic tree \u2014 the sections an LLM extracted from it \u2014 flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude."
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/topics": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "List tag-matched topics in a knowledge base",
+        "description": "Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.",
+        "operationId": "listTopicsByTags",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "description": "The knowledge base to search within.",
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          },
+          {
+            "name": "tag_ids",
+            "in": "query",
+            "required": true,
+            "description": "Hard filter: a topic is returned only if it carries EVERY one of these tag ids. Use `boost_tag_ids` on the search endpoint instead to reweight without excluding anything.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "description": "Opaque semantic tag id"
+              },
+              "minItems": 1,
+              "maxItems": 100,
+              "description": "Hard filter: a topic is returned only if it carries EVERY one of these tag ids.",
+              "title": "Tag Ids"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1-based page number.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "description": "Items per page, 1 to 100 (default 20).",
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TopicFilterListData_"
                 }
               }
             }
@@ -2242,13 +2507,107 @@
         }
       }
     },
-    "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics": {
-      "get": {
+    "/api/v2/knowledge_bases/{kb_id}/tags": {
+      "post": {
         "tags": [
           "Knowledge"
         ],
-        "summary": "List a document's topic tree (optionally with each topic's content)",
-        "operationId": "listTopics",
+        "summary": "Count candidate tags used by live documents in a knowledge base",
+        "description": "Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.",
+        "operationId": "queryRelatedTags",
+        "parameters": [
+          {
+            "name": "kb_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Kb Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RelatedTagUsageBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_RelatedTagUsageListData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}/tag/replace": {
+      "post": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "Replace the complete materialized semantic tag snapshot of a topic",
+        "description": "version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.",
+        "operationId": "replaceTopicTags",
         "parameters": [
           {
             "name": "kb_id",
@@ -2269,27 +2628,55 @@
             }
           },
           {
-            "name": "include",
-            "in": "query",
-            "required": false,
+            "name": "topic_id",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Extra fields to hydrate, e.g. `include=content` for full bodies",
-              "title": "Include"
-            },
-            "description": "Extra fields to hydrate, e.g. `include=content` for full bodies"
+              "type": "string",
+              "title": "Topic Id"
+            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicTagReplaceBody"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelope_TopicListData_"
+                  "$ref": "#/components/schemas/SuccessEnvelope_TopicTagWriteData_"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic absent or not owned by the path kb/document"
+          },
+          "409": {
+            "description": "Stale topic tag version (atomic zero-write conflict)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Storage or search projection failure. Mongo may already contain the snapshot; replay the same snapshot to converge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
@@ -2436,7 +2823,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}."
       }
     },
     "/api/v2/object/sign": {
@@ -2507,7 +2895,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Presign a direct-to-storage upload for multimodal data. POST the file to the returned URL yourself, then reference the returned object key as a message's content `uri` (/api/v2/memory/add) or as a document's content `uri` (.../documents). Uploading first and passing the key is the only path that gets a non-text item parsed \u2014 see `base64` on the content object. The Python SDK's `upload()` does both steps in one call."
       }
     },
     "/api/v2/tasks": {
@@ -2645,7 +3034,7 @@
     },
     "/api/v2/tasks/stats": {
       "get": {
-        "description": "Counts tasks per status over a time window. All four statuses are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.",
+        "description": "Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.",
         "operationId": "getTaskStats",
         "parameters": [
           {
@@ -2835,7 +3224,8 @@
         "properties": {
           "message_count": {
             "type": "integer",
-            "title": "Message Count"
+            "title": "Message Count",
+            "description": "How many messages this call accepted."
           },
           "status": {
             "type": "string",
@@ -2860,18 +3250,21 @@
           "app_id": {
             "type": "string",
             "title": "App Id",
-            "default": "default"
+            "default": "default",
+            "description": "Business-semantic scope for this write, defaulting to \"default\". Reads must use the same app_id / project_id pair to see what was written under it. Note this is a partition, not the security boundary \u2014 that is the tenant resolved from your API key."
           },
           "project_id": {
             "type": "string",
             "title": "Project Id",
-            "default": "default"
+            "default": "default",
+            "description": "Second half of the business-semantic scope, defaulting to \"default\". See `app_id`."
           },
           "session_id": {
             "type": "string",
             "maxLength": 128,
             "minLength": 1,
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The conversation these messages belong to (1\u2013128 characters). It is the unit extraction works on: /api/v2/memory/flush takes this id, and a session boundary is what triggers extraction on its own."
           },
           "messages": {
             "items": {
@@ -2880,7 +3273,8 @@
             "type": "array",
             "maxItems": 500,
             "minItems": 1,
-            "title": "Messages"
+            "title": "Messages",
+            "description": "The turns to append, in order \u2014 1 to 500 per call. Each carries its own sender and timestamp, so one call can hold a whole exchange."
           },
           "async_mode": {
             "type": "boolean",
@@ -2919,12 +3313,14 @@
                 "type": "null"
               }
             ],
-            "title": "Reason"
+            "title": "Reason",
+            "description": "Why this edit was made, up to 256 characters. Stored with the item."
           },
           "action": {
             "type": "string",
             "const": "add",
-            "title": "Action"
+            "title": "Action",
+            "description": "Always \"add\" for this variant."
           },
           "type": {
             "type": "string",
@@ -2932,7 +3328,8 @@
               "explicit_info",
               "implicit_traits"
             ],
-            "title": "Type"
+            "title": "Type",
+            "description": "Which profile item this edit targets \u2014 \"explicit_info\" (a stated fact, needing `category` + `description`) or \"implicit_traits\" (an inferred trait, needing `trait` + `description`)."
           },
           "data": {
             "anyOf": [
@@ -2943,7 +3340,8 @@
                 "$ref": "#/components/schemas/ImplicitTraitData"
               }
             ],
-            "title": "Data"
+            "title": "Data",
+            "description": "The item to add. Its required keys depend on `type`; other keys (evidence, sources, basis, \u2026) ride through untouched."
           }
         },
         "additionalProperties": false,
@@ -2960,35 +3358,43 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Agent-case id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this case was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "agent_id": {
             "type": "string",
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "The agent that owns this case."
           },
           "session_id": {
             "type": "string",
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The session whose trajectory the case was distilled from."
           },
           "task_intent": {
             "type": "string",
-            "title": "Task Intent"
+            "title": "Task Intent",
+            "description": "What the agent was trying to do in that trajectory."
           },
           "approach": {
             "type": "string",
-            "title": "Approach"
+            "title": "Approach",
+            "description": "How it went about it \u2014 the reusable part of the case."
           },
           "quality_score": {
             "type": "number",
-            "title": "Quality Score"
+            "title": "Quality Score",
+            "description": "How good this case is judged to be. Nominally 0.0\u20131.0 with 0.5 as the no-opinion default, but the value is the extractor's own and nothing on the write path enforces the range \u2014 treat an out-of-range number as possible. One threshold is real: a case scoring below 0.2 is never distilled into a skill."
           },
           "key_insight": {
             "anyOf": [
@@ -2999,12 +3405,14 @@
                 "type": "null"
               }
             ],
-            "title": "Key Insight"
+            "title": "Key Insight",
+            "description": "The single takeaway distilled from the trajectory, when there is one."
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp"
+            "title": "Timestamp",
+            "description": "When the trajectory happened (ISO 8601)."
           }
         },
         "type": "object",
@@ -3025,46 +3433,82 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Agent-skill id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this skill was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "agent_id": {
             "type": "string",
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "The agent that owns this skill."
           },
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The skill's name."
           },
           "description": {
             "type": "string",
-            "title": "Description"
+            "title": "Description",
+            "description": "What the skill is for, in a sentence."
           },
           "content": {
             "type": "string",
-            "title": "Content"
+            "title": "Content",
+            "description": "The skill itself \u2014 the reusable procedure, ready to put in a prompt."
           },
           "confidence": {
             "type": "number",
-            "title": "Confidence"
+            "title": "Confidence",
+            "description": "How much the distillation trusts this skill. Nominally 0.0\u20131.0, defaulting to 0.0 before anything scores it; the range is not enforced on the write path. Nothing in retrieval filters on it today, and how it divides labour with `maturity_score` is still open \u2014 so do not build a threshold on it yet."
           },
           "maturity_score": {
             "type": "number",
-            "title": "Maturity Score"
+            "title": "Maturity Score",
+            "description": "How well-established the skill is. Nominally 0.0\u20131.0 and unenforced, and \u2014 unlike the other two scores \u2014 its default is 0.6 rather than 0.0, chosen so an unscored skill starts mid-optimistic. The cost is that an unscored 0.6 is indistinguishable from a scored 0.6: there is no \"not evaluated\" sentinel, and maturity scoring is skipped by default. Filtering near 0.6 is therefore unreliable."
           },
           "source_case_ids": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Source Case Ids"
+            "title": "Source Case Ids",
+            "description": "The agent cases this skill was distilled from. Fetch them for the underlying evidence."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "When the skill was first distilled."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When it was last reinforced or rewritten."
           }
         },
         "type": "object",
@@ -3085,11 +3529,13 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Atomic-fact id."
           },
           "content": {
             "type": "string",
-            "title": "Content"
+            "title": "Content",
+            "description": "The fact itself, as a single statement."
           }
         },
         "type": "object",
@@ -3133,17 +3579,20 @@
           },
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The category's display name."
           },
           "description": {
             "type": "string",
             "title": "Description",
-            "default": ""
+            "default": "",
+            "description": "What belongs in this category. The classifier matches documents against this text, so it is functional, not decorative."
           },
           "document_count": {
             "type": "integer",
             "title": "Document Count",
-            "default": 0
+            "default": 0,
+            "description": "How many documents are filed under it."
           },
           "scope": {
             "type": "string",
@@ -3193,7 +3642,8 @@
               "$ref": "#/components/schemas/CategoryData"
             },
             "type": "array",
-            "title": "Categories"
+            "title": "Categories",
+            "description": "Every category available in this knowledge base \u2014 the ones created here plus the tenant-global presets."
           }
         },
         "type": "object",
@@ -3212,7 +3662,8 @@
                 "type": "null"
               }
             ],
-            "title": "Name"
+            "title": "Name",
+            "description": "New category name, 1\u201350 characters. Omit to leave it unchanged."
           },
           "description": {
             "anyOf": [
@@ -3223,7 +3674,8 @@
                 "type": "null"
               }
             ],
-            "title": "Description"
+            "title": "Description",
+            "description": "New category description. This is what the classifier matches documents against, so it is worth keeping accurate. Omit to leave it unchanged."
           }
         },
         "additionalProperties": false,
@@ -3243,7 +3695,8 @@
               "html",
               "email"
             ],
-            "title": "Type"
+            "title": "Type",
+            "description": "What this item is: \"text\", \"image\", \"audio\", \"doc\", \"pdf\", \"html\" or \"email\". It selects how the content is parsed, so it must match the payload."
           },
           "text": {
             "anyOf": [
@@ -3254,7 +3707,8 @@
                 "type": "null"
               }
             ],
-            "title": "Text"
+            "title": "Text",
+            "description": "Inline text, used when `type` is \"text\"."
           },
           "source": {
             "anyOf": [
@@ -3265,7 +3719,8 @@
                 "type": "null"
               }
             ],
-            "title": "Source"
+            "title": "Source",
+            "description": "Where the item came from \u2014 an origin label carried through to the memory."
           },
           "base64": {
             "anyOf": [
@@ -3276,7 +3731,8 @@
                 "type": "null"
               }
             ],
-            "title": "Base64"
+            "title": "Base64",
+            "description": "The item's bytes inline, base64-encoded. NOTE: a non-text item that carries only `base64` is skipped by the parse step \u2014 the parser reads bytes from object storage \u2014 so use `uri` for anything that must actually be understood."
           },
           "uri": {
             "anyOf": [
@@ -3287,7 +3743,8 @@
                 "type": "null"
               }
             ],
-            "title": "Uri"
+            "title": "Uri",
+            "description": "Pointer to already-uploaded bytes: the object key returned by POST /api/v2/object/sign. This is the only form of a non-text item that gets parsed."
           },
           "ext": {
             "anyOf": [
@@ -3298,7 +3755,8 @@
                 "type": "null"
               }
             ],
-            "title": "Ext"
+            "title": "Ext",
+            "description": "File extension of the referenced content, e.g. \"pdf\" \u2014 used when the uri carries none."
           },
           "name": {
             "anyOf": [
@@ -3309,7 +3767,8 @@
                 "type": "null"
               }
             ],
-            "title": "Name"
+            "title": "Name",
+            "description": "Original file name, kept for display and passed to the parser."
           },
           "source_info": {
             "anyOf": [
@@ -3321,7 +3780,8 @@
                 "type": "null"
               }
             ],
-            "title": "Source Info"
+            "title": "Source Info",
+            "description": "Free-form provenance metadata stored alongside the item; a `size` here is passed to the parser."
           },
           "extras": {
             "anyOf": [
@@ -3333,7 +3793,8 @@
                 "type": "null"
               }
             ],
-            "title": "Extras"
+            "title": "Extras",
+            "description": "Free-form extra fields, passed through untouched."
           }
         },
         "type": "object",
@@ -3369,12 +3830,14 @@
           "app_id": {
             "type": "string",
             "title": "App Id",
-            "default": "default"
+            "default": "default",
+            "description": "Scope to delete within, defaulting to \"default\"."
           },
           "project_id": {
             "type": "string",
             "title": "Project Id",
-            "default": "default"
+            "default": "default",
+            "description": "Second half of the scope, defaulting to \"default\"."
           },
           "user_id": {
             "anyOf": [
@@ -3386,7 +3849,8 @@
                 "type": "null"
               }
             ],
-            "title": "User Id"
+            "title": "User Id",
+            "description": "Delete this user's memories. At least one of `user_id` / `agent_id` / `session_id` must be given, and `user_id` / `agent_id` cannot be combined."
           },
           "agent_id": {
             "anyOf": [
@@ -3398,7 +3862,8 @@
                 "type": "null"
               }
             ],
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "Delete this agent's memories. Cannot be combined with `user_id`."
           },
           "session_id": {
             "anyOf": [
@@ -3409,7 +3874,8 @@
                 "type": "null"
               }
             ],
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "Delete the memories extracted from this session. May be given alone, without an owner."
           }
         },
         "additionalProperties": false,
@@ -3432,12 +3898,14 @@
                 "type": "null"
               }
             ],
-            "title": "Reason"
+            "title": "Reason",
+            "description": "Why this edit was made, up to 256 characters."
           },
           "action": {
             "type": "string",
             "const": "delete",
-            "title": "Action"
+            "title": "Action",
+            "description": "Always \"delete\" for this variant."
           },
           "type": {
             "type": "string",
@@ -3445,11 +3913,13 @@
               "explicit_info",
               "implicit_traits"
             ],
-            "title": "Type"
+            "title": "Type",
+            "description": "Which profile item this edit targets \u2014 \"explicit_info\" or \"implicit_traits\". It must match the `item_id` prefix."
           },
           "item_id": {
             "type": "string",
-            "title": "Item Id"
+            "title": "Item Id",
+            "description": "The item to delete. Its prefix must match the item type (\"ei_\" / \"it_\") followed by 24 hex characters."
           }
         },
         "additionalProperties": false,
@@ -3471,12 +3941,14 @@
           },
           "kb_id": {
             "type": "string",
-            "title": "Kb Id"
+            "title": "Kb Id",
+            "description": "The knowledge base this document belongs to."
           },
           "category_id": {
             "type": "string",
             "title": "Category Id",
-            "default": ""
+            "default": "",
+            "description": "The category it is filed under; empty when it is uncategorized."
           },
           "category_name": {
             "anyOf": [
@@ -3492,7 +3964,8 @@
           },
           "title": {
             "type": "string",
-            "title": "Title"
+            "title": "Title",
+            "description": "The document's title."
           },
           "summary": {
             "anyOf": [
@@ -3503,7 +3976,8 @@
                 "type": "null"
               }
             ],
-            "title": "Summary"
+            "title": "Summary",
+            "description": "Document-level summary produced during ingest."
           },
           "source_name": {
             "anyOf": [
@@ -3514,7 +3988,8 @@
                 "type": "null"
               }
             ],
-            "title": "Source Name"
+            "title": "Source Name",
+            "description": "Name of the file or source it was ingested from."
           },
           "source_type": {
             "anyOf": [
@@ -3525,7 +4000,16 @@
                 "type": "null"
               }
             ],
-            "title": "Source Type"
+            "title": "Source Type",
+            "description": "What kind of source it came from."
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags",
+            "description": "Distinct opaque ids from the document's read-only topic-tag union. Cloud leaves name unset; KHS may validate and expand display names. This document aggregate is read-only and carries no topic ownership field."
           },
           "topic_count": {
             "type": "integer",
@@ -3543,7 +4027,8 @@
                 "type": "null"
               }
             ],
-            "title": "Created At"
+            "title": "Created At",
+            "description": "When the document was created."
           },
           "updated_at": {
             "anyOf": [
@@ -3555,14 +4040,16 @@
                 "type": "null"
               }
             ],
-            "title": "Updated At"
+            "title": "Updated At",
+            "description": "When it last changed."
           }
         },
         "type": "object",
         "required": [
           "id",
           "kb_id",
-          "title"
+          "title",
+          "tags"
         ],
         "title": "DocData",
         "description": "A document as returned to clients. ``topic_count`` = the node_count (>0 = ingested).\n\nContract note \u2014 ``topic_count`` vs ``GET .../topics``: the count is of REAL topics and\nexcludes the synthetic document-root node, while the topics list INCLUDES it. So\n``len(topics) == topic_count + 1`` for an ingested document. See ``TopicListData``."
@@ -3598,7 +4085,8 @@
           "title": {
             "type": "string",
             "minLength": 1,
-            "title": "Title"
+            "title": "Title",
+            "description": "Human-readable name for the document. Until the async ingest finishes this is the only handle the caller has \u2014 the document id is minted downstream, so GET .../documents is resolved by title."
           },
           "content": {
             "$ref": "#/components/schemas/ContentItem",
@@ -3655,12 +4143,14 @@
               "$ref": "#/components/schemas/DocData"
             },
             "type": "array",
-            "title": "Documents"
+            "title": "Documents",
+            "description": "This page of documents."
           },
           "total": {
             "type": "integer",
             "title": "Total",
-            "default": 0
+            "default": 0,
+            "description": "How many documents match, across all pages."
           }
         },
         "type": "object",
@@ -3678,7 +4168,8 @@
                 "type": "null"
               }
             ],
-            "title": "Title"
+            "title": "Title",
+            "description": "New title. Omit to leave it unchanged."
           },
           "category_id": {
             "anyOf": [
@@ -3689,7 +4180,8 @@
                 "type": "null"
               }
             ],
-            "title": "Category Id"
+            "title": "Category Id",
+            "description": "Re-file the document under another category. Omit to leave it where it is; content is unaffected either way."
           }
         },
         "additionalProperties": false,
@@ -3700,14 +4192,16 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "The document that was patched."
           },
           "updated_fields": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Updated Fields"
+            "title": "Updated Fields",
+            "description": "Which fields actually changed \u2014 omitted fields are not listed."
           },
           "updated_at": {
             "anyOf": [
@@ -3719,7 +4213,8 @@
                 "type": "null"
               }
             ],
-            "title": "Updated At"
+            "title": "Updated At",
+            "description": "When the change was applied."
           }
         },
         "type": "object",
@@ -3732,12 +4227,14 @@
         "properties": {
           "doc_id": {
             "type": "string",
-            "title": "Doc Id"
+            "title": "Doc Id",
+            "description": "The parent document's id."
           },
           "title": {
             "type": "string",
             "title": "Title",
-            "default": ""
+            "default": "",
+            "description": "Its title."
           },
           "summary": {
             "anyOf": [
@@ -3748,7 +4245,8 @@
                 "type": "null"
               }
             ],
-            "title": "Summary"
+            "title": "Summary",
+            "description": "Its document-level summary."
           }
         },
         "type": "object",
@@ -3762,27 +4260,32 @@
         "properties": {
           "user_id": {
             "type": "string",
-            "title": "User Id"
+            "title": "User Id",
+            "description": "The user whose profile was edited."
           },
           "version": {
             "type": "integer",
-            "title": "Version"
+            "title": "Version",
+            "description": "The profile's version after this edit. It advances every time the profile changes."
           },
           "applied": {
             "type": "integer",
-            "title": "Applied"
+            "title": "Applied",
+            "description": "How many of the submitted operations took effect."
           },
           "results": {
             "items": {
               "$ref": "#/components/schemas/EditResultItem"
             },
             "type": "array",
-            "title": "Results"
+            "title": "Results",
+            "description": "Per-operation outcome, in submission order \u2014 check this rather than assuming all applied."
           },
           "profile": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Profile"
+            "title": "Profile",
+            "description": "The profile as it stands after the edit, so no follow-up read is needed."
           }
         },
         "type": "object",
@@ -3799,23 +4302,27 @@
           "app_id": {
             "type": "string",
             "title": "App Id",
-            "default": "default"
+            "default": "default",
+            "description": "Scope the profile lives in, defaulting to \"default\"."
           },
           "project_id": {
             "type": "string",
             "title": "Project Id",
-            "default": "default"
+            "default": "default",
+            "description": "Second half of the scope, defaulting to \"default\"."
           },
           "user_id": {
             "type": "string",
             "minLength": 1,
-            "title": "User Id"
+            "title": "User Id",
+            "description": "The user whose profile is being edited."
           },
           "memory_type": {
             "type": "string",
             "const": "profile",
             "title": "Memory Type",
-            "default": "profile"
+            "default": "profile",
+            "description": "Pinned to \"profile\" \u2014 this endpoint edits nothing else."
           },
           "operations": {
             "items": {
@@ -3842,7 +4349,8 @@
             "type": "array",
             "maxItems": 50,
             "minItems": 1,
-            "title": "Operations"
+            "title": "Operations",
+            "description": "1 to 50 edits applied in one call. \"add\" mints the item id and must not carry one; \"update\" and \"delete\" require an `item_id` whose prefix matches the item type (\"ei_\" for explicit_info, \"it_\" for implicit_traits). Each operation's outcome is reported separately, so one can be rejected while the rest apply."
           }
         },
         "additionalProperties": false,
@@ -3872,15 +4380,18 @@
         "properties": {
           "op_index": {
             "type": "integer",
-            "title": "Op Index"
+            "title": "Op Index",
+            "description": "Which submitted operation this is, by 0-based position in the request."
           },
           "action": {
             "type": "string",
-            "title": "Action"
+            "title": "Action",
+            "description": "The action that was attempted \u2014 \"add\", \"update\" or \"delete\"."
           },
           "type": {
             "type": "string",
-            "title": "Type"
+            "title": "Type",
+            "description": "The profile item type it targeted."
           },
           "status": {
             "type": "string",
@@ -3888,7 +4399,8 @@
               "applied",
               "rejected"
             ],
-            "title": "Status"
+            "title": "Status",
+            "description": "\"applied\" or \"rejected\". A rejected operation does not fail the request."
           },
           "item_id": {
             "anyOf": [
@@ -3899,7 +4411,8 @@
                 "type": "null"
               }
             ],
-            "title": "Item Id"
+            "title": "Item Id",
+            "description": "The item that was updated or deleted."
           },
           "new_item_id": {
             "anyOf": [
@@ -3910,7 +4423,8 @@
                 "type": "null"
               }
             ],
-            "title": "New Item Id"
+            "title": "New Item Id",
+            "description": "The id minted for an added item \u2014 this is how a caller learns it."
           },
           "error": {
             "anyOf": [
@@ -3921,7 +4435,8 @@
                 "type": "null"
               }
             ],
-            "title": "Error"
+            "title": "Error",
+            "description": "Why this operation was rejected, when it was."
           }
         },
         "type": "object",
@@ -3938,15 +4453,18 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Episode id. Use it to bind tags or to fetch this episode again."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this memory was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "user_id": {
             "anyOf": [
@@ -3957,7 +4475,8 @@
                 "type": "null"
               }
             ],
-            "title": "User Id"
+            "title": "User Id",
+            "description": "The user this episode belongs to. Null on an episode merged from several owners."
           },
           "session_id": {
             "anyOf": [
@@ -3968,31 +4487,37 @@
                 "type": "null"
               }
             ],
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The session it was extracted from. Null when the episode merges more than one session."
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp"
+            "title": "Timestamp",
+            "description": "When the remembered exchange happened (ISO 8601), not when it was extracted."
           },
           "sender_ids": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Sender Ids"
+            "title": "Sender Ids",
+            "description": "The senders that appear in the source exchange."
           },
           "summary": {
             "type": "string",
-            "title": "Summary"
+            "title": "Summary",
+            "description": "Short summary of the episode \u2014 what a result list should show."
           },
           "subject": {
             "type": "string",
-            "title": "Subject"
+            "title": "Subject",
+            "description": "What the episode is about, in a few words."
           },
           "episode": {
             "type": "string",
-            "title": "Episode"
+            "title": "Episode",
+            "description": "The episode's stored narrative body. This is the indexed, searchable text."
           },
           "readable_episode": {
             "anyOf": [
@@ -4003,25 +4528,29 @@
                 "type": "null"
               }
             ],
-            "title": "Readable Episode"
+            "title": "Readable Episode",
+            "description": "Human-readable rendering of `episode`, for display only \u2014 never indexed, filtered or scored. Present as a key but null unless the request asked for it (and the tenant is enabled for it); fall back to `episode` when it is null."
           },
           "type": {
             "type": "string",
-            "title": "Type"
+            "title": "Type",
+            "description": "How the episode was produced \u2014 \"Conversation\" or \"AgentConversation\"."
           },
           "atomic_facts": {
             "items": {
               "$ref": "#/components/schemas/AtomicFactItem"
             },
             "type": "array",
-            "title": "Atomic Facts"
+            "title": "Atomic Facts",
+            "description": "The individual facts extracted from this episode, nested rather than returned separately."
           },
           "tags": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Tags"
+            "title": "Tags",
+            "description": "Tags attached through /api/v2/memory/tag/*."
           }
         },
         "type": "object",
@@ -4037,18 +4566,61 @@
         ],
         "title": "EpisodeItem"
       },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Domain error code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable error message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody",
+        "description": "Nested error object inside the error envelope."
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody",
+            "description": "Error detail (code + message)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "error"
+        ],
+        "title": "ErrorEnvelope",
+        "description": "v1 error envelope (spec \u00a71): ``{request_id, error:{code,message}}``.\n\nUsed by ``global_exception_handler`` for both HTTPException (carrying the\ndomain code via ``InvocationHttpError``) and unhandled exceptions."
+      },
       "ExplicitInfoData": {
         "properties": {
           "category": {
             "type": "string",
             "minLength": 1,
-            "title": "Category"
+            "title": "Category",
+            "description": "What kind of fact this is, e.g. \"hobby\". Required, non-empty."
           },
           "description": {
             "type": "string",
             "maxLength": 4000,
             "minLength": 1,
-            "title": "Description"
+            "title": "Description",
+            "description": "The fact itself, up to 4000 characters. Required, non-empty."
           }
         },
         "additionalProperties": true,
@@ -4072,7 +4644,8 @@
                 "type": "null"
               }
             ],
-            "title": "Category"
+            "title": "Category",
+            "description": "New category. At least one of `category` / `description` must be present."
           },
           "description": {
             "anyOf": [
@@ -4085,7 +4658,8 @@
                 "type": "null"
               }
             ],
-            "title": "Description"
+            "title": "Description",
+            "description": "New text, up to 4000 characters. Fields left out keep their stored value."
           }
         },
         "additionalProperties": true,
@@ -4107,7 +4681,8 @@
                 "type": "null"
               }
             ],
-            "title": "And"
+            "title": "And",
+            "description": "Nested conditions that must all hold."
           },
           "OR": {
             "anyOf": [
@@ -4121,7 +4696,8 @@
                 "type": "null"
               }
             ],
-            "title": "Or"
+            "title": "Or",
+            "description": "Nested conditions of which at least one must hold."
           }
         },
         "additionalProperties": true,
@@ -4137,7 +4713,8 @@
               "extracted",
               "no_extraction"
             ],
-            "title": "Status"
+            "title": "Status",
+            "description": "\"extracted\" when the flush distilled new memories, \"no_extraction\" when there was nothing to extract \u2014 including the case of an async add still queued."
           }
         },
         "type": "object",
@@ -4151,17 +4728,20 @@
           "app_id": {
             "type": "string",
             "title": "App Id",
-            "default": "default"
+            "default": "default",
+            "description": "Scope the session lives in, defaulting to \"default\"."
           },
           "project_id": {
             "type": "string",
             "title": "Project Id",
-            "default": "default"
+            "default": "default",
+            "description": "Second half of the scope, defaulting to \"default\"."
           },
           "session_id": {
             "type": "string",
             "minLength": 1,
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The session to extract from. Only messages already accumulated for this session are considered, so a still-queued async add yields \"no_extraction\"."
           }
         },
         "type": "object",
@@ -4177,38 +4757,44 @@
               "$ref": "#/components/schemas/EpisodeItem"
             },
             "type": "array",
-            "title": "Episodes"
+            "title": "Episodes",
+            "description": "Episodes, when `memory_type` was \"episode\". Empty otherwise."
           },
           "profiles": {
             "items": {
               "$ref": "#/components/schemas/ProfileItem"
             },
             "type": "array",
-            "title": "Profiles"
+            "title": "Profiles",
+            "description": "Profiles, when `memory_type` was \"profile\". Empty otherwise."
           },
           "agent_cases": {
             "items": {
               "$ref": "#/components/schemas/AgentCaseItem"
             },
             "type": "array",
-            "title": "Agent Cases"
+            "title": "Agent Cases",
+            "description": "Agent cases, when `memory_type` was \"agent_case\". Empty otherwise."
           },
           "agent_skills": {
             "items": {
               "$ref": "#/components/schemas/AgentSkillItem"
             },
             "type": "array",
-            "title": "Agent Skills"
+            "title": "Agent Skills",
+            "description": "Agent skills, when `memory_type` was \"agent_skill\". Empty otherwise."
           },
           "total_count": {
             "type": "integer",
             "title": "Total Count",
-            "default": 0
+            "default": 0,
+            "description": "How many memories match the request in total, across all pages."
           },
           "count": {
             "type": "integer",
             "title": "Count",
-            "default": 0
+            "default": 0,
+            "description": "How many are in this page."
           }
         },
         "type": "object",
@@ -4219,12 +4805,14 @@
           "app_id": {
             "type": "string",
             "title": "App Id",
-            "default": "default"
+            "default": "default",
+            "description": "Scope to read from, defaulting to \"default\". Must match the pair used on write."
           },
           "project_id": {
             "type": "string",
             "title": "Project Id",
-            "default": "default"
+            "default": "default",
+            "description": "Second half of the scope, defaulting to \"default\"."
           },
           "user_id": {
             "anyOf": [
@@ -4236,7 +4824,8 @@
                 "type": "null"
               }
             ],
-            "title": "User Id"
+            "title": "User Id",
+            "description": "Read one user's memories. Exactly one of `user_id` / `agent_id` is required, and a user owner may only ask for \"episode\" or \"profile\"."
           },
           "agent_id": {
             "anyOf": [
@@ -4248,7 +4837,8 @@
                 "type": "null"
               }
             ],
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "Read one agent's memories. Exactly one of `user_id` / `agent_id` is required, and an agent owner may only ask for \"agent_case\" or \"agent_skill\"."
           },
           "memory_type": {
             "type": "string",
@@ -4258,20 +4848,23 @@
               "agent_case",
               "agent_skill"
             ],
-            "title": "Memory Type"
+            "title": "Memory Type",
+            "description": "Which kind of memory to list: \"episode\" (narrative summaries of past sessions), \"profile\" (stable identity and preferences), \"agent_case\" (a distilled past trajectory) or \"agent_skill\" (a reusable skill). It must match the owner \u2014 the mismatched pairings are rejected with 422."
           },
           "page": {
             "type": "integer",
             "minimum": 1.0,
             "title": "Page",
-            "default": 1
+            "default": 1,
+            "description": "1-based page number."
           },
           "page_size": {
             "type": "integer",
             "maximum": 100.0,
             "minimum": 1.0,
             "title": "Page Size",
-            "default": 20
+            "default": 20,
+            "description": "Items per page, 1 to 100 (default 20)."
           },
           "sort_by": {
             "type": "string",
@@ -4280,7 +4873,8 @@
               "updated_at"
             ],
             "title": "Sort By",
-            "default": "timestamp"
+            "default": "timestamp",
+            "description": "Order by \"timestamp\" (when the memory happened, default) or \"updated_at\" (when it was last written). Profiles and agent skills have no temporal column and always sort by \"updated_at\"."
           },
           "sort_order": {
             "type": "string",
@@ -4289,12 +4883,14 @@
               "desc"
             ],
             "title": "Sort Order",
-            "default": "desc"
+            "default": "desc",
+            "description": "\"desc\" (default, newest first) or \"asc\"."
           },
           "with_readable_episode": {
             "type": "boolean",
             "title": "With Readable Episode",
-            "default": false
+            "default": false,
+            "description": "Attach a human-readable rendering to each returned episode, for display only. Ignored for every non-episode `memory_type` rather than rejected."
           },
           "filters": {
             "anyOf": [
@@ -4304,7 +4900,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Optional filter tree applied to the listing; same shape as on search."
           }
         },
         "additionalProperties": false,
@@ -4327,7 +4924,8 @@
               "$ref": "#/components/schemas/ValidationError"
             },
             "type": "array",
-            "title": "Detail"
+            "title": "Detail",
+            "description": "One entry per field that failed validation."
           }
         },
         "type": "object",
@@ -4338,13 +4936,15 @@
           "trait": {
             "type": "string",
             "minLength": 1,
-            "title": "Trait"
+            "title": "Trait",
+            "description": "The inferred trait's name. Required, non-empty."
           },
           "description": {
             "type": "string",
             "maxLength": 4000,
             "minLength": 1,
-            "title": "Description"
+            "title": "Description",
+            "description": "What the trait means and how it shows up, up to 4000 characters."
           }
         },
         "additionalProperties": true,
@@ -4368,7 +4968,8 @@
                 "type": "null"
               }
             ],
-            "title": "Trait"
+            "title": "Trait",
+            "description": "New trait name. At least one of `trait` / `description` must be present."
           },
           "description": {
             "anyOf": [
@@ -4381,7 +4982,8 @@
                 "type": "null"
               }
             ],
-            "title": "Description"
+            "title": "Description",
+            "description": "New text, up to 4000 characters. Fields left out keep their stored value."
           }
         },
         "additionalProperties": true,
@@ -4434,12 +5036,14 @@
           },
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The knowledge base's display name."
           },
           "description": {
             "type": "string",
             "title": "Description",
-            "default": ""
+            "default": "",
+            "description": "Its description."
           },
           "owner_id": {
             "anyOf": [
@@ -4450,12 +5054,14 @@
                 "type": "null"
               }
             ],
-            "title": "Owner Id"
+            "title": "Owner Id",
+            "description": "The owner it was created for, if any. A soft partition for organising bases \u2014 not a security boundary."
           },
           "document_count": {
             "type": "integer",
             "title": "Document Count",
-            "default": 0
+            "default": 0,
+            "description": "How many documents it holds."
           },
           "created_at": {
             "anyOf": [
@@ -4467,7 +5073,8 @@
                 "type": "null"
               }
             ],
-            "title": "Created At"
+            "title": "Created At",
+            "description": "When it was created."
           },
           "updated_at": {
             "anyOf": [
@@ -4479,7 +5086,8 @@
                 "type": "null"
               }
             ],
-            "title": "Updated At"
+            "title": "Updated At",
+            "description": "When its metadata last changed."
           }
         },
         "type": "object",
@@ -4517,12 +5125,14 @@
               "$ref": "#/components/schemas/KbData"
             },
             "type": "array",
-            "title": "Knowledge Bases"
+            "title": "Knowledge Bases",
+            "description": "This page of knowledge bases."
           },
           "total": {
             "type": "integer",
             "title": "Total",
-            "default": 0
+            "default": 0,
+            "description": "How many exist in total, across all pages."
           }
         },
         "type": "object",
@@ -4541,7 +5151,8 @@
                 "type": "null"
               }
             ],
-            "title": "Name"
+            "title": "Name",
+            "description": "New name, 1\u2013100 characters. Omit to leave it unchanged."
           },
           "description": {
             "anyOf": [
@@ -4552,7 +5163,8 @@
                 "type": "null"
               }
             ],
-            "title": "Description"
+            "title": "Description",
+            "description": "New description. Omit to leave it unchanged."
           }
         },
         "additionalProperties": false,
@@ -4567,20 +5179,26 @@
               "$ref": "#/components/schemas/SearchHit"
             },
             "type": "array",
-            "title": "Hits"
+            "title": "Hits",
+            "description": "Matching topics, most relevant first."
           },
           "total": {
             "type": "integer",
             "title": "Total",
-            "default": 0
+            "description": "How many topics matched."
           },
           "took_ms": {
             "type": "number",
             "title": "Took Ms",
-            "default": 0.0
+            "description": "How long the search took, in milliseconds."
           }
         },
         "type": "object",
+        "required": [
+          "hits",
+          "total",
+          "took_ms"
+        ],
         "title": "KbSearchData",
         "description": "Knowledge search response payload. Prefixed ``Kb`` to stay distinct from\n``memory_api.SearchData`` \u2014 two same-named models under ``SuccessEnvelope[...]`` collide\nto a non-deterministic OpenAPI component name (see openapi-sync / check-openapi)."
       },
@@ -4588,7 +5206,8 @@
         "properties": {
           "sender_id": {
             "type": "string",
-            "title": "Sender Id"
+            "title": "Sender Id",
+            "description": "Who produced this message \u2014 the user id for a user turn, the agent id for an assistant turn. This is the identifier /api/v2/memory/get and /api/v2/memory/search later scope by (`user_id` / `agent_id`)."
           },
           "sender_name": {
             "anyOf": [
@@ -4599,7 +5218,8 @@
                 "type": "null"
               }
             ],
-            "title": "Sender Name"
+            "title": "Sender Name",
+            "description": "Optional display name for the sender; does not affect scoping."
           },
           "role": {
             "type": "string",
@@ -4608,11 +5228,13 @@
               "assistant",
               "tool"
             ],
-            "title": "Role"
+            "title": "Role",
+            "description": "Turn type: \"user\", \"assistant\", or \"tool\" for a tool result. An agent trajectory uses the OpenAI shape \u2014 an \"assistant\" message carrying `tool_calls`, followed by a \"tool\" message carrying `tool_call_id`."
           },
           "timestamp": {
             "type": "integer",
-            "title": "Timestamp"
+            "title": "Timestamp",
+            "description": "When the message was produced, as a UNIX timestamp in MILLISECONDS. A seconds-scale value is rejected with 422 rather than silently rescaled, because a window mixing the two would mis-order and mis-split."
           },
           "content": {
             "anyOf": [
@@ -4626,7 +5248,8 @@
                 "type": "array"
               }
             ],
-            "title": "Content"
+            "title": "Content",
+            "description": "The message body: a plain string (shorthand for a single text item), or a list of content items for multimodal input."
           },
           "tool_calls": {
             "anyOf": [
@@ -4640,7 +5263,8 @@
                 "type": "null"
               }
             ],
-            "title": "Tool Calls"
+            "title": "Tool Calls",
+            "description": "Tool calls issued by an assistant turn, in the OpenAI tool-calling shape. Only meaningful when `role` is \"assistant\"."
           },
           "tool_call_id": {
             "anyOf": [
@@ -4651,7 +5275,8 @@
                 "type": "null"
               }
             ],
-            "title": "Tool Call Id"
+            "title": "Tool Call Id",
+            "description": "The id of the assistant tool call this result answers. Required when `role` is \"tool\"."
           }
         },
         "type": "object",
@@ -4668,24 +5293,55 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Profile id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this profile was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "user_id": {
             "type": "string",
-            "title": "User Id"
+            "title": "User Id",
+            "description": "The user this profile describes."
           },
           "profile_data": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Profile Data"
+            "title": "Profile Data",
+            "description": "The profile itself \u2014 the explicit_info and implicit_traits items maintained by extraction and by /api/v2/memory/edit. Each item's id is what an edit operation targets."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "When the profile was first created."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When it last changed."
           }
         },
         "type": "object",
@@ -4697,39 +5353,122 @@
         ],
         "title": "ProfileItem"
       },
+      "RelatedTagUsageBody": {
+        "properties": {
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Tag Ids",
+            "description": "Candidate opaque tag ids to check against the current live tree"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tag_ids"
+        ],
+        "title": "RelatedTagUsageBody",
+        "description": "Candidate tag ids for ``POST /knowledge_bases/{kb_id}/tags``."
+      },
+      "RelatedTagUsageItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Id",
+            "description": "Opaque semantic tag id"
+          },
+          "document_count": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Document Count",
+            "description": "Distinct live documents using this tag"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "document_count"
+        ],
+        "title": "RelatedTagUsageItem",
+        "description": "One opaque tag id and its distinct live-document usage in the current KB."
+      },
+      "RelatedTagUsageListData": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RelatedTagUsageItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "One entry per requested tag id that is actually in use, sorted by id."
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total",
+            "description": "Number of returned distinct tag ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "RelatedTagUsageListData",
+        "description": "Complete non-zero usage result for the requested candidate tag ids."
+      },
       "SearchAgentCaseItem": {
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Agent-case id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this case was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "agent_id": {
             "type": "string",
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "The agent that owns this case."
           },
           "session_id": {
             "type": "string",
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The session whose trajectory the case was distilled from."
           },
           "task_intent": {
             "type": "string",
-            "title": "Task Intent"
+            "title": "Task Intent",
+            "description": "What the agent was trying to do in that trajectory."
           },
           "approach": {
             "type": "string",
-            "title": "Approach"
+            "title": "Approach",
+            "description": "How it went about it \u2014 the reusable part of the case."
           },
           "quality_score": {
             "type": "number",
-            "title": "Quality Score"
+            "title": "Quality Score",
+            "description": "How good this case is judged to be. Nominally 0.0\u20131.0 with 0.5 as the no-opinion default, but the value is the extractor's own and nothing on the write path enforces the range \u2014 treat an out-of-range number as possible. One threshold is real: a case scoring below 0.2 is never distilled into a skill."
           },
           "key_insight": {
             "anyOf": [
@@ -4740,16 +5479,19 @@
                 "type": "null"
               }
             ],
-            "title": "Key Insight"
+            "title": "Key Insight",
+            "description": "The single takeaway distilled from the trajectory, when there is one."
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp"
+            "title": "Timestamp",
+            "description": "When the trajectory happened (ISO 8601)."
           },
           "score": {
             "type": "number",
-            "title": "Score"
+            "title": "Score",
+            "description": "Relevance of this case to the query."
           }
         },
         "type": "object",
@@ -4771,50 +5513,87 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Agent-skill id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this skill was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "agent_id": {
             "type": "string",
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "The agent that owns this skill."
           },
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The skill's name."
           },
           "description": {
             "type": "string",
-            "title": "Description"
+            "title": "Description",
+            "description": "What the skill is for, in a sentence."
           },
           "content": {
             "type": "string",
-            "title": "Content"
+            "title": "Content",
+            "description": "The skill itself \u2014 the reusable procedure, ready to put in a prompt."
           },
           "confidence": {
             "type": "number",
-            "title": "Confidence"
+            "title": "Confidence",
+            "description": "How much the distillation trusts this skill. Nominally 0.0\u20131.0, defaulting to 0.0 before anything scores it; the range is not enforced on the write path. Nothing in retrieval filters on it today, and how it divides labour with `maturity_score` is still open \u2014 so do not build a threshold on it yet."
           },
           "maturity_score": {
             "type": "number",
-            "title": "Maturity Score"
+            "title": "Maturity Score",
+            "description": "How well-established the skill is. Nominally 0.0\u20131.0 and unenforced, and \u2014 unlike the other two scores \u2014 its default is 0.6 rather than 0.0, chosen so an unscored skill starts mid-optimistic. The cost is that an unscored 0.6 is indistinguishable from a scored 0.6: there is no \"not evaluated\" sentinel, and maturity scoring is skipped by default. Filtering near 0.6 is therefore unreliable."
           },
           "source_case_ids": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Source Case Ids"
+            "title": "Source Case Ids",
+            "description": "The agent cases this skill was distilled from. Fetch them for the underlying evidence."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "When the skill was first distilled."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When it was last reinforced or rewritten."
           },
           "score": {
             "type": "number",
-            "title": "Score"
+            "title": "Score",
+            "description": "Relevance of this skill to the query."
           }
         },
         "type": "object",
@@ -4836,15 +5615,18 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Atomic-fact id."
           },
           "content": {
             "type": "string",
-            "title": "Content"
+            "title": "Content",
+            "description": "The fact itself, as a single statement."
           },
           "score": {
             "type": "number",
-            "title": "Score"
+            "title": "Score",
+            "description": "Relevance of this fact to the query."
           }
         },
         "type": "object",
@@ -4858,10 +5640,17 @@
       "SearchBody": {
         "properties": {
           "query": {
-            "type": "string",
-            "maxLength": 2000,
-            "minLength": 1,
-            "title": "Query"
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query",
+            "description": "What to retrieve against within this knowledge base, up to 2000 characters. Optional: omit it and pass `filters.tag_ids` to page through tagged topics instead, which skips retrieval entirely \u2014 every hit then scores 0.0."
           },
           "method": {
             "type": "string",
@@ -4871,14 +5660,23 @@
               "hybrid"
             ],
             "title": "Method",
-            "default": "hybrid"
+            "default": "hybrid",
+            "description": "Retrieval strategy: \"keyword\" (lexical), \"vector\" (embedding similarity) or \"hybrid\" (default, both)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page",
+            "description": "Filter-only page number; query search supports page 1 only",
+            "default": 1
           },
           "top_k": {
             "type": "integer",
             "maximum": 100.0,
             "minimum": 1.0,
             "title": "Top K",
-            "default": 10
+            "default": 10,
+            "description": "Maximum number of topics to return, 1 to 100 (default 10). On a query search the server also bounds the result by its rerank pool \u2014 50 candidates by default \u2014 so asking for more than that returns what the pool held. On a filter-only request (tags without a query) it is the page size instead, and `page` walks the rest."
           },
           "score_threshold": {
             "anyOf": [
@@ -4889,7 +5687,8 @@
                 "type": "null"
               }
             ],
-            "title": "Score Threshold"
+            "title": "Score Threshold",
+            "description": "Drop hits whose final score is below this. Mind what that score is: it is normalized within each response (see `score` on a hit), so this cuts a RELATIVE position in one result set, not an absolute relevance bar \u2014 a response whose hits are all poor still has a top hit near the top of the range. Two traps follow from the edge values: a filter-only request scores every hit 0.0, so any positive threshold empties it, and a failed rerank batch scores -100.0, which every positive threshold silently removes. Tune it against real results rather than from a BM25 or cosine intuition."
           },
           "include": {
             "items": {
@@ -4897,17 +5696,29 @@
             },
             "type": "array",
             "title": "Include",
-            "description": "e.g. ['content']"
+            "description": "e.g. ['content']",
+            "default": []
+          },
+          "boost_tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Boost Tag Ids",
+            "description": "Reweight, do not filter: topics carrying these tags are pushed up, and topics without them still come back. Use `filters.tag_ids` when the intent is to exclude everything else.",
+            "default": []
           },
           "filters": {
-            "$ref": "#/components/schemas/SearchFilters"
+            "$ref": "#/components/schemas/SearchFilters",
+            "description": "Optional filters narrowing what is searched."
           }
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "query"
-        ],
         "title": "SearchBody",
         "description": "POST body (kb_id rides the path, not the body)."
       },
@@ -4918,35 +5729,40 @@
               "$ref": "#/components/schemas/SearchEpisodeItem"
             },
             "type": "array",
-            "title": "Episodes"
+            "title": "Episodes",
+            "description": "Matching episodes, for a user owner. Always present, empty when not applicable."
           },
           "profiles": {
             "items": {
               "$ref": "#/components/schemas/SearchProfileItem"
             },
             "type": "array",
-            "title": "Profiles"
+            "title": "Profiles",
+            "description": "The user's profile, when `include_profile` asked for it."
           },
           "agent_cases": {
             "items": {
               "$ref": "#/components/schemas/SearchAgentCaseItem"
             },
             "type": "array",
-            "title": "Agent Cases"
+            "title": "Agent Cases",
+            "description": "Matching agent cases, for an agent owner."
           },
           "agent_skills": {
             "items": {
               "$ref": "#/components/schemas/SearchAgentSkillItem"
             },
             "type": "array",
-            "title": "Agent Skills"
+            "title": "Agent Skills",
+            "description": "Matching agent skills, for an agent owner."
           },
           "unprocessed_messages": {
             "items": {
               "$ref": "#/components/schemas/UnprocessedMessageDTO"
             },
             "type": "array",
-            "title": "Unprocessed Messages"
+            "title": "Unprocessed Messages",
+            "description": "Raw buffered messages not yet extracted. Returned only when the request filtered on a single `session_id`, so a caller can see what is still in flight."
           }
         },
         "type": "object",
@@ -4956,15 +5772,18 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Episode id. Use it to bind tags or to fetch this episode again."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this memory was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "user_id": {
             "anyOf": [
@@ -4975,7 +5794,8 @@
                 "type": "null"
               }
             ],
-            "title": "User Id"
+            "title": "User Id",
+            "description": "The user this episode belongs to. Null on an episode merged from several owners."
           },
           "session_id": {
             "anyOf": [
@@ -4986,31 +5806,37 @@
                 "type": "null"
               }
             ],
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The session it was extracted from. Null when the episode merges more than one session."
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp"
+            "title": "Timestamp",
+            "description": "When the remembered exchange happened (ISO 8601), not when it was extracted."
           },
           "sender_ids": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Sender Ids"
+            "title": "Sender Ids",
+            "description": "The senders that appear in the source exchange."
           },
           "summary": {
             "type": "string",
-            "title": "Summary"
+            "title": "Summary",
+            "description": "Short summary of the episode \u2014 what a result list should show."
           },
           "subject": {
             "type": "string",
-            "title": "Subject"
+            "title": "Subject",
+            "description": "What the episode is about, in a few words."
           },
           "episode": {
             "type": "string",
-            "title": "Episode"
+            "title": "Episode",
+            "description": "The episode's stored narrative body. This is the indexed, searchable text."
           },
           "readable_episode": {
             "anyOf": [
@@ -5021,29 +5847,34 @@
                 "type": "null"
               }
             ],
-            "title": "Readable Episode"
+            "title": "Readable Episode",
+            "description": "Human-readable rendering of `episode`, for display only \u2014 never indexed, filtered or scored. Present as a key but null unless the request asked for it (and the tenant is enabled for it); fall back to `episode` when it is null."
           },
           "type": {
             "type": "string",
-            "title": "Type"
+            "title": "Type",
+            "description": "How the episode was produced \u2014 \"Conversation\" or \"AgentConversation\"."
           },
           "atomic_facts": {
             "items": {
               "$ref": "#/components/schemas/SearchAtomicFactItem"
             },
             "type": "array",
-            "title": "Atomic Facts"
+            "title": "Atomic Facts",
+            "description": "The facts extracted from this episode, each with its own relevance score."
           },
           "tags": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Tags"
+            "title": "Tags",
+            "description": "Tags attached through /api/v2/memory/tag/*."
           },
           "score": {
             "type": "number",
-            "title": "Score"
+            "title": "Score",
+            "description": "Relevance of this episode to the query. What the number means depends on `method`: the hybrid path fuses its two routes into a probability in 0.0\u20131.0 (which is what `min_score` filters on), while keyword and vector pass the underlying engine's own score through \u2014 BM25 has no upper bound and vector similarity depends on the metric. So compare scores within one method, not across methods."
           }
         },
         "type": "object",
@@ -5071,7 +5902,21 @@
                 "type": "null"
               }
             ],
-            "title": "Category Id"
+            "title": "Category Id",
+            "description": "Bias retrieval toward one category. This is a soft filter on recall, not a hard restriction \u2014 hits from other categories can still surface."
+          },
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Tag Ids",
+            "description": "Hard filter that does not affect scoring: only topics carrying EVERY one of these tag ids are eligible. Use `boost_tag_ids` when the intent is to reweight rather than exclude.",
+            "default": []
           }
         },
         "additionalProperties": false,
@@ -5083,25 +5928,33 @@
         "properties": {
           "object": {
             "type": "string",
+            "enum": [
+              "topic",
+              "document"
+            ],
             "title": "Object",
-            "default": "topic"
+            "description": "What this hit is. Always \"topic\" today \u2014 the unit of knowledge retrieval."
           },
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "The topic's id; fetch its full body with GET .../topics/{topic_id}."
           },
           "doc_id": {
             "type": "string",
-            "title": "Doc Id"
+            "title": "Doc Id",
+            "description": "The document the topic belongs to."
           },
           "kb_id": {
             "type": "string",
-            "title": "Kb Id"
+            "title": "Kb Id",
+            "description": "The knowledge base searched."
           },
           "category_id": {
             "type": "string",
             "title": "Category Id",
-            "default": ""
+            "default": "",
+            "description": "The category that document is filed under; empty when uncategorized."
           },
           "category_name": {
             "anyOf": [
@@ -5112,22 +5965,31 @@
                 "type": "null"
               }
             ],
-            "title": "Category Name"
+            "title": "Category Name",
+            "description": "That category's display name, resolved for you."
           },
           "name": {
             "type": "string",
             "title": "Name",
-            "default": ""
+            "description": "The topic's title."
           },
           "depth": {
             "type": "integer",
             "title": "Depth",
-            "default": 0
+            "default": 0,
+            "description": "The topic's depth in the document tree."
           },
           "summary": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Summary",
-            "default": ""
+            "description": "Retrieval-oriented summary of the topic \u2014 enough to render a result row."
           },
           "content": {
             "anyOf": [
@@ -5138,17 +6000,24 @@
                 "type": "null"
               }
             ],
-            "title": "Content"
+            "title": "Content",
+            "description": "The topic's full body, present only when `content` was asked for in `include`."
           },
           "score": {
             "type": "number",
             "title": "Score",
-            "default": 0.0
+            "description": "Relevance of this topic to the query, and NOT a raw keyword or vector score: candidates from every method are reranked by a cross-encoder, min-max normalized WITHIN THIS RESPONSE, then given a category boost (up to 0.1) and, when `boost_tag_ids` was passed, a tag-coverage boost (up to 0.3). So it lands in roughly 0.0\u20131.4, the best hit of any response sits near the top of that range by construction, and scores compare inside one response but not across responses or queries. Three edge values to expect: every hit comes back at 0.5 when the reranker cannot separate the pool, every hit is 0.0 on a filter-only request (tags without a query, which never runs relevance at all), and a hit carries a synthetic -100.0 when its rerank batch failed \u2014 that is a fail-soft marker, not a relevance judgement."
           },
           "retrieval_method": {
             "type": "string",
+            "enum": [
+              "keyword",
+              "vector",
+              "hybrid",
+              "filter"
+            ],
             "title": "Retrieval Method",
-            "default": "hybrid"
+            "description": "The retrieval strategy this search ran with, so every hit in one response carries the same value and a stored or traced response is self-describing. It echoes the request's `method`, except on a filter-only request (tags without a query), which reports \"filter\" because no retrieval ran. It is deliberately NOT per-hit provenance: in a hybrid search the two lanes are fused, and hits recalled by only one of them still report \"hybrid\"."
           },
           "source": {
             "anyOf": [
@@ -5159,7 +6028,8 @@
                 "type": "null"
               }
             ],
-            "title": "Source"
+            "title": "Source",
+            "description": "The parent document's source name."
           },
           "document": {
             "anyOf": [
@@ -5169,29 +6039,58 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "The parent document's context, rolled up so a result needs no second call."
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags",
+            "description": "The semantic tags materialized on this topic."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When the topic last changed."
           }
         },
         "type": "object",
         "required": [
+          "object",
           "id",
           "doc_id",
-          "kb_id"
+          "kb_id",
+          "name",
+          "score",
+          "retrieval_method",
+          "tags"
         ],
         "title": "SearchHit",
-        "description": "A single search hit. ``object`` self-describes the unit (currently always topic)."
+        "description": "A topic hit from recall or a document hit from filter-only search."
       },
       "SearchInput": {
         "properties": {
           "app_id": {
             "type": "string",
             "title": "App Id",
-            "default": "default"
+            "default": "default",
+            "description": "Scope to search in, defaulting to \"default\". Must match the pair used on write."
           },
           "project_id": {
             "type": "string",
             "title": "Project Id",
-            "default": "default"
+            "default": "default",
+            "description": "Second half of the scope, defaulting to \"default\"."
           },
           "user_id": {
             "anyOf": [
@@ -5203,7 +6102,8 @@
                 "type": "null"
               }
             ],
-            "title": "User Id"
+            "title": "User Id",
+            "description": "Search one user's memories \u2014 matched against the messages' `sender_id`. Exactly one of `user_id` / `agent_id` is required."
           },
           "agent_id": {
             "anyOf": [
@@ -5215,12 +6115,14 @@
                 "type": "null"
               }
             ],
-            "title": "Agent Id"
+            "title": "Agent Id",
+            "description": "Search one agent's memories (cases and skills). Exactly one of `user_id` / `agent_id` is required."
           },
           "query": {
             "type": "string",
             "minLength": 1,
-            "title": "Query"
+            "title": "Query",
+            "description": "The natural-language query to retrieve against."
           },
           "method": {
             "type": "string",
@@ -5231,12 +6133,14 @@
               "agentic"
             ],
             "title": "Method",
-            "default": "hybrid"
+            "default": "hybrid",
+            "description": "Retrieval strategy. \"keyword\" is lexical, \"vector\" is embedding similarity, \"hybrid\" (default) combines both, and \"agentic\" lets the engine run a multi-round LLM-guided retrieval \u2014 more thorough, slower."
           },
           "top_k": {
             "type": "integer",
             "title": "Top K",
-            "default": -1
+            "default": -1,
+            "description": "Maximum number of hits. Either -1 (the default, letting the engine decide) or a value from 1 to 100; anything else is rejected with 422."
           },
           "radius": {
             "anyOf": [
@@ -5249,7 +6153,8 @@
                 "type": "null"
               }
             ],
-            "title": "Radius"
+            "title": "Radius",
+            "description": "Vector-similarity radius, 0.0\u20131.0. Unset leaves it to the engine."
           },
           "min_score": {
             "anyOf": [
@@ -5262,22 +6167,26 @@
                 "type": "null"
               }
             ],
-            "title": "Min Score"
+            "title": "Min Score",
+            "description": "Post-fusion score floor, 0.0\u20131.0. Applies to the episode hybrid (hierarchy) path only; other paths ignore it. The hybrid path fuses its two routes into a probability, so unlike a raw keyword or vector score this floor is an absolute bar and 0.0\u20131.0 is the real range."
           },
           "include_profile": {
             "type": "boolean",
             "title": "Include Profile",
-            "default": false
+            "default": false,
+            "description": "Also return the user's profile alongside the hits, saving a second call. Ignored for an agent owner, whose results carry no profiles."
           },
           "with_readable_episode": {
             "type": "boolean",
             "title": "With Readable Episode",
-            "default": false
+            "default": false,
+            "description": "Attach a human-readable rendering of each episode to the returned items, for display only \u2014 it is not indexed, filterable or scored, and callers fall back to `episode` when it is null. Ignored for an agent owner."
           },
           "enable_llm_rerank": {
             "type": "boolean",
             "title": "Enable Llm Rerank",
-            "default": false
+            "default": false,
+            "description": "Opt-in LLM rerank, and only for hybrid agent_case / agent_skill retrieval. The episode hybrid path has its own fact eviction and ignores this, as do keyword, vector and agentic."
           },
           "filters": {
             "anyOf": [
@@ -5287,7 +6196,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Optional filter tree \u2014 recursive `AND` / `OR` arrays mixed with the scalar conditions being matched."
           }
         },
         "additionalProperties": false,
@@ -5307,24 +6217,55 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Profile id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope this profile was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "user_id": {
             "type": "string",
-            "title": "User Id"
+            "title": "User Id",
+            "description": "The user this profile describes."
           },
           "profile_data": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Profile Data"
+            "title": "Profile Data",
+            "description": "The profile itself \u2014 the explicit_info and implicit_traits items maintained by extraction and by /api/v2/memory/edit. Each item's id is what an edit operation targets."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "When the profile was first created."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "When it last changed."
           },
           "score": {
             "anyOf": [
@@ -5335,7 +6276,8 @@
                 "type": "null"
               }
             ],
-            "title": "Score"
+            "title": "Score",
+            "description": "Relevance to the query. Null when the profile was returned by `include_profile` rather than matched."
           }
         },
         "type": "object",
@@ -5670,6 +6612,25 @@
         ],
         "title": "SuccessEnvelope[KbSearchData]"
       },
+      "SuccessEnvelope_RelatedTagUsageListData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RelatedTagUsageListData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[RelatedTagUsageListData]"
+      },
       "SuccessEnvelope_SearchData_": {
         "properties": {
           "request_id": {
@@ -5765,6 +6726,25 @@
         ],
         "title": "SuccessEnvelope[TopicDetailData]"
       },
+      "SuccessEnvelope_TopicFilterListData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TopicFilterListData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TopicFilterListData]"
+      },
       "SuccessEnvelope_TopicListData_": {
         "properties": {
           "request_id": {
@@ -5784,17 +6764,38 @@
         ],
         "title": "SuccessEnvelope[TopicListData]"
       },
+      "SuccessEnvelope_TopicTagWriteData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TopicTagWriteData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[TopicTagWriteData]"
+      },
       "TagBindData": {
         "properties": {
           "matched": {
             "type": "integer",
             "title": "Matched",
-            "default": 0
+            "default": 0,
+            "description": "How many of the submitted memories the operation matched. Matching is not the same as changing: re-binding a tag an item already carries matches without modifying it."
           },
           "requested": {
             "type": "integer",
             "title": "Requested",
-            "default": 0
+            "default": 0,
+            "description": "How many ids were submitted. `matched` below `requested` means some ids were not found \u2014 deleted, another tenant's, or (for bind) already at the per-memory tag limit."
           }
         },
         "type": "object",
@@ -5805,7 +6806,8 @@
           "memory_type": {
             "type": "string",
             "minLength": 1,
-            "title": "Memory Type"
+            "title": "Memory Type",
+            "description": "The type of the memories being tagged. \"episode\" is what this phase supports; agent cases and skills onboard later without an API change."
           },
           "memory_ids": {
             "items": {
@@ -5814,7 +6816,8 @@
             "type": "array",
             "maxItems": 200,
             "minItems": 1,
-            "title": "Memory Ids"
+            "title": "Memory Ids",
+            "description": "The memories to tag, by id (1\u2013200 per request). Ids come from /api/v2/memory/get or /api/v2/memory/search."
           },
           "tags": {
             "items": {
@@ -5825,7 +6828,8 @@
             "type": "array",
             "maxItems": 100,
             "minItems": 1,
-            "title": "Tags"
+            "title": "Tags",
+            "description": "Tags to add (1\u2013100 per request, each 1\u201332 characters). Tags the memories already carry are left in place."
           }
         },
         "additionalProperties": false,
@@ -5837,17 +6841,47 @@
         ],
         "title": "TagBindInput"
       },
+      "TagRef": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Opaque semantic tag id."
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "The tag's display name when one is resolved; null when only the id is known."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "TagRef",
+        "description": "Opaque semantic tag reference; its containing topic conveys ownership."
+      },
       "TagReplaceData": {
         "properties": {
           "matched": {
             "type": "integer",
             "title": "Matched",
-            "default": 0
+            "default": 0,
+            "description": "How many of the submitted memories the operation matched. Matching is not the same as changing: re-binding a tag an item already carries matches without modifying it."
           },
           "requested": {
             "type": "integer",
             "title": "Requested",
-            "default": 0
+            "default": 0,
+            "description": "How many ids were submitted. `matched` below `requested` means some ids were not found \u2014 deleted, another tenant's, or (for bind) already at the per-memory tag limit."
           }
         },
         "type": "object",
@@ -5858,7 +6892,8 @@
           "memory_type": {
             "type": "string",
             "minLength": 1,
-            "title": "Memory Type"
+            "title": "Memory Type",
+            "description": "The type of the memories being retagged, e.g. \"episode\"."
           },
           "memory_ids": {
             "items": {
@@ -5867,7 +6902,8 @@
             "type": "array",
             "maxItems": 200,
             "minItems": 1,
-            "title": "Memory Ids"
+            "title": "Memory Ids",
+            "description": "The memories to retag, by id (1\u2013200 per request)."
           },
           "tags": {
             "items": {
@@ -5877,7 +6913,8 @@
             },
             "type": "array",
             "maxItems": 100,
-            "title": "Tags"
+            "title": "Tags",
+            "description": "The complete tag set to store (up to 100, each 1\u201332 characters). Tags absent from this list are dropped, and an empty list clears them all. Duplicates collapse."
           }
         },
         "additionalProperties": false,
@@ -5895,12 +6932,14 @@
           "matched": {
             "type": "integer",
             "title": "Matched",
-            "default": 0
+            "default": 0,
+            "description": "How many of the submitted memories the operation matched. Matching is not the same as changing: re-binding a tag an item already carries matches without modifying it."
           },
           "requested": {
             "type": "integer",
             "title": "Requested",
-            "default": 0
+            "default": 0,
+            "description": "How many ids were submitted. `matched` below `requested` means some ids were not found \u2014 deleted, another tenant's, or (for bind) already at the per-memory tag limit."
           }
         },
         "type": "object",
@@ -5911,7 +6950,8 @@
           "memory_type": {
             "type": "string",
             "minLength": 1,
-            "title": "Memory Type"
+            "title": "Memory Type",
+            "description": "The type of the memories being untagged, e.g. \"episode\"."
           },
           "memory_ids": {
             "items": {
@@ -5920,7 +6960,8 @@
             "type": "array",
             "maxItems": 200,
             "minItems": 1,
-            "title": "Memory Ids"
+            "title": "Memory Ids",
+            "description": "The memories to untag, by id (1\u2013200 per request)."
           },
           "tags": {
             "items": {
@@ -5931,7 +6972,8 @@
             "type": "array",
             "maxItems": 100,
             "minItems": 1,
-            "title": "Tags"
+            "title": "Tags",
+            "description": "Tags to remove (1\u2013100 per request). Tags not listed here are left in place."
           }
         },
         "additionalProperties": false,
@@ -5947,15 +6989,18 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Tool-call id; the matching \"tool\" message echoes it as `tool_call_id`."
           },
           "type": {
             "type": "string",
             "title": "Type",
-            "default": "function"
+            "default": "function",
+            "description": "Tool-call kind. Always \"function\" today."
           },
           "function": {
-            "$ref": "#/components/schemas/ToolCallFunction"
+            "$ref": "#/components/schemas/ToolCallFunction",
+            "description": "The function invoked, with its arguments."
           }
         },
         "type": "object",
@@ -5969,11 +7014,13 @@
         "properties": {
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "Name of the function the assistant called."
           },
           "arguments": {
             "type": "string",
-            "title": "Arguments"
+            "title": "Arguments",
+            "description": "The call's arguments as a JSON-encoded string (OpenAI shape), not an object."
           }
         },
         "type": "object",
@@ -5987,20 +7034,34 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Topic id."
           },
           "doc_id": {
             "type": "string",
-            "title": "Doc Id"
+            "title": "Doc Id",
+            "description": "The document this topic was extracted from."
           },
           "kb_id": {
             "type": "string",
-            "title": "Kb Id"
+            "title": "Kb Id",
+            "description": "The knowledge base that document belongs to."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "root",
+              "section",
+              "element"
+            ],
+            "title": "Type",
+            "description": "Structural role of this topic node"
           },
           "category_id": {
             "type": "string",
             "title": "Category Id",
-            "default": ""
+            "default": "",
+            "description": "The category the document is filed under; empty when uncategorized."
           },
           "category_name": {
             "anyOf": [
@@ -6011,26 +7072,31 @@
                 "type": "null"
               }
             ],
-            "title": "Category Name"
+            "title": "Category Name",
+            "description": "That category's display name, resolved for you. Null when the document is uncategorized or the category no longer exists."
           },
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "The topic's title."
           },
           "depth": {
             "type": "integer",
             "title": "Depth",
-            "default": 0
+            "default": 0,
+            "description": "Depth in the document tree \u2014 0 is the document root, 1 a top-level topic."
           },
           "seq": {
             "type": "integer",
             "title": "Seq",
-            "default": 0
+            "default": 0,
+            "description": "Depth-first position within the document. Use it as an ordering, not as an index to compute with."
           },
           "summary": {
             "type": "string",
             "title": "Summary",
-            "default": ""
+            "default": "",
+            "description": "Retrieval-oriented summary covering this topic and everything under it."
           },
           "content": {
             "anyOf": [
@@ -6041,14 +7107,16 @@
                 "type": "null"
               }
             ],
-            "title": "Content"
+            "title": "Content",
+            "description": "The topic's full markdown body, restored transparently whether it was stored inline or in object storage. Null on the document-root node, which has no body."
           },
           "labels": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Labels"
+            "title": "Labels",
+            "description": "Labels attached to the topic during extraction."
           },
           "parent_id": {
             "anyOf": [
@@ -6059,19 +7127,40 @@
                 "type": "null"
               }
             ],
-            "title": "Parent Id"
+            "title": "Parent Id",
+            "description": "The topic above this one. Null only on the document root."
           },
           "children_ids": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Children Ids"
+            "title": "Children Ids",
+            "description": "The topics directly beneath this one."
           },
           "metadata": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Metadata"
+            "title": "Metadata",
+            "description": "Extraction metadata carried alongside the topic."
+          },
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Tag Ids",
+            "description": "Opaque final materialized semantic tag ids (maximum 50)"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Version",
+            "description": "Current topic tag CAS version"
           },
           "created_at": {
             "anyOf": [
@@ -6083,7 +7172,8 @@
                 "type": "null"
               }
             ],
-            "title": "Created At"
+            "title": "Created At",
+            "description": "When the topic was extracted."
           },
           "updated_at": {
             "anyOf": [
@@ -6095,7 +7185,8 @@
                 "type": "null"
               }
             ],
-            "title": "Updated At"
+            "title": "Updated At",
+            "description": "When it last changed."
           }
         },
         "type": "object",
@@ -6103,10 +7194,136 @@
           "id",
           "doc_id",
           "kb_id",
-          "name"
+          "type",
+          "name",
+          "tag_ids",
+          "version"
         ],
         "title": "TopicDetailData",
         "description": "Full topic (node), with content transparently restored (inline or from S3)."
+      },
+      "TopicFilterItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Topic (node) id"
+          },
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id",
+            "description": "Owning document id",
+            "default": ""
+          },
+          "kb_id": {
+            "type": "string",
+            "title": "Kb Id",
+            "description": "Owning knowledge base id",
+            "default": ""
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Topic title"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "root",
+              "section",
+              "element"
+            ],
+            "title": "Type",
+            "default": "section",
+            "description": "Structural role of the topic \u2014 \"root\" for the synthetic document-root node, \"section\" for a real topic."
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Depth",
+            "default": 0,
+            "description": "Depth in the document tree \u2014 0 is the document root, 1 a top-level topic."
+          },
+          "seq": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seq",
+            "default": 0,
+            "description": "Depth-first position within the document. Use it as an ordering, not as an index to compute with."
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id",
+            "description": "The topic above this one. Null only on the document root."
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": "",
+            "description": "Retrieval-oriented summary covering this topic and everything under it."
+          },
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "uniqueItems": true,
+            "title": "Tag Ids",
+            "description": "Opaque final materialized semantic tag ids (maximum 50)"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Version",
+            "description": "Current topic tag CAS version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tag_ids",
+          "version"
+        ],
+        "title": "TopicFilterItem",
+        "description": "Slim item for the KB-wide tag-filter endpoint.\n\nThis is deliberately separate from :class:`TopicListItem`: the document-tree API\nmay hydrate content and exposes timestamps, while the cross-service tag-filter wire\nis frozen without those fields."
+      },
+      "TopicFilterListData": {
+        "properties": {
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicFilterItem"
+            },
+            "type": "array",
+            "title": "Topics",
+            "description": "The matching topics, one page of them."
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total",
+            "description": "How many topics satisfy the all-tags-on-one-topic condition in total, counted before paging."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topics",
+          "total"
+        ],
+        "title": "TopicFilterListData"
       },
       "TopicListData": {
         "properties": {
@@ -6115,7 +7332,8 @@
               "$ref": "#/components/schemas/TopicListItem"
             },
             "type": "array",
-            "title": "Topics"
+            "title": "Topics",
+            "description": "The document's topics, flat and depth-first ordered \u2014 build the tree from `parent_id`. Includes the synthetic document-root item, so this list holds exactly one more entry than the document's `topic_count`."
           }
         },
         "type": "object",
@@ -6128,6 +7346,18 @@
             "type": "string",
             "title": "Id",
             "description": "Topic (node) id"
+          },
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id",
+            "description": "Owning document id",
+            "default": ""
+          },
+          "kb_id": {
+            "type": "string",
+            "title": "Kb Id",
+            "description": "Owning knowledge base id",
+            "default": ""
           },
           "name": {
             "type": "string",
@@ -6182,6 +7412,25 @@
             "title": "Content",
             "description": "Full markdown body \u2014 populated ONLY when the request passes `include=content`, else null. Always the complete body, never a stored excerpt. Null on the document-root item, which has no body of its own"
           },
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Tag Ids",
+            "description": "Opaque final materialized semantic tag ids (maximum 50)"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Version",
+            "description": "Current topic tag CAS version",
+            "default": 0
+          },
           "created_at": {
             "anyOf": [
               {
@@ -6192,7 +7441,8 @@
                 "type": "null"
               }
             ],
-            "title": "Created At"
+            "title": "Created At",
+            "description": "When the topic was extracted."
           },
           "updated_at": {
             "anyOf": [
@@ -6204,7 +7454,8 @@
                 "type": "null"
               }
             ],
-            "title": "Updated At"
+            "title": "Updated At",
+            "description": "When it last changed."
           }
         },
         "type": "object",
@@ -6215,27 +7466,124 @@
         "title": "TopicListItem",
         "description": "Node-tree overview item. ``content`` only when the caller asks for it."
       },
+      "TopicTagReplaceBody": {
+        "properties": {
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Tag Ids",
+            "description": "Complete materialized snapshot. Cloud stable-deduplicates the request, stores the first 50 ids, and reports any truncation."
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Version",
+            "description": "Expected current topic tag_version (CAS)"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tag_ids",
+          "version"
+        ],
+        "title": "TopicTagReplaceBody"
+      },
+      "TopicTagWriteData": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id",
+            "description": "The topic whose tag snapshot was written."
+          },
+          "requested": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Requested",
+            "description": "Stable-distinct request id count; not vocabulary-validity count"
+          },
+          "tag_ids": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "description": "Opaque semantic tag id"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "uniqueItems": true,
+            "title": "Tag Ids",
+            "description": "Complete materialized topic tag snapshot after the accepted write"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Version",
+            "description": "Current topic tag version"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated",
+            "description": "Whether distinct input exceeded the store limit"
+          },
+          "limit": {
+            "type": "integer",
+            "const": 50,
+            "title": "Limit",
+            "description": "Materialized topic tag limit"
+          },
+          "dropped_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Dropped Count",
+            "description": "Distinct requested ids omitted by stable truncation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "topic_id",
+          "requested",
+          "tag_ids",
+          "version",
+          "truncated",
+          "limit",
+          "dropped_count"
+        ],
+        "title": "TopicTagWriteData"
+      },
       "UnprocessedMessageDTO": {
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Buffered-message id."
           },
           "app_id": {
             "type": "string",
-            "title": "App Id"
+            "title": "App Id",
+            "description": "The business-semantic scope the message was written under."
           },
           "project_id": {
             "type": "string",
-            "title": "Project Id"
+            "title": "Project Id",
+            "description": "Second half of that scope."
           },
           "session_id": {
             "type": "string",
-            "title": "Session Id"
+            "title": "Session Id",
+            "description": "The session the message is buffered under."
           },
           "sender_id": {
             "type": "string",
-            "title": "Sender Id"
+            "title": "Sender Id",
+            "description": "Who sent it."
           },
           "sender_name": {
             "anyOf": [
@@ -6246,7 +7594,8 @@
                 "type": "null"
               }
             ],
-            "title": "Sender Name"
+            "title": "Sender Name",
+            "description": "The sender's display name, when one was given."
           },
           "role": {
             "type": "string",
@@ -6255,7 +7604,8 @@
               "assistant",
               "tool"
             ],
-            "title": "Role"
+            "title": "Role",
+            "description": "\"user\", \"assistant\" or \"tool\", as submitted."
           },
           "content": {
             "anyOf": [
@@ -6269,12 +7619,14 @@
                 "type": "array"
               }
             ],
-            "title": "Content"
+            "title": "Content",
+            "description": "The message body as submitted."
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "title": "Timestamp"
+            "title": "Timestamp",
+            "description": "When the message was produced (ISO 8601)."
           },
           "tool_calls": {
             "anyOf": [
@@ -6288,7 +7640,8 @@
                 "type": "null"
               }
             ],
-            "title": "Tool Calls"
+            "title": "Tool Calls",
+            "description": "Tool calls on an assistant message, as submitted."
           },
           "tool_call_id": {
             "anyOf": [
@@ -6299,7 +7652,8 @@
                 "type": "null"
               }
             ],
-            "title": "Tool Call Id"
+            "title": "Tool Call Id",
+            "description": "The tool call this result answers, on a \"tool\" message."
           }
         },
         "type": "object",
@@ -6328,12 +7682,14 @@
                 "type": "null"
               }
             ],
-            "title": "Reason"
+            "title": "Reason",
+            "description": "Why this edit was made, up to 256 characters."
           },
           "action": {
             "type": "string",
             "const": "update",
-            "title": "Action"
+            "title": "Action",
+            "description": "Always \"update\" for this variant."
           },
           "type": {
             "type": "string",
@@ -6341,11 +7697,13 @@
               "explicit_info",
               "implicit_traits"
             ],
-            "title": "Type"
+            "title": "Type",
+            "description": "Which profile item this edit targets \u2014 \"explicit_info\" or \"implicit_traits\". It must match the `item_id` prefix."
           },
           "item_id": {
             "type": "string",
-            "title": "Item Id"
+            "title": "Item Id",
+            "description": "The item to update. Its prefix must match the item type \u2014 \"ei_\" for explicit_info, \"it_\" for implicit_traits \u2014 followed by 24 hex characters."
           },
           "data": {
             "anyOf": [
@@ -6356,7 +7714,8 @@
                 "$ref": "#/components/schemas/ImplicitTraitPatch"
               }
             ],
-            "title": "Data"
+            "title": "Data",
+            "description": "Partial patch, shallow-merged into the stored item. At least one of the type's own keys must be present."
           }
         },
         "additionalProperties": false,
@@ -6384,15 +7743,18 @@
               ]
             },
             "type": "array",
-            "title": "Location"
+            "title": "Location",
+            "description": "Path to the offending field, from the body root."
           },
           "msg": {
             "type": "string",
-            "title": "Message"
+            "title": "Message",
+            "description": "What is wrong with it."
           },
           "type": {
             "type": "string",
-            "title": "Error Type"
+            "title": "Error Type",
+            "description": "Machine-readable validation-error kind."
           }
         },
         "type": "object",
@@ -6438,10 +7800,12 @@
         ],
         "properties": {
           "fileId": {
-            "type": "string"
+            "type": "string",
+            "description": "Your own id for this file. It comes back on the matching response item."
           },
           "fileName": {
-            "type": "string"
+            "type": "string",
+            "description": "The file's name, used to derive its type and preserved for display."
           },
           "fileType": {
             "type": "string",
@@ -6461,7 +7825,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SignResponseItem"
-            }
+            },
+            "description": "One signed entry per requested file, in the same order."
           }
         }
       },
@@ -6469,23 +7834,28 @@
         "type": "object",
         "properties": {
           "fileId": {
-            "type": "string"
+            "type": "string",
+            "description": "The id you supplied for this file."
           },
           "fileName": {
-            "type": "string"
+            "type": "string",
+            "description": "The file's name, echoed back."
           },
           "fileType": {
-            "type": "string"
+            "type": "string",
+            "description": "The type the service resolved for it."
           },
           "objectKey": {
-            "type": "string"
+            "type": "string",
+            "description": "The stored object's key \u2014 this is the value to pass later as a content `uri` on /api/v2/memory/add or a document ingest."
           },
           "objectUrl": {
             "type": "string",
             "description": "Present in the response struct for parity with the find endpoint,\nbut not populated on the sign path (omitted from the JSON).\n"
           },
           "objectSignedInfo": {
-            "$ref": "#/components/schemas/SignedInfo"
+            "$ref": "#/components/schemas/SignedInfo",
+            "description": "Where and how to upload the bytes."
           }
         }
       },
@@ -6494,13 +7864,15 @@
         "description": "Presigned POST form data for direct-to-S3 upload",
         "properties": {
           "url": {
-            "type": "string"
+            "type": "string",
+            "description": "The URL to POST the file to."
           },
           "fields": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            }
+            },
+            "description": "Form fields that must accompany the upload, exactly as given, with the file itself last."
           },
           "maxSize": {
             "type": "integer",
@@ -6518,7 +7890,8 @@
             "description": "`\"OK\"` on success, otherwise a human-readable error message\ndecoded from the business error.\n"
           },
           "request_id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of this request \u2014 quote it when reporting a problem."
           },
           "status": {
             "type": "integer",
@@ -6528,7 +7901,8 @@
             "type": "object",
             "properties": {
               "data": true
-            }
+            },
+            "description": "The response payload."
           }
         }
       },
@@ -6574,7 +7948,8 @@
               "message",
               "type"
             ],
-            "type": "object"
+            "type": "object",
+            "description": "What went wrong, with a machine-readable code and a message."
           }
         },
         "required": [
@@ -6587,14 +7962,16 @@
         "properties": {
           "created_at": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "description": "When the task was accepted."
           },
           "error": {
             "description": "Failure reason; present only when status is failed",
             "type": "string"
           },
           "error_code": {
-            "type": "string"
+            "type": "string",
+            "description": "Machine-readable failure code, alongside the human-readable `error`."
           },
           "finished_at": {
             "description": "Completion time; absent while the task is not in a terminal state",
@@ -6610,7 +7987,8 @@
             "type": "string"
           },
           "object_id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of the resource the task produced, once there is one."
           },
           "status": {
             "enum": [
@@ -6620,7 +7998,8 @@
               "success",
               "failed"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "Where the task is: \"queued\", \"processing\", \"pending\", \"success\" or \"failed\". Treat it as an open set \u2014 a value you do not recognise is terminal only when `finished_at` is set."
           },
           "task_type": {
             "description": "Async interface that produced the task, e.g. memory_add / knowledge_document / batch_import",
@@ -6660,10 +8039,12 @@
               "page_size",
               "items"
             ],
-            "type": "object"
+            "type": "object",
+            "description": "The page of tasks, with its paging counters."
           },
           "request_id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of this request \u2014 quote it when reporting a problem."
           }
         },
         "required": [
@@ -6723,10 +8104,12 @@
               "start",
               "end"
             ],
-            "type": "object"
+            "type": "object",
+            "description": "The per-status counts and the window they cover."
           },
           "request_id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of this request \u2014 quote it when reporting a problem."
           }
         },
         "required": [
@@ -6738,10 +8121,12 @@
       "TaskStatusResponse": {
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/TaskItem"
+            "$ref": "#/components/schemas/TaskItem",
+            "description": "The task."
           },
           "request_id": {
-            "type": "string"
+            "type": "string",
+            "description": "Id of this request \u2014 quote it when reporting a problem."
           }
         },
         "required": [

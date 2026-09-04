@@ -5,11 +5,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**app_id** | **str** |  | 
-**project_id** | **str** |  | 
-**user_id** | **str** |  | 
-**profile_data** | **Dict[str, object]** |  | [optional] 
+**id** | **str** | Profile id. | 
+**app_id** | **str** | The business-semantic scope this profile was written under. | 
+**project_id** | **str** | Second half of that scope. | 
+**user_id** | **str** | The user this profile describes. | 
+**profile_data** | **Dict[str, object]** | The profile itself — the explicit_info and implicit_traits items maintained by extraction and by /api/v2/memory/edit. Each item&#39;s id is what an edit operation targets. | [optional] 
+**created_at** | **datetime** |  | [optional] 
+**updated_at** | **datetime** |  | [optional] 
 
 ## Example
 

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from everos_cloud.models.validation_error_loc_inner import ValidationErrorLocInner
 from typing import Optional, Set
@@ -28,9 +28,9 @@ class ValidationError(BaseModel):
     """
     ValidationError
     """ # noqa: E501
-    loc: List[ValidationErrorLocInner]
-    msg: StrictStr
-    type: StrictStr
+    loc: List[ValidationErrorLocInner] = Field(description="Path to the offending field, from the body root.")
+    msg: StrictStr = Field(description="What is wrong with it.")
+    type: StrictStr = Field(description="Machine-readable validation-error kind.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["loc", "msg", "type"]
 

@@ -25,7 +25,7 @@ from typing_extensions import Self
 
 class TaskErrorResponseError(BaseModel):
     """
-    TaskErrorResponseError
+    What went wrong, with a machine-readable code and a message.
     """ # noqa: E501
     code: StrictStr = Field(description="Error code, e.g. invalid_request, not_found, unavailable")
     message: StrictStr

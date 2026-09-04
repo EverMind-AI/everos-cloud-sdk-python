@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **str** |  | 
-**updated_fields** | **List[str]** |  | [optional] 
+**id** | **str** | The document that was patched. | 
+**updated_fields** | **List[str]** | Which fields actually changed — omitted fields are not listed. | [optional] 
 **updated_at** | **datetime** |  | [optional] 
 
 ## Example

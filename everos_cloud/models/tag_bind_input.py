@@ -28,9 +28,9 @@ class TagBindInput(BaseModel):
     """
     TagBindInput
     """ # noqa: E501
-    memory_type: Annotated[str, Field(min_length=1, strict=True)]
-    memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=200)]
-    tags: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(min_length=1, max_length=100)]
+    memory_type: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The type of the memories being tagged. \"episode\" is what this phase supports; agent cases and skills onboard later without an API change.")
+    memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=200)] = Field(description="The memories to tag, by id (1–200 per request). Ids come from /api/v2/memory/get or /api/v2/memory/search.")
+    tags: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(min_length=1, max_length=100)] = Field(description="Tags to add (1–100 per request, each 1–32 characters). Tags the memories already carry are left in place.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "tags"]
 

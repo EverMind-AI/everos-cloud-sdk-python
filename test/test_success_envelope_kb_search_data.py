@@ -51,12 +51,16 @@ class TestSuccessEnvelopeKbSearchData(unittest.TestCase):
                             summary = '', 
                             content = '', 
                             score = 1.337, 
-                            retrieval_method = 'hybrid', 
+                            retrieval_method = 'keyword', 
                             source = '', 
                             document = everos_cloud.models.document_context.DocumentContext(
                                 doc_id = '', 
                                 title = '', 
-                                summary = '', ), )
+                                summary = '', ), 
+                            tags = [
+                                { }
+                                ], 
+                            updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                         ], 
                     total = 56, 
                     took_ms = 1.337, )
@@ -78,12 +82,16 @@ class TestSuccessEnvelopeKbSearchData(unittest.TestCase):
                             summary = '', 
                             content = '', 
                             score = 1.337, 
-                            retrieval_method = 'hybrid', 
+                            retrieval_method = 'keyword', 
                             source = '', 
                             document = everos_cloud.models.document_context.DocumentContext(
                                 doc_id = '', 
                                 title = '', 
-                                summary = '', ), )
+                                summary = '', ), 
+                            tags = [
+                                { }
+                                ], 
+                            updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
                         ], 
                     total = 56, 
                     took_ms = 1.337, ),

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Union
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,9 +27,9 @@ class SearchAtomicFactItem(BaseModel):
     """
     SearchAtomicFactItem
     """ # noqa: E501
-    id: StrictStr
-    content: StrictStr
-    score: Union[StrictFloat, StrictInt]
+    id: StrictStr = Field(description="Atomic-fact id.")
+    content: StrictStr = Field(description="The fact itself, as a single statement.")
+    score: Union[StrictFloat, StrictInt] = Field(description="Relevance of this fact to the query.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "content", "score"]
 

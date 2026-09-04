@@ -27,8 +27,8 @@ class SignObjectItem(BaseModel):
     """
     SignObjectItem
     """ # noqa: E501
-    file_id: StrictStr = Field(alias="fileId")
-    file_name: StrictStr = Field(alias="fileName")
+    file_id: StrictStr = Field(description="Your own id for this file. It comes back on the matching response item.", alias="fileId")
+    file_name: StrictStr = Field(description="The file's name, used to derive its type and preserved for display.", alias="fileName")
     file_type: StrictStr = Field(description="Media class. Default size limits per type: image=10MB, file=100MB, video=500MB. These are defaults and may be overridden per token (via the token's `file_limits`); the effective limit is enforced by S3 through the presigned POST `content-length-range` condition, and surfaced as `objectSignedInfo.maxSize`. ", alias="fileType")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["fileId", "fileName", "fileType"]

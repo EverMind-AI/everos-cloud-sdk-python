@@ -29,14 +29,16 @@ class SearchBody(BaseModel):
     """
     POST body (kb_id rides the path, not the body).
     """ # noqa: E501
-    query: Annotated[str, Field(min_length=1, strict=True, max_length=2000)]
-    method: Optional[StrictStr] = 'hybrid'
-    top_k: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = 10
+    query: Optional[Annotated[str, Field(strict=True, max_length=2000)]] = None
+    method: Optional[StrictStr] = Field(default='hybrid', description="Retrieval strategy: \"keyword\" (lexical), \"vector\" (embedding similarity) or \"hybrid\" (default, both).")
+    page: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, description="Filter-only page number; query search supports page 1 only")
+    top_k: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(default=10, description="Maximum number of topics to return, 1 to 100 (default 10). On a query search the server also bounds the result by its rerank pool — 50 candidates by default — so asking for more than that returns what the pool held. On a filter-only request (tags without a query) it is the page size instead, and `page` walks the rest.")
     score_threshold: Optional[Union[StrictFloat, StrictInt]] = None
     include: Optional[List[StrictStr]] = Field(default=None, description="e.g. ['content']")
-    filters: Optional[SearchFilters] = None
+    boost_tag_ids: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(max_length=100)]] = Field(default=None, description="Reweight, do not filter: topics carrying these tags are pushed up, and topics without them still come back. Use `filters.tag_ids` when the intent is to exclude everything else.")
+    filters: Optional[SearchFilters] = Field(default=None, description="Optional filters narrowing what is searched.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["query", "method", "top_k", "score_threshold", "include", "filters"]
+    __properties: ClassVar[List[str]] = ["query", "method", "page", "top_k", "score_threshold", "include", "boost_tag_ids", "filters"]
 
     @field_validator('method')
     def method_validate_enum(cls, value):
@@ -97,6 +99,11 @@ class SearchBody(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if query (nullable) is None
+        # and model_fields_set contains the field
+        if self.query is None and "query" in self.model_fields_set:
+            _dict['query'] = None
+
         # set to None if score_threshold (nullable) is None
         # and model_fields_set contains the field
         if self.score_threshold is None and "score_threshold" in self.model_fields_set:
@@ -116,9 +123,11 @@ class SearchBody(BaseModel):
         _obj = cls.model_validate({
             "query": obj.get("query"),
             "method": obj.get("method") if obj.get("method") is not None else 'hybrid',
+            "page": obj.get("page") if obj.get("page") is not None else 1,
             "top_k": obj.get("top_k") if obj.get("top_k") is not None else 10,
             "score_threshold": obj.get("score_threshold"),
             "include": obj.get("include"),
+            "boost_tag_ids": obj.get("boost_tag_ids"),
             "filters": SearchFilters.from_dict(obj["filters"]) if obj.get("filters") is not None else None
         })
         # store additional fields in additional_properties

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**detail** | [**List[ValidationError]**](ValidationError.md) |  | [optional] 
+**detail** | [**List[ValidationError]**](ValidationError.md) | One entry per field that failed validation. | [optional] 
 
 ## Example
 

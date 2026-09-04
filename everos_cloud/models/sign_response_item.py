@@ -28,12 +28,12 @@ class SignResponseItem(BaseModel):
     """
     SignResponseItem
     """ # noqa: E501
-    file_id: Optional[StrictStr] = Field(default=None, alias="fileId")
-    file_name: Optional[StrictStr] = Field(default=None, alias="fileName")
-    file_type: Optional[StrictStr] = Field(default=None, alias="fileType")
-    object_key: Optional[StrictStr] = Field(default=None, alias="objectKey")
+    file_id: Optional[StrictStr] = Field(default=None, description="The id you supplied for this file.", alias="fileId")
+    file_name: Optional[StrictStr] = Field(default=None, description="The file's name, echoed back.", alias="fileName")
+    file_type: Optional[StrictStr] = Field(default=None, description="The type the service resolved for it.", alias="fileType")
+    object_key: Optional[StrictStr] = Field(default=None, description="The stored object's key — this is the value to pass later as a content `uri` on /api/v2/memory/add or a document ingest.", alias="objectKey")
     object_url: Optional[StrictStr] = Field(default=None, description="Present in the response struct for parity with the find endpoint, but not populated on the sign path (omitted from the JSON). ", alias="objectUrl")
-    object_signed_info: Optional[SignedInfo] = Field(default=None, alias="objectSignedInfo")
+    object_signed_info: Optional[SignedInfo] = Field(default=None, description="Where and how to upload the bytes.", alias="objectSignedInfo")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["fileId", "fileName", "fileType", "objectKey", "objectUrl", "objectSignedInfo"]
 

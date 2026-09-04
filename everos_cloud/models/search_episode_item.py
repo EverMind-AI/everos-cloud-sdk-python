@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from everos_cloud.models.search_atomic_fact_item import SearchAtomicFactItem
 from typing import Optional, Set
@@ -29,21 +29,21 @@ class SearchEpisodeItem(BaseModel):
     """
     SearchEpisodeItem
     """ # noqa: E501
-    id: StrictStr
-    app_id: StrictStr
-    project_id: StrictStr
+    id: StrictStr = Field(description="Episode id. Use it to bind tags or to fetch this episode again.")
+    app_id: StrictStr = Field(description="The business-semantic scope this memory was written under.")
+    project_id: StrictStr = Field(description="Second half of that scope.")
     user_id: Optional[StrictStr] = None
     session_id: Optional[StrictStr] = None
-    timestamp: datetime
-    sender_ids: Optional[List[StrictStr]] = None
-    summary: StrictStr
-    subject: StrictStr
-    episode: StrictStr
+    timestamp: datetime = Field(description="When the remembered exchange happened (ISO 8601), not when it was extracted.")
+    sender_ids: Optional[List[StrictStr]] = Field(default=None, description="The senders that appear in the source exchange.")
+    summary: StrictStr = Field(description="Short summary of the episode — what a result list should show.")
+    subject: StrictStr = Field(description="What the episode is about, in a few words.")
+    episode: StrictStr = Field(description="The episode's stored narrative body. This is the indexed, searchable text.")
     readable_episode: Optional[StrictStr] = None
-    type: StrictStr
-    atomic_facts: Optional[List[SearchAtomicFactItem]] = None
-    tags: Optional[List[StrictStr]] = None
-    score: Union[StrictFloat, StrictInt]
+    type: StrictStr = Field(description="How the episode was produced — \"Conversation\" or \"AgentConversation\".")
+    atomic_facts: Optional[List[SearchAtomicFactItem]] = Field(default=None, description="The facts extracted from this episode, each with its own relevance score.")
+    tags: Optional[List[StrictStr]] = Field(default=None, description="Tags attached through /api/v2/memory/tag/*.")
+    score: Union[StrictFloat, StrictInt] = Field(description="Relevance of this episode to the query. What the number means depends on `method`: the hybrid path fuses its two routes into a probability in 0.0–1.0 (which is what `min_score` filters on), while keyword and vector pass the underlying engine's own score through — BM25 has no upper bound and vector similarity depends on the metric. So compare scores within one method, not across methods.")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags", "score"]
 

@@ -18,32 +18,50 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt, StrictStr
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from everos_cloud.models.document_context import DocumentContext
+from everos_cloud.models.tag_ref import TagRef
 from typing import Optional, Set
 from typing_extensions import Self
 
 class SearchHit(BaseModel):
     """
-    A single search hit. ``object`` self-describes the unit (currently always topic).
+    A topic hit from recall or a document hit from filter-only search.
     """ # noqa: E501
-    object: Optional[StrictStr] = 'topic'
-    id: StrictStr
-    doc_id: StrictStr
-    kb_id: StrictStr
-    category_id: Optional[StrictStr] = ''
+    object: StrictStr = Field(description="What this hit is. Always \"topic\" today — the unit of knowledge retrieval.")
+    id: StrictStr = Field(description="The topic's id; fetch its full body with GET .../topics/{topic_id}.")
+    doc_id: StrictStr = Field(description="The document the topic belongs to.")
+    kb_id: StrictStr = Field(description="The knowledge base searched.")
+    category_id: Optional[StrictStr] = Field(default='', description="The category that document is filed under; empty when uncategorized.")
     category_name: Optional[StrictStr] = None
-    name: Optional[StrictStr] = ''
-    depth: Optional[StrictInt] = 0
-    summary: Optional[StrictStr] = ''
+    name: StrictStr = Field(description="The topic's title.")
+    depth: Optional[StrictInt] = Field(default=0, description="The topic's depth in the document tree.")
+    summary: Optional[StrictStr] = None
     content: Optional[StrictStr] = None
-    score: Optional[Union[StrictFloat, StrictInt]] = 0.0
-    retrieval_method: Optional[StrictStr] = 'hybrid'
+    score: Union[StrictFloat, StrictInt] = Field(description="Relevance of this topic to the query, and NOT a raw keyword or vector score: candidates from every method are reranked by a cross-encoder, min-max normalized WITHIN THIS RESPONSE, then given a category boost (up to 0.1) and, when `boost_tag_ids` was passed, a tag-coverage boost (up to 0.3). So it lands in roughly 0.0–1.4, the best hit of any response sits near the top of that range by construction, and scores compare inside one response but not across responses or queries. Three edge values to expect: every hit comes back at 0.5 when the reranker cannot separate the pool, every hit is 0.0 on a filter-only request (tags without a query, which never runs relevance at all), and a hit carries a synthetic -100.0 when its rerank batch failed — that is a fail-soft marker, not a relevance judgement.")
+    retrieval_method: StrictStr = Field(description="The retrieval strategy this search ran with, so every hit in one response carries the same value and a stored or traced response is self-describing. It echoes the request's `method`, except on a filter-only request (tags without a query), which reports \"filter\" because no retrieval ran. It is deliberately NOT per-hit provenance: in a hybrid search the two lanes are fused, and hits recalled by only one of them still report \"hybrid\".")
     source: Optional[StrictStr] = None
     document: Optional[DocumentContext] = None
+    tags: List[TagRef] = Field(description="The semantic tags materialized on this topic.")
+    updated_at: Optional[datetime] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["object", "id", "doc_id", "kb_id", "category_id", "category_name", "name", "depth", "summary", "content", "score", "retrieval_method", "source", "document"]
+    __properties: ClassVar[List[str]] = ["object", "id", "doc_id", "kb_id", "category_id", "category_name", "name", "depth", "summary", "content", "score", "retrieval_method", "source", "document", "tags", "updated_at"]
+
+    @field_validator('object')
+    def object_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['topic', 'document']):
+            raise ValueError("must be one of enum values ('topic', 'document')")
+        return value
+
+    @field_validator('retrieval_method')
+    def retrieval_method_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['keyword', 'vector', 'hybrid', 'filter']):
+            raise ValueError("must be one of enum values ('keyword', 'vector', 'hybrid', 'filter')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -89,6 +107,13 @@ class SearchHit(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of document
         if self.document:
             _dict['document'] = self.document.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in tags (list)
+        _items = []
+        if self.tags:
+            for _item_tags in self.tags:
+                if _item_tags:
+                    _items.append(_item_tags.to_dict())
+            _dict['tags'] = _items
         # puts key-value pairs in additional_properties in the top level
         if self.additional_properties is not None:
             for _key, _value in self.additional_properties.items():
@@ -98,6 +123,11 @@ class SearchHit(BaseModel):
         # and model_fields_set contains the field
         if self.category_name is None and "category_name" in self.model_fields_set:
             _dict['category_name'] = None
+
+        # set to None if summary (nullable) is None
+        # and model_fields_set contains the field
+        if self.summary is None and "summary" in self.model_fields_set:
+            _dict['summary'] = None
 
         # set to None if content (nullable) is None
         # and model_fields_set contains the field
@@ -114,6 +144,11 @@ class SearchHit(BaseModel):
         if self.document is None and "document" in self.model_fields_set:
             _dict['document'] = None
 
+        # set to None if updated_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.updated_at is None and "updated_at" in self.model_fields_set:
+            _dict['updated_at'] = None
+
         return _dict
 
     @classmethod
@@ -126,20 +161,22 @@ class SearchHit(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "object": obj.get("object") if obj.get("object") is not None else 'topic',
+            "object": obj.get("object"),
             "id": obj.get("id"),
             "doc_id": obj.get("doc_id"),
             "kb_id": obj.get("kb_id"),
             "category_id": obj.get("category_id") if obj.get("category_id") is not None else '',
             "category_name": obj.get("category_name"),
-            "name": obj.get("name") if obj.get("name") is not None else '',
+            "name": obj.get("name"),
             "depth": obj.get("depth") if obj.get("depth") is not None else 0,
-            "summary": obj.get("summary") if obj.get("summary") is not None else '',
+            "summary": obj.get("summary"),
             "content": obj.get("content"),
-            "score": obj.get("score") if obj.get("score") is not None else 0.0,
-            "retrieval_method": obj.get("retrieval_method") if obj.get("retrieval_method") is not None else 'hybrid',
+            "score": obj.get("score"),
+            "retrieval_method": obj.get("retrieval_method"),
             "source": obj.get("source"),
-            "document": DocumentContext.from_dict(obj["document"]) if obj.get("document") is not None else None
+            "document": DocumentContext.from_dict(obj["document"]) if obj.get("document") is not None else None,
+            "tags": [TagRef.from_dict(_item) for _item in obj["tags"]] if obj.get("tags") is not None else None,
+            "updated_at": obj.get("updated_at")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

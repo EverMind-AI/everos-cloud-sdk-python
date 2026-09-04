@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **data** | [**TaskStatsResponseData**](TaskStatsResponseData.md) |  | 
-**request_id** | **str** |  | [optional] 
+**request_id** | **str** | Id of this request — quote it when reporting a problem. | [optional] 
 
 ## Example
 

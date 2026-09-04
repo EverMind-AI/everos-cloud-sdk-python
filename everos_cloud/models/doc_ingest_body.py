@@ -29,7 +29,7 @@ class DocIngestBody(BaseModel):
     """
     Public POST/PUT documents request body (design §3.2 / §3.3). ``content`` is the object to ingest (its ``uri`` = the SMM object_key). On PUT the ``doc_id`` rides the path, not the body; on POST no id is supplied — the engine mints it.
     """ # noqa: E501
-    title: Annotated[str, Field(min_length=1, strict=True)]
+    title: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Human-readable name for the document. Until the async ingest finishes this is the only handle the caller has — the document id is minted downstream, so GET .../documents is resolved by title.")
     content: ContentItem = Field(description="The object to ingest (its uri = the SMM object_key)")
     category_id: Optional[StrictStr] = Field(default='', description="Category id in this kb; omit for LLM auto-classify")
     additional_properties: Dict[str, Any] = {}

@@ -41,6 +41,7 @@ class TestSuccessEnvelopeTopicDetailData(unittest.TestCase):
                     id = '', 
                     doc_id = '', 
                     kb_id = '', 
+                    type = 'root', 
                     category_id = '', 
                     category_name = '', 
                     name = '', 
@@ -56,6 +57,10 @@ class TestSuccessEnvelopeTopicDetailData(unittest.TestCase):
                         ''
                         ], 
                     metadata = { }, 
+                    tag_ids = [
+                        '0'
+                        ], 
+                    version = 0.0, 
                     created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                     updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), )
             )
@@ -66,6 +71,7 @@ class TestSuccessEnvelopeTopicDetailData(unittest.TestCase):
                     id = '', 
                     doc_id = '', 
                     kb_id = '', 
+                    type = 'root', 
                     category_id = '', 
                     category_name = '', 
                     name = '', 
@@ -81,6 +87,10 @@ class TestSuccessEnvelopeTopicDetailData(unittest.TestCase):
                         ''
                         ], 
                     metadata = { }, 
+                    tag_ids = [
+                        '0'
+                        ], 
+                    version = 0.0, 
                     created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                     updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), ),
         )

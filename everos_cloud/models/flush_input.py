@@ -28,9 +28,9 @@ class FlushInput(BaseModel):
     """
     FlushInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = 'default'
-    project_id: Optional[StrictStr] = 'default'
-    session_id: Annotated[str, Field(min_length=1, strict=True)]
+    app_id: Optional[StrictStr] = Field(default='default', description="Scope the session lives in, defaulting to \"default\".")
+    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
+    session_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The session to extract from. Only messages already accumulated for this session are considered, so a still-queued async add yields \"no_extraction\".")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "session_id"]
 

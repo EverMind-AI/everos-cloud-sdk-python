@@ -6,12 +6,14 @@ POST body (kb_id rides the path, not the body).
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**query** | **str** |  | 
-**method** | **str** |  | [optional] [default to 'hybrid']
-**top_k** | **int** |  | [optional] [default to 10]
+**query** | **str** |  | [optional] 
+**method** | **str** | Retrieval strategy: \&quot;keyword\&quot; (lexical), \&quot;vector\&quot; (embedding similarity) or \&quot;hybrid\&quot; (default, both). | [optional] [default to 'hybrid']
+**page** | **int** | Filter-only page number; query search supports page 1 only | [optional] [default to 1]
+**top_k** | **int** | Maximum number of topics to return, 1 to 100 (default 10). On a query search the server also bounds the result by its rerank pool — 50 candidates by default — so asking for more than that returns what the pool held. On a filter-only request (tags without a query) it is the page size instead, and &#x60;page&#x60; walks the rest. | [optional] [default to 10]
 **score_threshold** | **float** |  | [optional] 
-**include** | **List[str]** | e.g. [&#39;content&#39;] | [optional] 
-**filters** | [**SearchFilters**](SearchFilters.md) |  | [optional] 
+**include** | **List[str]** | e.g. [&#39;content&#39;] | [optional] [default to []]
+**boost_tag_ids** | **List[str]** | Reweight, do not filter: topics carrying these tags are pushed up, and topics without them still come back. Use &#x60;filters.tag_ids&#x60; when the intent is to exclude everything else. | [optional] [default to []]
+**filters** | [**SearchFilters**](SearchFilters.md) | Optional filters narrowing what is searched. | [optional] 
 
 ## Example
 
