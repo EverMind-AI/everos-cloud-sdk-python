@@ -37,7 +37,7 @@ class TestKnowledgeApi(unittest.TestCase):
     def test_create_document(self) -> None:
         """Test case for create_document
 
-        Upload a document (async ingest)
+        Upload a document
         """
         pass
 
@@ -58,7 +58,7 @@ class TestKnowledgeApi(unittest.TestCase):
     def test_delete_document(self) -> None:
         """Test case for delete_document
 
-        Delete a document (+ cascade nodes, P5)
+        Delete a document
         """
         pass
 
@@ -72,7 +72,7 @@ class TestKnowledgeApi(unittest.TestCase):
     def test_get_document(self) -> None:
         """Test case for get_document
 
-        Get a document (with topic_count)
+        Get a document
         """
         pass
 
@@ -86,21 +86,21 @@ class TestKnowledgeApi(unittest.TestCase):
     def test_get_topic(self) -> None:
         """Test case for get_topic
 
-        Get a topic's full content (inline / S3 transparent)
+        Get a topic
         """
         pass
 
     def test_list_categories(self) -> None:
         """Test case for list_categories
 
-        List categories in a knowledge base
+        List categories
         """
         pass
 
     def test_list_documents(self) -> None:
         """Test case for list_documents
 
-        List documents in a knowledge base
+        List documents
         """
         pass
 
@@ -114,42 +114,42 @@ class TestKnowledgeApi(unittest.TestCase):
     def test_list_topics(self) -> None:
         """Test case for list_topics
 
-        List a document's topic tree (optionally with each topic's content)
+        List a document's topics
         """
         pass
 
     def test_list_topics_by_tags(self) -> None:
         """Test case for list_topics_by_tags
 
-        List tag-matched topics in a knowledge base
+        List topics by tag
         """
         pass
 
     def test_query_related_tags(self) -> None:
         """Test case for query_related_tags
 
-        Count candidate tags used by live documents in a knowledge base
+        Count tag usage
         """
         pass
 
     def test_replace_document(self) -> None:
         """Test case for replace_document
 
-        Replace a document (async, atomic swap)
+        Replace a document
         """
         pass
 
     def test_replace_topic_tags(self) -> None:
         """Test case for replace_topic_tags
 
-        Replace the complete materialized semantic tag snapshot of a topic
+        Replace a topic's tags
         """
         pass
 
     def test_search_knowledge(self) -> None:
         """Test case for search_knowledge
 
-        Search within a knowledge base (keyword / vector / hybrid)
+        Search a knowledge base
         """
         pass
 
@@ -163,7 +163,7 @@ class TestKnowledgeApi(unittest.TestCase):
     def test_update_document(self) -> None:
         """Test case for update_document
 
-        Update document metadata (title / category)
+        Update a document
         """
         pass
 

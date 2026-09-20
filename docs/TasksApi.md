@@ -4,17 +4,17 @@ All URIs are relative to *https://api.evermind.ai*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_task_stats**](TasksApi.md#get_task_stats) | **GET** /api/v2/tasks/stats | Aggregate task counts by status
-[**get_task_status**](TasksApi.md#get_task_status) | **GET** /api/v2/tasks/{task_id} | Get async task status
-[**list_tasks**](TasksApi.md#list_tasks) | **GET** /api/v2/tasks | List async tasks
+[**get_task_stats**](TasksApi.md#get_task_stats) | **GET** /api/v2/tasks/stats | Count tasks by status
+[**get_task_status**](TasksApi.md#get_task_status) | **GET** /api/v2/tasks/{task_id} | Get a task
+[**list_tasks**](TasksApi.md#list_tasks) | **GET** /api/v2/tasks | List tasks
 
 
 # **get_task_stats**
 > TaskStatsResponse get_task_stats(start=start, end=end)
 
-Aggregate task counts by status
+Count tasks by status
 
-Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.
+Counts tasks per status over a time window.  All five statuses — queued, processing, pending, success, failed — are always present, 0 when absent, so a dashboard gets a stable shape. The response echoes the window actually used after server-side clamping.  Results are scoped to the caller's tenant, resolved from the request context.
 
 ### Example
 
@@ -50,7 +50,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     end = 'end_example' # str |  (optional)
 
     try:
-        # Aggregate task counts by status
+        # Count tasks by status
         api_response = api_instance.get_task_stats(start=start, end=end)
         print("The response of TasksApi->get_task_stats:\n")
         pprint(api_response)
@@ -97,7 +97,7 @@ Name | Type | Description  | Notes
 # **get_task_status**
 > TaskStatusResponse get_task_status(task_id)
 
-Get async task status
+Get a task
 
 Returns the progress of one async task. Task ids are unique system-wide, so the task type does not need to be known. Unknown or expired ids return 404. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -134,7 +134,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     task_id = 'task_id_example' # str | Task id, as returned in the 202 acknowledgement of the write that created it
 
     try:
-        # Get async task status
+        # Get a task
         api_response = api_instance.get_task_status(task_id)
         print("The response of TasksApi->get_task_status:\n")
         pprint(api_response)
@@ -181,7 +181,7 @@ Name | Type | Description  | Notes
 # **list_tasks**
 > TaskListResponse list_tasks(page=page, page_size=page_size, status=status, session_id=session_id, start=start, end=end)
 
-List async tasks
+List tasks
 
 Paginated task list, filterable by status, session and time window. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -223,7 +223,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     end = 'end_example' # str |  (optional)
 
     try:
-        # List async tasks
+        # List tasks
         api_response = api_instance.list_tasks(page=page, page_size=page_size, status=status, session_id=session_id, start=start, end=end)
         print("The response of TasksApi->list_tasks:\n")
         pprint(api_response)

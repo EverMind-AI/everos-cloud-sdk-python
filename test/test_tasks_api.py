@@ -30,21 +30,21 @@ class TestTasksApi(unittest.TestCase):
     def test_get_task_stats(self) -> None:
         """Test case for get_task_stats
 
-        Aggregate task counts by status
+        Count tasks by status
         """
         pass
 
     def test_get_task_status(self) -> None:
         """Test case for get_task_status
 
-        Get async task status
+        Get a task
         """
         pass
 
     def test_list_tasks(self) -> None:
         """Test case for list_tasks
 
-        List async tasks
+        List tasks
         """
         pass
 

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,11 +28,11 @@ class DeleteInput(BaseModel):
     """
     DeleteInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = Field(default='default', description="Scope to delete within, defaulting to \"default\".")
-    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
-    user_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
-    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
-    session_id: Optional[StrictStr] = None
+    app_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Scope to delete within, defaulting to \"default\".")
+    project_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
+    user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    session_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "session_id"]
 

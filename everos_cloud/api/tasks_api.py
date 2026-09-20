@@ -60,9 +60,9 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> TaskStatsResponse:
-        """Aggregate task counts by status
+        """Count tasks by status
 
-        Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.
+        Counts tasks per status over a time window.  All five statuses — queued, processing, pending, success, failed — are always present, 0 when absent, so a dashboard gets a stable shape. The response echoes the window actually used after server-side clamping.  Results are scoped to the caller's tenant, resolved from the request context.
 
         :param start:
         :type start: str
@@ -136,9 +136,9 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[TaskStatsResponse]:
-        """Aggregate task counts by status
+        """Count tasks by status
 
-        Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.
+        Counts tasks per status over a time window.  All five statuses — queued, processing, pending, success, failed — are always present, 0 when absent, so a dashboard gets a stable shape. The response echoes the window actually used after server-side clamping.  Results are scoped to the caller's tenant, resolved from the request context.
 
         :param start:
         :type start: str
@@ -212,9 +212,9 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Aggregate task counts by status
+        """Count tasks by status
 
-        Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.
+        Counts tasks per status over a time window.  All five statuses — queued, processing, pending, success, failed — are always present, 0 when absent, so a dashboard gets a stable shape. The response echoes the window actually used after server-side clamping.  Results are scoped to the caller's tenant, resolved from the request context.
 
         :param start:
         :type start: str
@@ -354,7 +354,7 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> TaskStatusResponse:
-        """Get async task status
+        """Get a task
 
         Returns the progress of one async task. Task ids are unique system-wide, so the task type does not need to be known. Unknown or expired ids return 404. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -427,7 +427,7 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[TaskStatusResponse]:
-        """Get async task status
+        """Get a task
 
         Returns the progress of one async task. Task ids are unique system-wide, so the task type does not need to be known. Unknown or expired ids return 404. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -500,7 +500,7 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get async task status
+        """Get a task
 
         Returns the progress of one async task. Task ids are unique system-wide, so the task type does not need to be known. Unknown or expired ids return 404. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -638,7 +638,7 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> TaskListResponse:
-        """List async tasks
+        """List tasks
 
         Paginated task list, filterable by status, session and time window. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -730,7 +730,7 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[TaskListResponse]:
-        """List async tasks
+        """List tasks
 
         Paginated task list, filterable by status, session and time window. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 
@@ -822,7 +822,7 @@ class TasksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List async tasks
+        """List tasks
 
         Paginated task list, filterable by status, session and time window. Results are scoped to the caller's tenant, resolved from the request context; a caller can only ever see its own tasks.
 

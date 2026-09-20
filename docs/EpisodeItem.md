@@ -19,6 +19,8 @@ Name | Type | Description | Notes
 **type** | **str** | How the episode was produced — \&quot;Conversation\&quot; or \&quot;AgentConversation\&quot;. | 
 **atomic_facts** | [**List[AtomicFactItem]**](AtomicFactItem.md) | The individual facts extracted from this episode, nested rather than returned separately. | [optional] 
 **tags** | **List[str]** | Tags attached through /api/v2/memory/tag/*. | [optional] 
+**edited_at** | **datetime** |  | [optional] 
+**reflect_state** | **str** |  | [optional] 
 
 ## Example
 

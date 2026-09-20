@@ -39,7 +39,7 @@ class TestMessageItem(unittest.TestCase):
                 sender_id = '',
                 sender_name = '',
                 role = 'user',
-                timestamp = 56,
+                timestamp = 1000000000000,
                 content = None,
                 tool_calls = [
                     everos_cloud.models.tool_call.ToolCall(
@@ -55,7 +55,7 @@ class TestMessageItem(unittest.TestCase):
             return MessageItem(
                 sender_id = '',
                 role = 'user',
-                timestamp = 56,
+                timestamp = 1000000000000,
                 content = None,
         )
         """

@@ -104,7 +104,7 @@
             }
           }
         },
-        "description": "Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous \u2014 it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1\u2013500 messages."
+        "description": "Append conversation messages to a session's working memory. One call carries 1\u2013500 messages.\n\nThe write is asynchronous by default (`async_mode` true): the gateway validates and enqueues it, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead.\n\nDistillation into long-term memory is always asynchronous \u2014 it runs on a session boundary, or when you call /api/v2/memory/flush."
       }
     },
     "/api/v2/memory/delete": {
@@ -186,7 +186,89 @@
             }
           }
         },
-        "description": "Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types."
+        "description": "Soft-delete memories within a scope.\n\n- At least one of `user_id`, `agent_id` or `session_id` is required \u2014 an empty body is rejected with 422.\n- `user_id` and `agent_id` are mutually exclusive.\n\nThe response echoes which scope filters were applied and how many records were removed across all memory types."
+      }
+    },
+    "/api/v2/memory/delete_by_ids": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Soft-delete memory records by id [Cloud-only]",
+        "operationId": "deleteMemoriesByIds",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteByIdsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DeleteByIdsData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.\n\n- Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted.\n- Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported \u2014 the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.\n\nTo remove memories by owner or session rather than by id, use /api/v2/memory/delete."
       }
     },
     "/api/v2/memory/edit": {
@@ -268,7 +350,89 @@
             }
           }
         },
-        "description": "Apply 1\u201350 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits \u2014 `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply."
+        "description": "Apply 1\u201350 edits to one user's profile in a single call.\n\nEach operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`.\n\nProfile is the only memory type this endpoint edits \u2014 `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.\n\nTo change an episode's narrative, summary or subject, use /api/v2/memory/update instead."
+      }
+    },
+    "/api/v2/memory/feedback": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Submit feedback about one memory [Cloud-only]",
+        "description": "Rate one memory \u2014 an episode, a profile item, an agent case or an agent skill \u2014 as `positive` or `negative`, optionally saying why.\n\n- Address the target the way /api/v2/memory/get or /search returned it: `memory_type` + `memory_id`, plus `item_id` for a profile (required there, rejected for the other kinds).\n- `reason` and `suggestion` go with negative ratings only; `note` is free text on either.\n- A target that does not exist, is deleted, or belongs to another tenant is rejected with 404.\n\nRecording is not applying: nothing about the memory is updated, deleted, suppressed or re-indexed. The response is the id of the stored signal.",
+        "operationId": "submitFeedback",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_FeedbackData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v2/memory/flush": {
@@ -350,7 +514,7 @@
             }
           }
         },
-        "description": "Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract \u2014 note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing."
+        "description": "Force extraction for a session instead of waiting for a boundary.\n\n- `\"extracted\"` \u2014 memories were distilled.\n- `\"no_extraction\"` \u2014 there was nothing to extract.\n\nA default (async) add that is still queued yields `\"no_extraction\"`, so either write with `async_mode: false` or poll the add's task before flushing."
       }
     },
     "/api/v2/memory/get": {
@@ -358,7 +522,7 @@
         "tags": [
           "Memory"
         ],
-        "summary": "Get memories (paginated) [OSS + Cloud]",
+        "summary": "Get memories [OSS + Cloud]",
         "operationId": "getMemory",
         "requestBody": {
           "content": {
@@ -432,7 +596,7 @@
             }
           }
         },
-        "description": "List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" \u2014 the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds."
+        "description": "List stored memories of one type, paginated.\n\n- Exactly one of `user_id` / `agent_id` is required.\n- `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\". The other pairings are rejected with 422.\n\nThis is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted \u2014 whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds."
       }
     },
     "/api/v2/memory/search": {
@@ -514,7 +678,7 @@
             }
           }
         },
-        "description": "Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds \u2014 to read back something just extracted, use /api/v2/memory/get."
+        "description": "Retrieve the memories relevant to a query.\n\nExactly one of `user_id` / `agent_id` is required, and it decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply.\n\nThe vector-backed methods read an index that lags extraction by seconds \u2014 to read back something just extracted, use /api/v2/memory/get."
       }
     },
     "/api/v2/memory/tag/bind": {
@@ -522,7 +686,7 @@
         "tags": [
           "Memory"
         ],
-        "summary": "Bind tags to memory items [Cloud]",
+        "summary": "Bind tags to memories [Cloud]",
         "operationId": "bindTags",
         "requestBody": {
           "content": {
@@ -596,7 +760,7 @@
             }
           }
         },
-        "description": "Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves \u2014 pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags."
+        "description": "Add tags to existing memories, keeping the tags they already carry.\n\nTags are scoped by the memory ids themselves \u2014 pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence.\n\nIdempotent, and batched over memory_ids \u00d7 tags."
       }
     },
     "/api/v2/memory/tag/replace": {
@@ -604,7 +768,7 @@
         "tags": [
           "Memory"
         ],
-        "summary": "Replace (overwrite) tags on memory items [Cloud]",
+        "summary": "Replace tags on memories [Cloud]",
         "operationId": "replaceTags",
         "requestBody": {
           "content": {
@@ -686,7 +850,7 @@
         "tags": [
           "Memory"
         ],
-        "summary": "Unbind tags from memory items [Cloud]",
+        "summary": "Unbind tags from memories [Cloud]",
         "operationId": "unbindTags",
         "requestBody": {
           "content": {
@@ -761,6 +925,88 @@
           }
         },
         "description": "Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched."
+      }
+    },
+    "/api/v2/memory/update": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Edit one memory record [Cloud-only]",
+        "operationId": "updateMemory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_UpdateData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Rewrite the editable fields of one memory. Only \"episode\" can be edited today.\n\n- `patch` uses the episode's own field names \u2014 `episode`, `summary`, `subject` \u2014 and needs at least one of them. Fields left out keep their current value.\n- A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated.\n- No `app_id` / `project_id`: the record already knows its scope.\n\nThere is no version check \u2014 the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.\n\nA record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.\n\nProfile items are edited through /api/v2/memory/edit, not here."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/categories": {
@@ -853,13 +1099,13 @@
             }
           }
         },
-        "description": "Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration \u2014 it is what the classifier matches against."
+        "description": "Add a category to this knowledge base's taxonomy.\n\nCategories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload.\n\nThe category's description is not decoration \u2014 it is what the classifier matches a document against."
       },
       "get": {
         "tags": [
           "Knowledge"
         ],
-        "summary": "List categories in a knowledge base",
+        "summary": "List categories",
         "operationId": "listCategories",
         "parameters": [
           {
@@ -942,7 +1188,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Upload a document (async ingest)",
+        "summary": "Upload a document",
         "operationId": "createDocument",
         "parameters": [
           {
@@ -1027,13 +1273,13 @@
             }
           }
         },
-        "description": "Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream \u2014 poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy."
+        "description": "Upload a document for ingest.\n\nIngest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream. Poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0.\n\n- `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign and referenced by its object key as the content's `uri`.\n- `category_id` is optional \u2014 omit it to let the server classify the document into this base's taxonomy."
       },
       "get": {
         "tags": [
           "Knowledge"
         ],
-        "summary": "List documents in a knowledge base",
+        "summary": "List documents",
         "operationId": "listDocuments",
         "parameters": [
           {
@@ -1429,7 +1675,7 @@
             }
           }
         },
-        "description": "Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent \u2014 deleting one that is already gone returns `deleted: false` rather than 404."
+        "description": "Delete a category from this knowledge base's taxonomy.\n\nIts documents are NOT deleted: they, and their topics, are reassigned to uncategorized first, then the category is soft-deleted.\n\nIdempotent: deleting one that is already gone returns `deleted: false` rather than 404."
       },
       "patch": {
         "tags": [
@@ -1537,7 +1783,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Delete a document (+ cascade nodes, P5)",
+        "summary": "Delete a document",
         "operationId": "deleteDocument",
         "parameters": [
           {
@@ -1627,7 +1873,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Get a document (with topic_count)",
+        "summary": "Get a document",
         "operationId": "getDocument",
         "parameters": [
           {
@@ -1711,13 +1957,13 @@
             }
           }
         },
-        "description": "Read one document's metadata, including how many topics were extracted from it \u2014 `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics."
+        "description": "Read one document's metadata, including how many topics were extracted from it.\n\n`topic_count` greater than 0 is also the authoritative signal that an async ingest finished.\n\nThe text itself lives in those topics; list them with GET .../documents/{doc_id}/topics."
       },
       "patch": {
         "tags": [
           "Knowledge"
         ],
-        "summary": "Update document metadata (title / category)",
+        "summary": "Update a document",
         "operationId": "updateDocument",
         "parameters": [
           {
@@ -1817,8 +2063,8 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Replace a document (async, atomic swap)",
-        "description": "Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id \u2014 the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.",
+        "summary": "Replace a document",
+        "description": "Re-ingest content under an existing document id.\n\nSame asynchronous contract as upload \u2014 202 with `status` and `task_id` \u2014 and idempotent per document id: the same replace applied twice leaves the same state.\n\nAs with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.",
         "operationId": "replaceDocument",
         "parameters": [
           {
@@ -1994,7 +2240,7 @@
             }
           }
         },
-        "description": "Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent \u2014 deleting a base that is already gone returns `deleted: false` rather than 404."
+        "description": "Delete a knowledge base and everything under it.\n\nEvery document \u2014 with its topics, search-index entries and stored objects \u2014 and every category are soft-deleted first, then the base itself.\n\nIdempotent: deleting a base that is already gone returns `deleted: false` rather than 404."
       },
       "get": {
         "tags": [
@@ -2174,7 +2420,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Get a topic's full content (inline / S3 transparent)",
+        "summary": "Get a topic",
         "operationId": "getTopic",
         "parameters": [
           {
@@ -2278,7 +2524,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "List a document's topic tree (optionally with each topic's content)",
+        "summary": "List a document's topics",
         "operationId": "listTopics",
         "parameters": [
           {
@@ -2376,7 +2622,7 @@
             }
           }
         },
-        "description": "List a document's topic tree \u2014 the sections an LLM extracted from it \u2014 flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude."
+        "description": "List a document's topic tree \u2014 the sections an LLM extracted from it.\n\nThe list is flat and already in depth-first order; build the tree from each item's `parent_id`.\n\n- It includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only.\n- Bodies are omitted by default. Ask for `content` in `include` to hydrate every item \u2014 that can enlarge the response by orders of magnitude."
       }
     },
     "/api/v2/knowledge_bases/{kb_id}/topics": {
@@ -2384,8 +2630,8 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "List tag-matched topics in a knowledge base",
-        "description": "Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.",
+        "summary": "List topics by tag",
+        "description": "List the topics that carry every one of the given tags.\n\nThis is a hard filter, not a ranking: a topic is returned only if it has all of the tags you asked for, and `total` counts every match before paging.",
         "operationId": "listTopicsByTags",
         "parameters": [
           {
@@ -2512,8 +2758,8 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Count candidate tags used by live documents in a knowledge base",
-        "description": "Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.",
+        "summary": "Count tag usage",
+        "description": "Count how many documents use each of the given tags, within one knowledge base.\n\nSend the tag ids you are interested in. The response returns those actually in use, sorted by id, each with a count of the distinct documents carrying it.\n\nCounts are read across several queries rather than from one snapshot, so a tag added or removed at that exact moment may be counted either way.",
         "operationId": "queryRelatedTags",
         "parameters": [
           {
@@ -2605,8 +2851,8 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Replace the complete materialized semantic tag snapshot of a topic",
-        "description": "version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.",
+        "summary": "Replace a topic's tags",
+        "description": "Replace a topic's entire tag set with the ids you send.\n\n`version` is the tag version you expect the topic to be at. The write is rejected if it has moved on, so a concurrent update cannot be silently lost.\n\n- Duplicate ids collapse, and the first 50 distinct ids are stored. Sending 51\u2013100 still succeeds \u2014 the response reports what was dropped.\n- Sending the set a topic already carries is a no-op and does not advance the version.",
         "operationId": "replaceTopicTags",
         "parameters": [
           {
@@ -2739,7 +2985,7 @@
         "tags": [
           "Knowledge"
         ],
-        "summary": "Search within a knowledge base (keyword / vector / hybrid)",
+        "summary": "Search a knowledge base",
         "operationId": "searchKnowledge",
         "parameters": [
           {
@@ -2824,7 +3070,7 @@
             }
           }
         },
-        "description": "Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}."
+        "description": "Search within one knowledge base, by keyword, vector or hybrid retrieval.\n\nThe unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call.\n\nTopic bodies are omitted by default \u2014 ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}."
       }
     },
     "/api/v2/object/sign": {
@@ -2896,7 +3142,7 @@
             }
           }
         },
-        "description": "Presign a direct-to-storage upload for multimodal data. POST the file to the returned URL yourself, then reference the returned object key as a message's content `uri` (/api/v2/memory/add) or as a document's content `uri` (.../documents). Uploading first and passing the key is the only path that gets a non-text item parsed \u2014 see `base64` on the content object. The Python SDK's `upload()` does both steps in one call."
+        "description": "Presign a direct-to-storage upload for multimodal data.\n\nPOST the file to the returned URL yourself, then reference the returned object key as a message's content `uri` (/api/v2/memory/add) or as a document's content `uri` (.../documents).\n\nUploading first and passing the key is the only path that gets a non-text item parsed \u2014 see `base64` on the content object. The Python SDK's `upload()` does both steps in one call."
       }
     },
     "/api/v2/tasks": {
@@ -3026,7 +3272,7 @@
             }
           }
         },
-        "summary": "List async tasks",
+        "summary": "List tasks",
         "tags": [
           "Tasks"
         ]
@@ -3034,7 +3280,7 @@
     },
     "/api/v2/tasks/stats": {
       "get": {
-        "description": "Counts tasks per status over a time window. All five statuses (queued, processing, pending, success, failed) are always present (0 when absent) so dashboards get a stable shape, and the response echoes the window actually used after server-side clamping. Results are scoped to the caller's tenant, resolved from the request context.",
+        "description": "Counts tasks per status over a time window.\n\nAll five statuses \u2014 queued, processing, pending, success, failed \u2014 are always present, 0 when absent, so a dashboard gets a stable shape. The response echoes the window actually used after server-side clamping.\n\nResults are scoped to the caller's tenant, resolved from the request context.",
         "operationId": "getTaskStats",
         "parameters": [
           {
@@ -3118,7 +3364,7 @@
             }
           }
         },
-        "summary": "Aggregate task counts by status",
+        "summary": "Count tasks by status",
         "tags": [
           "Tasks"
         ]
@@ -3211,7 +3457,7 @@
             }
           }
         },
-        "summary": "Get async task status",
+        "summary": "Get a task",
         "tags": [
           "Tasks"
         ]
@@ -3249,19 +3495,21 @@
         "properties": {
           "app_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "App Id",
             "default": "default",
             "description": "Business-semantic scope for this write, defaulting to \"default\". Reads must use the same app_id / project_id pair to see what was written under it. Note this is a partition, not the security boundary \u2014 that is the tenant resolved from your API key."
           },
           "project_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Project Id",
             "default": "default",
             "description": "Second half of the business-semantic scope, defaulting to \"default\". See `app_id`."
           },
           "session_id": {
             "type": "string",
-            "maxLength": 128,
+            "maxLength": 256,
             "minLength": 1,
             "title": "Session Id",
             "description": "The conversation these messages belong to (1\u2013128 characters). It is the unit extraction works on: /api/v2/memory/flush takes this id, and a session boundary is what triggers extraction on its own."
@@ -3295,7 +3543,7 @@
             {
               "sender_id": "user-1",
               "role": "user",
-              "timestamp": 1700000000,
+              "timestamp": 1700000000000,
               "content": "I love hiking in the mountains"
             }
           ]
@@ -3804,6 +4052,76 @@
         "title": "ContentItem",
         "description": "A single content element (appendix A). Current phase: only ``type=\"text\"``."
       },
+      "DeleteByIdsData": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "title": "Memory Type",
+            "description": "The memory type the request named."
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Always true on a 200 \u2014 the batch was applied. Failures use the error envelope instead."
+          }
+        },
+        "type": "object",
+        "required": [
+          "memory_type",
+          "success"
+        ],
+        "title": "DeleteByIdsData",
+        "description": "Result of a by-ids soft delete. A 200 means the request was applied; ids that\nwere already gone are a no-op, not a failure, so a re-sent batch is safe."
+      },
+      "DeleteByIdsInput": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Memory Type",
+            "description": "Kind of the memories being deleted. Only \"episode\" is accepted today."
+          },
+          "memory_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Memory Ids",
+            "description": "1 to 50 memory ids. Every one must be well-formed; duplicates are collapsed."
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why the memories are removed. Optional; one reason covers the whole batch."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type",
+          "memory_ids"
+        ],
+        "title": "DeleteByIdsInput",
+        "description": "Soft-delete the named memory records [Cloud-only].",
+        "example": {
+          "memory_type": "episode",
+          "memory_ids": [
+            "665f0c8e1a2b3c4d5e6f7a8b",
+            "665f0c8e1a2b3c4d5e6f7a8c"
+          ],
+          "reason": {
+            "code": "redundant"
+          }
+        }
+      },
       "DeleteData": {
         "properties": {
           "filters": {
@@ -3829,12 +4147,14 @@
         "properties": {
           "app_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "App Id",
             "default": "default",
             "description": "Scope to delete within, defaulting to \"default\"."
           },
           "project_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Project Id",
             "default": "default",
             "description": "Second half of the scope, defaulting to \"default\"."
@@ -3843,6 +4163,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 256,
                 "minLength": 1
               },
               {
@@ -3856,6 +4177,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 256,
                 "minLength": 1
               },
               {
@@ -3868,7 +4190,8 @@
           "session_id": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 256
               },
               {
                 "type": "null"
@@ -4301,18 +4624,21 @@
         "properties": {
           "app_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "App Id",
             "default": "default",
             "description": "Scope the profile lives in, defaulting to \"default\"."
           },
           "project_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Project Id",
             "default": "default",
             "description": "Second half of the scope, defaulting to \"default\"."
           },
           "user_id": {
             "type": "string",
+            "maxLength": 256,
             "minLength": 1,
             "title": "User Id",
             "description": "The user whose profile is being edited."
@@ -4551,6 +4877,35 @@
             "type": "array",
             "title": "Tags",
             "description": "Tags attached through /api/v2/memory/tag/*."
+          },
+          "edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited At",
+            "description": "When the memory was last edited by hand through /api/v2/memory/update. Absent on a memory that was never edited."
+          },
+          "reflect_state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "done"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reflect State",
+            "description": "Set once the narrative has been edited by hand: \"pending\" until background consolidation has absorbed the new text (a search may briefly return both it and a merged narrative close to it), \"done\" afterwards. Absent on a memory whose narrative was never edited."
           }
         },
         "type": "object",
@@ -4565,6 +4920,56 @@
           "type"
         ],
         "title": "EpisodeItem"
+      },
+      "EpisodePatch": {
+        "properties": {
+          "episode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Episode",
+            "description": "New narrative body, 1\u20138000 characters. Changing it re-indexes the memory and regenerates `summary` unless one is supplied in the same patch."
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary",
+            "description": "New short summary, 1\u20131000 characters."
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject",
+            "description": "New title, 1\u2013200 characters."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "EpisodePatch",
+        "description": "The editable surface of an episode.\n\nNATIVE field names, not generic ones: a generic mapping is a stretch for other\ntypes (agent_case has three parallel content fields), and it would make the audit\nevent's before/after unreadable. Generality lives in the envelope + the\n``EDITABLE_FIELDS`` registry.\n\nPartial, and ``None`` means \"leave it alone\" rather than \"clear it\". A body-only\npatch is accepted: the server regenerates ``summary`` from the new text (the same\nway a freshly extracted episode gets one) so the preview never describes text that\nno longer exists; ``subject`` has no generator and is kept unless supplied."
       },
       "ErrorBody": {
         "properties": {
@@ -4667,6 +5072,133 @@
         "title": "ExplicitInfoPatch",
         "description": "``data`` payload for ``update explicit_info`` \u2014 partial; at least one of\n``category`` / ``description`` (non-empty if present); others pass through."
       },
+      "FeedbackData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Id of the stored feedback signal. The rated memory itself is unchanged."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "FeedbackData",
+        "description": "The stored signal's id. Nothing about the target memory changed."
+      },
+      "FeedbackInput": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "enum": [
+              "episode",
+              "profile",
+              "agent_case",
+              "agent_skill"
+            ],
+            "title": "Memory Type",
+            "description": "Kind of the target memory, as named by memory.get / search."
+          },
+          "memory_id": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "title": "Memory Id",
+            "description": "The target's `id` from memory.get / search (the profile document's id for `profile`)."
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(ei|it)_[0-9a-f]{24}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id",
+            "description": "Which profile item is rated (`profile_data.*[].item_id`). Required for `profile`, not accepted for other kinds."
+          },
+          "rating": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative"
+            ],
+            "title": "Rating",
+            "description": "Direction of the explicit assessment."
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "hallucination",
+                  "outdated",
+                  "wrong_subject",
+                  "wrong_time",
+                  "redundant",
+                  "privacy",
+                  "style",
+                  "other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Structured reason used for analysis; it never triggers mutation. Negative ratings only. No default: an unset reason means the caller was not asked, `other` means they rejected the list \u2014 collapsing the two would corrupt every breakdown. Same base list as `Reason.code` on /api/v2/memory/update and /delete_by_ids minus `missing`, which a rating cannot express because it always names a memory that exists. (`outdated` \u2014 \"right when written, wrong now\" \u2014 reaches `Reason.code` with the engine's next release; on release-20260901_v15 it is feedback-only.)"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Optional free-text explanation of the rating."
+          },
+          "suggestion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggestion",
+            "description": "What the memory should have said, as free text. Negative ratings only. Stored with the signal and never applied automatically."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type",
+          "memory_id",
+          "rating"
+        ],
+        "title": "FeedbackInput",
+        "description": "Rate one memory record [Cloud-only].\n\nThe target is addressed the way the read APIs return it: ``memory_type`` +\n``memory_id``, plus ``item_id`` for a profile, whose rateable unit is one item\ninside ``profile_data`` rather than the whole document. Everything identifying\n(tenant, submitter) is derived on the server; the whitelist is closed.\n\nA reason is DESCRIPTIVE. No code triggers a mutation by itself \u2014 ``privacy`` in\nparticular is a signal, not a deletion request.",
+        "example": {
+          "memory_type": "episode",
+          "memory_id": "66dff0f8a9f84d8c9f62f011",
+          "rating": "negative",
+          "reason": "outdated",
+          "note": "The user moved to Shanghai last month",
+          "suggestion": "The user currently lives in Shanghai."
+        }
+      },
       "FilterNode": {
         "properties": {
           "AND": {
@@ -4727,18 +5259,21 @@
         "properties": {
           "app_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "App Id",
             "default": "default",
             "description": "Scope the session lives in, defaulting to \"default\"."
           },
           "project_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Project Id",
             "default": "default",
             "description": "Second half of the scope, defaulting to \"default\"."
           },
           "session_id": {
             "type": "string",
+            "maxLength": 256,
             "minLength": 1,
             "title": "Session Id",
             "description": "The session to extract from. Only messages already accumulated for this session are considered, so a still-queued async add yields \"no_extraction\"."
@@ -4804,12 +5339,14 @@
         "properties": {
           "app_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "App Id",
             "default": "default",
             "description": "Scope to read from, defaulting to \"default\". Must match the pair used on write."
           },
           "project_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Project Id",
             "default": "default",
             "description": "Second half of the scope, defaulting to \"default\"."
@@ -4818,6 +5355,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 256,
                 "minLength": 1
               },
               {
@@ -4831,6 +5369,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 256,
                 "minLength": 1
               },
               {
@@ -4911,6 +5450,7 @@
         ],
         "title": "GetInput",
         "example": {
+          "user_id": "user-1",
           "memory_type": "episode",
           "page": 1,
           "page_size": 20,
@@ -5234,7 +5774,8 @@
           "timestamp": {
             "type": "integer",
             "title": "Timestamp",
-            "description": "When the message was produced, as a UNIX timestamp in MILLISECONDS. A seconds-scale value is rejected with 422 rather than silently rescaled, because a window mixing the two would mis-order and mis-split."
+            "description": "When the message was produced, as a UNIX timestamp in MILLISECONDS. A seconds-scale value is rejected with 422 rather than silently rescaled, because a window mixing the two would mis-order and mis-split.",
+            "minimum": 1000000000000
           },
           "content": {
             "anyOf": [
@@ -5352,6 +5893,45 @@
           "user_id"
         ],
         "title": "ProfileItem"
+      },
+      "Reason": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "hallucination",
+              "wrong_subject",
+              "wrong_time",
+              "redundant",
+              "missing",
+              "privacy",
+              "style",
+              "other"
+            ],
+            "title": "Code",
+            "description": "What was wrong, from the fixed list \u2014 hallucination, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as `FeedbackInput.reason` plus `missing`, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists). On the contract this SDK is generated from (engine release-20260901_v15) `outdated` is not yet accepted here \u2014 the engine adds it in its next release; until then record an outdated-type fix as `wrong_time` or `other`."
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Optional free text, up to 256 characters."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "Reason",
+        "description": "Why the operator made the change. OPTIONAL on both ops: it is recorded on the\naudit event for quality analysis, never used to gate anything. When given, ``code``\nis required and ``note`` is free text."
       },
       "RelatedTagUsageBody": {
         "properties": {
@@ -5871,6 +6451,35 @@
             "title": "Tags",
             "description": "Tags attached through /api/v2/memory/tag/*."
           },
+          "edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited At",
+            "description": "When the memory was last edited by hand through /api/v2/memory/update. Absent on a memory that was never edited."
+          },
+          "reflect_state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "done"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reflect State",
+            "description": "Set once the narrative has been edited by hand: \"pending\" until background consolidation has absorbed the new text (a search may briefly return both it and a merged narrative close to it), \"done\" afterwards. Absent on a memory whose narrative was never edited."
+          },
           "score": {
             "type": "number",
             "title": "Score",
@@ -6082,12 +6691,14 @@
         "properties": {
           "app_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "App Id",
             "default": "default",
             "description": "Scope to search in, defaulting to \"default\". Must match the pair used on write."
           },
           "project_id": {
             "type": "string",
+            "maxLength": 128,
             "title": "Project Id",
             "default": "default",
             "description": "Second half of the scope, defaulting to \"default\"."
@@ -6096,6 +6707,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 256,
                 "minLength": 1
               },
               {
@@ -6109,6 +6721,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "maxLength": 256,
                 "minLength": 1
               },
               {
@@ -6207,6 +6820,7 @@
         ],
         "title": "SearchInput",
         "example": {
+          "user_id": "user-1",
           "query": "outdoor hobbies",
           "method": "hybrid",
           "top_k": 10,
@@ -6365,6 +6979,25 @@
         ],
         "title": "SuccessEnvelope[CategoryListData]"
       },
+      "SuccessEnvelope_DeleteByIdsData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DeleteByIdsData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[DeleteByIdsData]"
+      },
       "SuccessEnvelope_DeleteData_": {
         "properties": {
           "request_id": {
@@ -6497,6 +7130,25 @@
           "data"
         ],
         "title": "SuccessEnvelope[EditData]"
+      },
+      "SuccessEnvelope_FeedbackData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FeedbackData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[FeedbackData]"
       },
       "SuccessEnvelope_FlushData_": {
         "properties": {
@@ -6782,6 +7434,25 @@
           "data"
         ],
         "title": "SuccessEnvelope[TopicTagWriteData]"
+      },
+      "SuccessEnvelope_UpdateData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UpdateData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[UpdateData]"
       },
       "TagBindData": {
         "properties": {
@@ -7669,6 +8340,212 @@
         ],
         "title": "UnprocessedMessageDTO",
         "description": "Buffered raw message not yet extracted (no owner \u2014 inference happens after\nboundary detection). Returned by /search only when ``filters.session_id`` is a\ntop-level eq scalar (spec \u00a74 / appendix E)."
+      },
+      "UpdateData": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Episode id. Use it to bind tags or to fetch this episode again."
+          },
+          "app_id": {
+            "type": "string",
+            "title": "App Id",
+            "description": "The business-semantic scope this memory was written under."
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id",
+            "description": "Second half of that scope."
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "The user this episode belongs to. Null on an episode merged from several owners."
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "The session it was extracted from. Null when the episode merges more than one session."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "description": "When the remembered exchange happened (ISO 8601), not when it was extracted."
+          },
+          "sender_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sender Ids",
+            "description": "The senders that appear in the source exchange."
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "Short summary of the episode \u2014 what a result list should show."
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject",
+            "description": "What the episode is about, in a few words."
+          },
+          "episode": {
+            "type": "string",
+            "title": "Episode",
+            "description": "The episode's stored narrative body. This is the indexed, searchable text."
+          },
+          "readable_episode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readable Episode",
+            "description": "Human-readable rendering of `episode`, for display only \u2014 never indexed, filtered or scored. Present as a key but null unless the request asked for it (and the tenant is enabled for it); fall back to `episode` when it is null."
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "How the episode was produced \u2014 \"Conversation\" or \"AgentConversation\"."
+          },
+          "atomic_facts": {
+            "items": {
+              "$ref": "#/components/schemas/AtomicFactItem"
+            },
+            "type": "array",
+            "title": "Atomic Facts",
+            "description": "The individual facts extracted from this episode, nested rather than returned separately."
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "description": "Tags attached through /api/v2/memory/tag/*."
+          },
+          "edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited At",
+            "description": "When the memory was last edited by hand through /api/v2/memory/update. Absent on a memory that was never edited."
+          },
+          "reflect_state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "done"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reflect State",
+            "description": "Set once the narrative has been edited by hand: \"pending\" until background consolidation has absorbed the new text (a search may briefly return both it and a merged narrative close to it), \"done\" afterwards. Absent on a memory whose narrative was never edited."
+          },
+          "unchanged": {
+            "type": "boolean",
+            "title": "Unchanged",
+            "default": false,
+            "description": "True when the patch equalled what was already stored \u2014 nothing was written and nothing downstream was triggered."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "project_id",
+          "timestamp",
+          "summary",
+          "subject",
+          "episode",
+          "type"
+        ],
+        "title": "UpdateData",
+        "description": "The edited record itself \u2014 the same shape ``SearchEpisodeItem`` uses for\n``score``, not a wrapper around a nested ``item`` that would restate its ids."
+      },
+      "UpdateInput": {
+        "properties": {
+          "memory_type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Memory Type",
+            "description": "Kind of the memory being edited. Only \"episode\" is accepted today."
+          },
+          "memory_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Memory Id",
+            "description": "The memory's `id` as returned by /api/v2/memory/get or /search."
+          },
+          "patch": {
+            "$ref": "#/components/schemas/EpisodePatch",
+            "description": "The fields to rewrite \u2014 at least one. Fields left out keep their current value."
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why the change is made. Optional; recorded for quality analysis and never changes what is written."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "memory_type",
+          "memory_id",
+          "patch"
+        ],
+        "title": "UpdateInput",
+        "description": "Edit ONE memory record's editable fields [Cloud-only].\n\nNo ``expected_*`` / version: the API does no conflict detection (last write wins).\nResend idempotency comes from the no-change short circuit, and Reflection guards\nitself with a content CAS.",
+        "example": {
+          "memory_type": "episode",
+          "memory_id": "665f0c8e1a2b3c4d5e6f7a8b",
+          "patch": {
+            "episode": "The user moved to Hangzhou last month and now lives near West Lake.",
+            "summary": "Moved to Hangzhou; lives near West Lake.",
+            "subject": "Relocation to Hangzhou"
+          },
+          "reason": {
+            "code": "wrong_subject",
+            "note": "The narrative attributed the move to the wrong person"
+          }
+        }
       },
       "UpdateOperation": {
         "properties": {

@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.atomic_fact_item import AtomicFactItem
 from typing import Optional, Set
@@ -43,8 +43,20 @@ class EpisodeItem(BaseModel):
     type: StrictStr = Field(description="How the episode was produced — \"Conversation\" or \"AgentConversation\".")
     atomic_facts: Optional[List[AtomicFactItem]] = Field(default=None, description="The individual facts extracted from this episode, nested rather than returned separately.")
     tags: Optional[List[StrictStr]] = Field(default=None, description="Tags attached through /api/v2/memory/tag/*.")
+    edited_at: Optional[datetime] = None
+    reflect_state: Optional[StrictStr] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags", "edited_at", "reflect_state"]
+
+    @field_validator('reflect_state')
+    def reflect_state_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['pending', 'done']):
+            raise ValueError("must be one of enum values ('pending', 'done')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -114,6 +126,16 @@ class EpisodeItem(BaseModel):
         if self.readable_episode is None and "readable_episode" in self.model_fields_set:
             _dict['readable_episode'] = None
 
+        # set to None if edited_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.edited_at is None and "edited_at" in self.model_fields_set:
+            _dict['edited_at'] = None
+
+        # set to None if reflect_state (nullable) is None
+        # and model_fields_set contains the field
+        if self.reflect_state is None and "reflect_state" in self.model_fields_set:
+            _dict['reflect_state'] = None
+
         return _dict
 
     @classmethod
@@ -139,7 +161,9 @@ class EpisodeItem(BaseModel):
             "readable_episode": obj.get("readable_episode"),
             "type": obj.get("type"),
             "atomic_facts": [AtomicFactItem.from_dict(_item) for _item in obj["atomic_facts"]] if obj.get("atomic_facts") is not None else None,
-            "tags": obj.get("tags")
+            "tags": obj.get("tags"),
+            "edited_at": obj.get("edited_at"),
+            "reflect_state": obj.get("reflect_state")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

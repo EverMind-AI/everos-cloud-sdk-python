@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from everos_cloud.models.search_atomic_fact_item import SearchAtomicFactItem
 from typing import Optional, Set
@@ -43,9 +43,21 @@ class SearchEpisodeItem(BaseModel):
     type: StrictStr = Field(description="How the episode was produced — \"Conversation\" or \"AgentConversation\".")
     atomic_facts: Optional[List[SearchAtomicFactItem]] = Field(default=None, description="The facts extracted from this episode, each with its own relevance score.")
     tags: Optional[List[StrictStr]] = Field(default=None, description="Tags attached through /api/v2/memory/tag/*.")
+    edited_at: Optional[datetime] = None
+    reflect_state: Optional[StrictStr] = None
     score: Union[StrictFloat, StrictInt] = Field(description="Relevance of this episode to the query. What the number means depends on `method`: the hybrid path fuses its two routes into a probability in 0.0–1.0 (which is what `min_score` filters on), while keyword and vector pass the underlying engine's own score through — BM25 has no upper bound and vector similarity depends on the metric. So compare scores within one method, not across methods.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags", "score"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags", "edited_at", "reflect_state", "score"]
+
+    @field_validator('reflect_state')
+    def reflect_state_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['pending', 'done']):
+            raise ValueError("must be one of enum values ('pending', 'done')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -115,6 +127,16 @@ class SearchEpisodeItem(BaseModel):
         if self.readable_episode is None and "readable_episode" in self.model_fields_set:
             _dict['readable_episode'] = None
 
+        # set to None if edited_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.edited_at is None and "edited_at" in self.model_fields_set:
+            _dict['edited_at'] = None
+
+        # set to None if reflect_state (nullable) is None
+        # and model_fields_set contains the field
+        if self.reflect_state is None and "reflect_state" in self.model_fields_set:
+            _dict['reflect_state'] = None
+
         return _dict
 
     @classmethod
@@ -141,6 +163,8 @@ class SearchEpisodeItem(BaseModel):
             "type": obj.get("type"),
             "atomic_facts": [SearchAtomicFactItem.from_dict(_item) for _item in obj["atomic_facts"]] if obj.get("atomic_facts") is not None else None,
             "tags": obj.get("tags"),
+            "edited_at": obj.get("edited_at"),
+            "reflect_state": obj.get("reflect_state"),
             "score": obj.get("score")
         })
         # store additional fields in additional_properties

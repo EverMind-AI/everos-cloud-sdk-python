@@ -85,7 +85,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeCategoryData:
         """Create a category
 
-        Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
+        Add a category to this knowledge base's taxonomy.  Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload.  The category's description is not decoration — it is what the classifier matches a document against.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -161,7 +161,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeCategoryData]:
         """Create a category
 
-        Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
+        Add a category to this knowledge base's taxonomy.  Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload.  The category's description is not decoration — it is what the classifier matches a document against.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -237,7 +237,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Create a category
 
-        Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
+        Add a category to this knowledge base's taxonomy.  Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload.  The category's description is not decoration — it is what the classifier matches a document against.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -387,9 +387,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDocIngestData:
-        """Upload a document (async ingest)
+        """Upload a document
 
-        Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
+        Upload a document for ingest.  Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream. Poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0.  - `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign and referenced by its object key as the content's `uri`. - `category_id` is optional — omit it to let the server classify the document into this base's taxonomy.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -463,9 +463,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDocIngestData]:
-        """Upload a document (async ingest)
+        """Upload a document
 
-        Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
+        Upload a document for ingest.  Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream. Poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0.  - `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign and referenced by its object key as the content's `uri`. - `category_id` is optional — omit it to let the server classify the document into this base's taxonomy.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -539,9 +539,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Upload a document (async ingest)
+        """Upload a document
 
-        Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
+        Upload a document for ingest.  Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream. Poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0.  - `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign and referenced by its object key as the content's `uri`. - `category_id` is optional — omit it to let the server classify the document into this base's taxonomy.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -982,7 +982,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeCategoryDeleteData:
         """Delete a category
 
-        Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
+        Delete a category from this knowledge base's taxonomy.  Its documents are NOT deleted: they, and their topics, are reassigned to uncategorized first, then the category is soft-deleted.  Idempotent: deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1058,7 +1058,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeCategoryDeleteData]:
         """Delete a category
 
-        Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
+        Delete a category from this knowledge base's taxonomy.  Its documents are NOT deleted: they, and their topics, are reassigned to uncategorized first, then the category is soft-deleted.  Idempotent: deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1134,7 +1134,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Delete a category
 
-        Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
+        Delete a category from this knowledge base's taxonomy.  Its documents are NOT deleted: they, and their topics, are reassigned to uncategorized first, then the category is soft-deleted.  Idempotent: deleting one that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1271,7 +1271,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDocDeleteData:
-        """Delete a document (+ cascade nodes, P5)
+        """Delete a document
 
         Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
@@ -1347,7 +1347,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDocDeleteData]:
-        """Delete a document (+ cascade nodes, P5)
+        """Delete a document
 
         Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
@@ -1423,7 +1423,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Delete a document (+ cascade nodes, P5)
+        """Delete a document
 
         Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
@@ -1563,7 +1563,7 @@ class KnowledgeApi:
     ) -> SuccessEnvelopeKbDeleteData:
         """Delete a knowledge base
 
-        Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
+        Delete a knowledge base and everything under it.  Every document — with its topics, search-index entries and stored objects — and every category are soft-deleted first, then the base itself.  Idempotent: deleting a base that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1635,7 +1635,7 @@ class KnowledgeApi:
     ) -> ApiResponse[SuccessEnvelopeKbDeleteData]:
         """Delete a knowledge base
 
-        Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
+        Delete a knowledge base and everything under it.  Every document — with its topics, search-index entries and stored objects — and every category are soft-deleted first, then the base itself.  Idempotent: deleting a base that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1707,7 +1707,7 @@ class KnowledgeApi:
     ) -> RESTResponseType:
         """Delete a knowledge base
 
-        Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
+        Delete a knowledge base and everything under it.  Every document — with its topics, search-index entries and stored objects — and every category are soft-deleted first, then the base itself.  Idempotent: deleting a base that is already gone returns `deleted: false` rather than 404.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1838,9 +1838,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDocData:
-        """Get a document (with topic_count)
+        """Get a document
 
-        Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
+        Read one document's metadata, including how many topics were extracted from it.  `topic_count` greater than 0 is also the authoritative signal that an async ingest finished.  The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1914,9 +1914,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDocData]:
-        """Get a document (with topic_count)
+        """Get a document
 
-        Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
+        Read one document's metadata, including how many topics were extracted from it.  `topic_count` greater than 0 is also the authoritative signal that an async ingest finished.  The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -1990,9 +1990,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a document (with topic_count)
+        """Get a document
 
-        Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
+        Read one document's metadata, including how many topics were extracted from it.  `topic_count` greater than 0 is also the authoritative signal that an async ingest finished.  The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -2406,7 +2406,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTopicDetailData:
-        """Get a topic's full content (inline / S3 transparent)
+        """Get a topic
 
         Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
@@ -2487,7 +2487,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTopicDetailData]:
-        """Get a topic's full content (inline / S3 transparent)
+        """Get a topic
 
         Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
@@ -2568,7 +2568,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a topic's full content (inline / S3 transparent)
+        """Get a topic
 
         Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
@@ -2713,7 +2713,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeCategoryListData:
-        """List categories in a knowledge base
+        """List categories
 
         List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
@@ -2785,7 +2785,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeCategoryListData]:
-        """List categories in a knowledge base
+        """List categories
 
         List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
@@ -2857,7 +2857,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List categories in a knowledge base
+        """List categories
 
         List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
@@ -2992,7 +2992,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDocListData:
-        """List documents in a knowledge base
+        """List documents
 
         Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
@@ -3076,7 +3076,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDocListData]:
-        """List documents in a knowledge base
+        """List documents
 
         Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
@@ -3160,7 +3160,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List documents in a knowledge base
+        """List documents
 
         Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
@@ -3630,9 +3630,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTopicListData:
-        """List a document's topic tree (optionally with each topic's content)
+        """List a document's topics
 
-        List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
+        List a document's topic tree — the sections an LLM extracted from it.  The list is flat and already in depth-first order; build the tree from each item's `parent_id`.  - It includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. - Bodies are omitted by default. Ask for `content` in `include` to hydrate every item — that can enlarge the response by orders of magnitude.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3710,9 +3710,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTopicListData]:
-        """List a document's topic tree (optionally with each topic's content)
+        """List a document's topics
 
-        List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
+        List a document's topic tree — the sections an LLM extracted from it.  The list is flat and already in depth-first order; build the tree from each item's `parent_id`.  - It includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. - Bodies are omitted by default. Ask for `content` in `include` to hydrate every item — that can enlarge the response by orders of magnitude.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3790,9 +3790,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List a document's topic tree (optionally with each topic's content)
+        """List a document's topics
 
-        List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
+        List a document's topic tree — the sections an LLM extracted from it.  The list is flat and already in depth-first order; build the tree from each item's `parent_id`.  - It includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. - Bodies are omitted by default. Ask for `content` in `include` to hydrate every item — that can enlarge the response by orders of magnitude.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -3940,9 +3940,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTopicFilterListData:
-        """List tag-matched topics in a knowledge base
+        """List topics by tag
 
-        Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+        List the topics that carry every one of the given tags.  This is a hard filter, not a ranking: a topic is returned only if it has all of the tags you asked for, and `total` counts every match before paging.
 
         :param kb_id: The knowledge base to search within. (required)
         :type kb_id: str
@@ -4024,9 +4024,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTopicFilterListData]:
-        """List tag-matched topics in a knowledge base
+        """List topics by tag
 
-        Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+        List the topics that carry every one of the given tags.  This is a hard filter, not a ranking: a topic is returned only if it has all of the tags you asked for, and `total` counts every match before paging.
 
         :param kb_id: The knowledge base to search within. (required)
         :type kb_id: str
@@ -4108,9 +4108,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List tag-matched topics in a knowledge base
+        """List topics by tag
 
-        Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+        List the topics that carry every one of the given tags.  This is a hard filter, not a ranking: a topic is returned only if it has all of the tags you asked for, and `total` counts every match before paging.
 
         :param kb_id: The knowledge base to search within. (required)
         :type kb_id: str
@@ -4266,9 +4266,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeRelatedTagUsageListData:
-        """Count candidate tags used by live documents in a knowledge base
+        """Count tag usage
 
-        Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+        Count how many documents use each of the given tags, within one knowledge base.  Send the tag ids you are interested in. The response returns those actually in use, sorted by id, each with a count of the distinct documents carrying it.  Counts are read across several queries rather than from one snapshot, so a tag added or removed at that exact moment may be counted either way.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4342,9 +4342,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeRelatedTagUsageListData]:
-        """Count candidate tags used by live documents in a knowledge base
+        """Count tag usage
 
-        Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+        Count how many documents use each of the given tags, within one knowledge base.  Send the tag ids you are interested in. The response returns those actually in use, sorted by id, each with a count of the distinct documents carrying it.  Counts are read across several queries rather than from one snapshot, so a tag added or removed at that exact moment may be counted either way.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4418,9 +4418,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Count candidate tags used by live documents in a knowledge base
+        """Count tag usage
 
-        Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+        Count how many documents use each of the given tags, within one knowledge base.  Send the tag ids you are interested in. The response returns those actually in use, sorted by id, each with a count of the distinct documents carrying it.  Counts are read across several queries rather than from one snapshot, so a tag added or removed at that exact moment may be counted either way.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4571,9 +4571,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDocIngestData:
-        """Replace a document (async, atomic swap)
+        """Replace a document
 
-        Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
+        Re-ingest content under an existing document id.  Same asynchronous contract as upload — 202 with `status` and `task_id` — and idempotent per document id: the same replace applied twice leaves the same state.  As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4651,9 +4651,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDocIngestData]:
-        """Replace a document (async, atomic swap)
+        """Replace a document
 
-        Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
+        Re-ingest content under an existing document id.  Same asynchronous contract as upload — 202 with `status` and `task_id` — and idempotent per document id: the same replace applied twice leaves the same state.  As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4731,9 +4731,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Replace a document (async, atomic swap)
+        """Replace a document
 
-        Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
+        Re-ingest content under an existing document id.  Same asynchronous contract as upload — 202 with `status` and `task_id` — and idempotent per document id: the same replace applied twice leaves the same state.  As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4891,9 +4891,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTopicTagWriteData:
-        """Replace the complete materialized semantic tag snapshot of a topic
+        """Replace a topic's tags
 
-        version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+        Replace a topic's entire tag set with the ids you send.  `version` is the tag version you expect the topic to be at. The write is rejected if it has moved on, so a concurrent update cannot be silently lost.  - Duplicate ids collapse, and the first 50 distinct ids are stored. Sending 51–100 still succeeds — the response reports what was dropped. - Sending the set a topic already carries is a no-op and does not advance the version.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -4978,9 +4978,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTopicTagWriteData]:
-        """Replace the complete materialized semantic tag snapshot of a topic
+        """Replace a topic's tags
 
-        version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+        Replace a topic's entire tag set with the ids you send.  `version` is the tag version you expect the topic to be at. The write is rejected if it has moved on, so a concurrent update cannot be silently lost.  - Duplicate ids collapse, and the first 50 distinct ids are stored. Sending 51–100 still succeeds — the response reports what was dropped. - Sending the set a topic already carries is a no-op and does not advance the version.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5065,9 +5065,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Replace the complete materialized semantic tag snapshot of a topic
+        """Replace a topic's tags
 
-        version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+        Replace a topic's entire tag set with the ids you send.  `version` is the tag version you expect the topic to be at. The write is rejected if it has moved on, so a concurrent update cannot be silently lost.  - Duplicate ids collapse, and the first 50 distinct ids are stored. Sending 51–100 still succeeds — the response reports what was dropped. - Sending the set a topic already carries is a no-op and does not advance the version.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5232,9 +5232,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeKbSearchData:
-        """Search within a knowledge base (keyword / vector / hybrid)
+        """Search a knowledge base
 
-        Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
+        Search within one knowledge base, by keyword, vector or hybrid retrieval.  The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call.  Topic bodies are omitted by default — ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5308,9 +5308,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeKbSearchData]:
-        """Search within a knowledge base (keyword / vector / hybrid)
+        """Search a knowledge base
 
-        Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
+        Search within one knowledge base, by keyword, vector or hybrid retrieval.  The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call.  Topic bodies are omitted by default — ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5384,9 +5384,9 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Search within a knowledge base (keyword / vector / hybrid)
+        """Search a knowledge base
 
-        Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
+        Search within one knowledge base, by keyword, vector or hybrid retrieval.  The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call.  Topic bodies are omitted by default — ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
         :param kb_id: (required)
         :type kb_id: str
@@ -5856,7 +5856,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDocPatchData:
-        """Update document metadata (title / category)
+        """Update a document
 
         Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
@@ -5936,7 +5936,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDocPatchData]:
-        """Update document metadata (title / category)
+        """Update a document
 
         Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
@@ -6016,7 +6016,7 @@ class KnowledgeApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Update document metadata (title / category)
+        """Update a document
 
         Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
