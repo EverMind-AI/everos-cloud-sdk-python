@@ -37,7 +37,14 @@ class TestMemoryApi(unittest.TestCase):
     def test_bind_tags(self) -> None:
         """Test case for bind_tags
 
-        Bind tags to memory items [Cloud]
+        Bind tags to memories [Cloud]
+        """
+        pass
+
+    def test_delete_memories_by_ids(self) -> None:
+        """Test case for delete_memories_by_ids
+
+        Soft-delete memory records by id [Cloud-only]
         """
         pass
 
@@ -65,14 +72,14 @@ class TestMemoryApi(unittest.TestCase):
     def test_get_memory(self) -> None:
         """Test case for get_memory
 
-        Get memories (paginated) [OSS + Cloud]
+        Get memories [OSS + Cloud]
         """
         pass
 
     def test_replace_tags(self) -> None:
         """Test case for replace_tags
 
-        Replace (overwrite) tags on memory items [Cloud]
+        Replace tags on memories [Cloud]
         """
         pass
 
@@ -83,10 +90,24 @@ class TestMemoryApi(unittest.TestCase):
         """
         pass
 
+    def test_submit_feedback(self) -> None:
+        """Test case for submit_feedback
+
+        Submit feedback about one memory [Cloud-only]
+        """
+        pass
+
     def test_unbind_tags(self) -> None:
         """Test case for unbind_tags
 
-        Unbind tags from memory items [Cloud]
+        Unbind tags from memories [Cloud]
+        """
+        pass
+
+    def test_update_memory(self) -> None:
+        """Test case for update_memory
+
+        Edit one memory record [Cloud-only]
         """
         pass
 

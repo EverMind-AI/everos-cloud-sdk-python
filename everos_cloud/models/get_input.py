@@ -29,10 +29,10 @@ class GetInput(BaseModel):
     """
     GetInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = Field(default='default', description="Scope to read from, defaulting to \"default\". Must match the pair used on write.")
-    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
-    user_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
-    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
+    app_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Scope to read from, defaulting to \"default\". Must match the pair used on write.")
+    project_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
+    user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
     memory_type: StrictStr = Field(description="Which kind of memory to list: \"episode\" (narrative summaries of past sessions), \"profile\" (stable identity and preferences), \"agent_case\" (a distilled past trajectory) or \"agent_skill\" (a reusable skill). It must match the owner — the mismatched pairings are rejected with 422.")
     page: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, description="1-based page number.")
     page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(default=20, description="Items per page, 1 to 100 (default 20).")

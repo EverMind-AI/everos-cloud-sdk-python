@@ -5,25 +5,25 @@ All URIs are relative to *https://api.evermind.ai*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**create_category**](KnowledgeApi.md#create_category) | **POST** /api/v2/knowledge_bases/{kb_id}/categories | Create a category
-[**create_document**](KnowledgeApi.md#create_document) | **POST** /api/v2/knowledge_bases/{kb_id}/documents | Upload a document (async ingest)
+[**create_document**](KnowledgeApi.md#create_document) | **POST** /api/v2/knowledge_bases/{kb_id}/documents | Upload a document
 [**create_knowledge_base**](KnowledgeApi.md#create_knowledge_base) | **POST** /api/v2/knowledge_bases | Create a knowledge base
 [**delete_category**](KnowledgeApi.md#delete_category) | **DELETE** /api/v2/knowledge_bases/{kb_id}/categories/{category_id} | Delete a category
-[**delete_document**](KnowledgeApi.md#delete_document) | **DELETE** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Delete a document (+ cascade nodes, P5)
+[**delete_document**](KnowledgeApi.md#delete_document) | **DELETE** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Delete a document
 [**delete_knowledge_base**](KnowledgeApi.md#delete_knowledge_base) | **DELETE** /api/v2/knowledge_bases/{kb_id} | Delete a knowledge base
-[**get_document**](KnowledgeApi.md#get_document) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Get a document (with topic_count)
+[**get_document**](KnowledgeApi.md#get_document) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Get a document
 [**get_knowledge_base**](KnowledgeApi.md#get_knowledge_base) | **GET** /api/v2/knowledge_bases/{kb_id} | Get a knowledge base
-[**get_topic**](KnowledgeApi.md#get_topic) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id} | Get a topic&#39;s full content (inline / S3 transparent)
-[**list_categories**](KnowledgeApi.md#list_categories) | **GET** /api/v2/knowledge_bases/{kb_id}/categories | List categories in a knowledge base
-[**list_documents**](KnowledgeApi.md#list_documents) | **GET** /api/v2/knowledge_bases/{kb_id}/documents | List documents in a knowledge base
+[**get_topic**](KnowledgeApi.md#get_topic) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id} | Get a topic
+[**list_categories**](KnowledgeApi.md#list_categories) | **GET** /api/v2/knowledge_bases/{kb_id}/categories | List categories
+[**list_documents**](KnowledgeApi.md#list_documents) | **GET** /api/v2/knowledge_bases/{kb_id}/documents | List documents
 [**list_knowledge_bases**](KnowledgeApi.md#list_knowledge_bases) | **GET** /api/v2/knowledge_bases | List knowledge bases
-[**list_topics**](KnowledgeApi.md#list_topics) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics | List a document&#39;s topic tree (optionally with each topic&#39;s content)
-[**list_topics_by_tags**](KnowledgeApi.md#list_topics_by_tags) | **GET** /api/v2/knowledge_bases/{kb_id}/topics | List tag-matched topics in a knowledge base
-[**query_related_tags**](KnowledgeApi.md#query_related_tags) | **POST** /api/v2/knowledge_bases/{kb_id}/tags | Count candidate tags used by live documents in a knowledge base
-[**replace_document**](KnowledgeApi.md#replace_document) | **PUT** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Replace a document (async, atomic swap)
-[**replace_topic_tags**](KnowledgeApi.md#replace_topic_tags) | **POST** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}/tag/replace | Replace the complete materialized semantic tag snapshot of a topic
-[**search_knowledge**](KnowledgeApi.md#search_knowledge) | **POST** /api/v2/knowledge_bases/{kb_id}/search | Search within a knowledge base (keyword / vector / hybrid)
+[**list_topics**](KnowledgeApi.md#list_topics) | **GET** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics | List a document&#39;s topics
+[**list_topics_by_tags**](KnowledgeApi.md#list_topics_by_tags) | **GET** /api/v2/knowledge_bases/{kb_id}/topics | List topics by tag
+[**query_related_tags**](KnowledgeApi.md#query_related_tags) | **POST** /api/v2/knowledge_bases/{kb_id}/tags | Count tag usage
+[**replace_document**](KnowledgeApi.md#replace_document) | **PUT** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Replace a document
+[**replace_topic_tags**](KnowledgeApi.md#replace_topic_tags) | **POST** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id}/topics/{topic_id}/tag/replace | Replace a topic&#39;s tags
+[**search_knowledge**](KnowledgeApi.md#search_knowledge) | **POST** /api/v2/knowledge_bases/{kb_id}/search | Search a knowledge base
 [**update_category**](KnowledgeApi.md#update_category) | **PATCH** /api/v2/knowledge_bases/{kb_id}/categories/{category_id} | Update a category
-[**update_document**](KnowledgeApi.md#update_document) | **PATCH** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Update document metadata (title / category)
+[**update_document**](KnowledgeApi.md#update_document) | **PATCH** /api/v2/knowledge_bases/{kb_id}/documents/{doc_id} | Update a document
 [**update_knowledge_base**](KnowledgeApi.md#update_knowledge_base) | **PATCH** /api/v2/knowledge_bases/{kb_id} | Update a knowledge base
 
 
@@ -32,7 +32,7 @@ Method | HTTP request | Description
 
 Create a category
 
-Add a category to this knowledge base's taxonomy. Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload. The category's description is not decoration — it is what the classifier matches against.
+Add a category to this knowledge base's taxonomy.  Categories are what a document is filed under: on ingest each document is classified into one of them, unless the caller pins `category_id` on the upload.  The category's description is not decoration — it is what the classifier matches a document against.
 
 ### Example
 
@@ -116,9 +116,9 @@ Name | Type | Description  | Notes
 # **create_document**
 > SuccessEnvelopeDocIngestData create_document(kb_id, doc_ingest_body)
 
-Upload a document (async ingest)
+Upload a document
 
-Upload a document for ingest. Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream — poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0. `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign, referenced by its object key as the content's `uri`. Omit `category_id` to let the server classify the document into this base's taxonomy.
+Upload a document for ingest.  Ingest is asynchronous at the gateway: it answers 202 with status \"queued\" and a `task_id`, and the document id is minted downstream. Poll GET /api/v2/tasks/{task_id}, then resolve the id from GET .../documents. Ingest is only truly complete once that document reports `topic_count` greater than 0.  - `content` is one content object: inline text, or a file already uploaded through POST /api/v2/object/sign and referenced by its object key as the content's `uri`. - `category_id` is optional — omit it to let the server classify the document into this base's taxonomy.
 
 ### Example
 
@@ -155,7 +155,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     doc_ingest_body = everos_cloud.DocIngestBody() # DocIngestBody | 
 
     try:
-        # Upload a document (async ingest)
+        # Upload a document
         api_response = api_instance.create_document(kb_id, doc_ingest_body)
         print("The response of KnowledgeApi->create_document:\n")
         pprint(api_response)
@@ -288,7 +288,7 @@ Name | Type | Description  | Notes
 
 Delete a category
 
-Delete a category from this knowledge base's taxonomy. Its documents are NOT deleted: they (and their topics) are reassigned to uncategorized first, then the category is soft-deleted. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
+Delete a category from this knowledge base's taxonomy.  Its documents are NOT deleted: they, and their topics, are reassigned to uncategorized first, then the category is soft-deleted.  Idempotent: deleting one that is already gone returns `deleted: false` rather than 404.
 
 ### Example
 
@@ -371,7 +371,7 @@ Name | Type | Description  | Notes
 # **delete_document**
 > SuccessEnvelopeDocDeleteData delete_document(kb_id, doc_id)
 
-Delete a document (+ cascade nodes, P5)
+Delete a document
 
 Soft-delete a document. Its topics and their search-index entries are removed with it, so nothing of the document stays searchable. Idempotent — deleting one that is already gone returns `deleted: false` rather than 404.
 
@@ -409,7 +409,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     doc_id = 'doc_id_example' # str | 
 
     try:
-        # Delete a document (+ cascade nodes, P5)
+        # Delete a document
         api_response = api_instance.delete_document(kb_id, doc_id)
         print("The response of KnowledgeApi->delete_document:\n")
         pprint(api_response)
@@ -458,7 +458,7 @@ Name | Type | Description  | Notes
 
 Delete a knowledge base
 
-Delete a knowledge base and everything under it: every document (with its topics, search-index entries and stored objects) and every category are soft-deleted first, then the base itself. Idempotent — deleting a base that is already gone returns `deleted: false` rather than 404.
+Delete a knowledge base and everything under it.  Every document — with its topics, search-index entries and stored objects — and every category are soft-deleted first, then the base itself.  Idempotent: deleting a base that is already gone returns `deleted: false` rather than 404.
 
 ### Example
 
@@ -539,9 +539,9 @@ Name | Type | Description  | Notes
 # **get_document**
 > SuccessEnvelopeDocData get_document(kb_id, doc_id)
 
-Get a document (with topic_count)
+Get a document
 
-Read one document's metadata, including how many topics were extracted from it — `topic_count` greater than 0 is also the authoritative signal that an async ingest finished. The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
+Read one document's metadata, including how many topics were extracted from it.  `topic_count` greater than 0 is also the authoritative signal that an async ingest finished.  The text itself lives in those topics; list them with GET .../documents/{doc_id}/topics.
 
 ### Example
 
@@ -577,7 +577,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     doc_id = 'doc_id_example' # str | 
 
     try:
-        # Get a document (with topic_count)
+        # Get a document
         api_response = api_instance.get_document(kb_id, doc_id)
         print("The response of KnowledgeApi->get_document:\n")
         pprint(api_response)
@@ -707,7 +707,7 @@ Name | Type | Description  | Notes
 # **get_topic**
 > SuccessEnvelopeTopicDetailData get_topic(kb_id, doc_id, topic_id)
 
-Get a topic's full content (inline / S3 transparent)
+Get a topic
 
 Read one topic's full content. Storage is transparent to the caller: content held inline and content held in object storage are returned the same way.
 
@@ -746,7 +746,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     topic_id = 'topic_id_example' # str | 
 
     try:
-        # Get a topic's full content (inline / S3 transparent)
+        # Get a topic
         api_response = api_instance.get_topic(kb_id, doc_id, topic_id)
         print("The response of KnowledgeApi->get_topic:\n")
         pprint(api_response)
@@ -795,7 +795,7 @@ Name | Type | Description  | Notes
 # **list_categories**
 > SuccessEnvelopeCategoryListData list_categories(kb_id)
 
-List categories in a knowledge base
+List categories
 
 List this knowledge base's categories — both the ones created here and the tenant-global presets — each with the number of documents filed under it.
 
@@ -832,7 +832,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     kb_id = 'kb_id_example' # str | 
 
     try:
-        # List categories in a knowledge base
+        # List categories
         api_response = api_instance.list_categories(kb_id)
         print("The response of KnowledgeApi->list_categories:\n")
         pprint(api_response)
@@ -878,7 +878,7 @@ Name | Type | Description  | Notes
 # **list_documents**
 > SuccessEnvelopeDocListData list_documents(kb_id, category_id=category_id, page=page, page_size=page_size)
 
-List documents in a knowledge base
+List documents
 
 Paginated list of the documents in a knowledge base, each with its category and topic count. Filterable by category.
 
@@ -918,7 +918,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     page_size = 20 # int |  (optional) (default to 20)
 
     try:
-        # List documents in a knowledge base
+        # List documents
         api_response = api_instance.list_documents(kb_id, category_id=category_id, page=page, page_size=page_size)
         print("The response of KnowledgeApi->list_documents:\n")
         pprint(api_response)
@@ -1054,9 +1054,9 @@ Name | Type | Description  | Notes
 # **list_topics**
 > SuccessEnvelopeTopicListData list_topics(kb_id, doc_id, include=include)
 
-List a document's topic tree (optionally with each topic's content)
+List a document's topics
 
-List a document's topic tree — the sections an LLM extracted from it — flat and already in depth-first order; build the tree from each item's `parent_id`. The list includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. Bodies are omitted by default; ask for `content` in `include` to hydrate every item, which can enlarge the response by orders of magnitude.
+List a document's topic tree — the sections an LLM extracted from it.  The list is flat and already in depth-first order; build the tree from each item's `parent_id`.  - It includes one synthetic document-root item (`type` \"root\"), so it returns exactly one more item than the document's `topic_count`, which counts real topics only. - Bodies are omitted by default. Ask for `content` in `include` to hydrate every item — that can enlarge the response by orders of magnitude.
 
 ### Example
 
@@ -1093,7 +1093,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     include = ['include_example'] # List[Optional[str]] | Extra fields to hydrate, e.g. `include=content` for full bodies (optional)
 
     try:
-        # List a document's topic tree (optionally with each topic's content)
+        # List a document's topics
         api_response = api_instance.list_topics(kb_id, doc_id, include=include)
         print("The response of KnowledgeApi->list_topics:\n")
         pprint(api_response)
@@ -1141,9 +1141,9 @@ Name | Type | Description  | Notes
 # **list_topics_by_tags**
 > SuccessEnvelopeTopicFilterListData list_topics_by_tags(kb_id, tag_ids, page=page, page_size=page_size)
 
-List tag-matched topics in a knowledge base
+List topics by tag
 
-Filter live topics by their own materialized tag set. Every requested id must occur on the same topic (ALL semantics); total is counted before paging.
+List the topics that carry every one of the given tags.  This is a hard filter, not a ranking: a topic is returned only if it has all of the tags you asked for, and `total` counts every match before paging.
 
 ### Example
 
@@ -1181,7 +1181,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     page_size = 20 # int | Items per page, 1 to 100 (default 20). (optional) (default to 20)
 
     try:
-        # List tag-matched topics in a knowledge base
+        # List topics by tag
         api_response = api_instance.list_topics_by_tags(kb_id, tag_ids, page=page, page_size=page_size)
         print("The response of KnowledgeApi->list_topics_by_tags:\n")
         pprint(api_response)
@@ -1230,9 +1230,9 @@ Name | Type | Description  | Notes
 # **query_related_tags**
 > SuccessEnvelopeRelatedTagUsageListData query_related_tags(kb_id, related_tag_usage_body)
 
-Count candidate tags used by live documents in a knowledge base
+Count tag usage
 
-Returns requested opaque tag ids used by live topics of live documents. Counts are distinct by document and items are sorted by id. The bounded multi-command Mongo read is not a point-in-time snapshot across concurrent lifecycle writes.
+Count how many documents use each of the given tags, within one knowledge base.  Send the tag ids you are interested in. The response returns those actually in use, sorted by id, each with a count of the distinct documents carrying it.  Counts are read across several queries rather than from one snapshot, so a tag added or removed at that exact moment may be counted either way.
 
 ### Example
 
@@ -1269,7 +1269,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     related_tag_usage_body = everos_cloud.RelatedTagUsageBody() # RelatedTagUsageBody | 
 
     try:
-        # Count candidate tags used by live documents in a knowledge base
+        # Count tag usage
         api_response = api_instance.query_related_tags(kb_id, related_tag_usage_body)
         print("The response of KnowledgeApi->query_related_tags:\n")
         pprint(api_response)
@@ -1316,9 +1316,9 @@ Name | Type | Description  | Notes
 # **replace_document**
 > SuccessEnvelopeDocIngestData replace_document(kb_id, doc_id, doc_ingest_body)
 
-Replace a document (async, atomic swap)
+Replace a document
 
-Re-ingest content under an existing document id. Same asynchronous contract as upload (202 with `status` and `task_id`), and idempotent per document id — the same replace applied twice leaves the same state. As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
+Re-ingest content under an existing document id.  Same asynchronous contract as upload — 202 with `status` and `task_id` — and idempotent per document id: the same replace applied twice leaves the same state.  As with upload, completion is authoritative from GET .../documents/{doc_id} reporting `topic_count` greater than 0.
 
 ### Example
 
@@ -1356,7 +1356,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     doc_ingest_body = everos_cloud.DocIngestBody() # DocIngestBody | 
 
     try:
-        # Replace a document (async, atomic swap)
+        # Replace a document
         api_response = api_instance.replace_document(kb_id, doc_id, doc_ingest_body)
         print("The response of KnowledgeApi->replace_document:\n")
         pprint(api_response)
@@ -1404,9 +1404,9 @@ Name | Type | Description  | Notes
 # **replace_topic_tags**
 > SuccessEnvelopeTopicTagWriteData replace_topic_tags(kb_id, doc_id, topic_id, topic_tag_replace_body)
 
-Replace the complete materialized semantic tag snapshot of a topic
+Replace a topic's tags
 
-version is the expected current tag_version. Cloud stable-deduplicates the request and stores the first 50 ids; requests with 51-100 distinct ids succeed with structured truncation metadata. Identical snapshots are no-ops and do not advance the version.
+Replace a topic's entire tag set with the ids you send.  `version` is the tag version you expect the topic to be at. The write is rejected if it has moved on, so a concurrent update cannot be silently lost.  - Duplicate ids collapse, and the first 50 distinct ids are stored. Sending 51–100 still succeeds — the response reports what was dropped. - Sending the set a topic already carries is a no-op and does not advance the version.
 
 ### Example
 
@@ -1445,7 +1445,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     topic_tag_replace_body = everos_cloud.TopicTagReplaceBody() # TopicTagReplaceBody | 
 
     try:
-        # Replace the complete materialized semantic tag snapshot of a topic
+        # Replace a topic's tags
         api_response = api_instance.replace_topic_tags(kb_id, doc_id, topic_id, topic_tag_replace_body)
         print("The response of KnowledgeApi->replace_topic_tags:\n")
         pprint(api_response)
@@ -1497,9 +1497,9 @@ Name | Type | Description  | Notes
 # **search_knowledge**
 > SuccessEnvelopeKbSearchData search_knowledge(kb_id, search_body)
 
-Search within a knowledge base (keyword / vector / hybrid)
+Search a knowledge base
 
-Search within one knowledge base (keyword, vector or hybrid). The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call. Topic bodies are omitted by default; ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
+Search within one knowledge base, by keyword, vector or hybrid retrieval.  The unit of retrieval is the topic, not the document: each hit carries its parent document's title and summary, so rendering a result needs no second call.  Topic bodies are omitted by default — ask for `content` in `include` to inline them, or drill down with GET .../documents/{doc_id}/topics/{topic_id}.
 
 ### Example
 
@@ -1536,7 +1536,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     search_body = everos_cloud.SearchBody() # SearchBody | 
 
     try:
-        # Search within a knowledge base (keyword / vector / hybrid)
+        # Search a knowledge base
         api_response = api_instance.search_knowledge(kb_id, search_body)
         print("The response of KnowledgeApi->search_knowledge:\n")
         pprint(api_response)
@@ -1671,7 +1671,7 @@ Name | Type | Description  | Notes
 # **update_document**
 > SuccessEnvelopeDocPatchData update_document(kb_id, doc_id, doc_patch_body)
 
-Update document metadata (title / category)
+Update a document
 
 Patch a document's metadata — its title, or the category it is filed under. Content is not editable here: re-ingest with PUT .../documents/{doc_id} to change it. The response lists which fields actually changed.
 
@@ -1711,7 +1711,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     doc_patch_body = everos_cloud.DocPatchBody() # DocPatchBody | 
 
     try:
-        # Update document metadata (title / category)
+        # Update a document
         api_response = api_instance.update_document(kb_id, doc_id, doc_patch_body)
         print("The response of KnowledgeApi->update_document:\n")
         pprint(api_response)

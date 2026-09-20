@@ -18,23 +18,29 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from everos_cloud.models.add_input import AddInput
+from everos_cloud.models.delete_by_ids_input import DeleteByIdsInput
 from everos_cloud.models.delete_input import DeleteInput
 from everos_cloud.models.edit_input import EditInput
+from everos_cloud.models.feedback_input import FeedbackInput
 from everos_cloud.models.flush_input import FlushInput
 from everos_cloud.models.get_input import GetInput
 from everos_cloud.models.search_input import SearchInput
 from everos_cloud.models.success_envelope_add_data import SuccessEnvelopeAddData
+from everos_cloud.models.success_envelope_delete_by_ids_data import SuccessEnvelopeDeleteByIdsData
 from everos_cloud.models.success_envelope_delete_data import SuccessEnvelopeDeleteData
 from everos_cloud.models.success_envelope_edit_data import SuccessEnvelopeEditData
+from everos_cloud.models.success_envelope_feedback_data import SuccessEnvelopeFeedbackData
 from everos_cloud.models.success_envelope_flush_data import SuccessEnvelopeFlushData
 from everos_cloud.models.success_envelope_get_data import SuccessEnvelopeGetData
 from everos_cloud.models.success_envelope_search_data import SuccessEnvelopeSearchData
 from everos_cloud.models.success_envelope_tag_bind_data import SuccessEnvelopeTagBindData
 from everos_cloud.models.success_envelope_tag_replace_data import SuccessEnvelopeTagReplaceData
 from everos_cloud.models.success_envelope_tag_unbind_data import SuccessEnvelopeTagUnbindData
+from everos_cloud.models.success_envelope_update_data import SuccessEnvelopeUpdateData
 from everos_cloud.models.tag_bind_input import TagBindInput
 from everos_cloud.models.tag_replace_input import TagReplaceInput
 from everos_cloud.models.tag_unbind_input import TagUnbindInput
+from everos_cloud.models.update_input import UpdateInput
 
 from everos_cloud.api_client import ApiClient, RequestSerialized
 from everos_cloud.api_response import ApiResponse
@@ -73,7 +79,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeAddData:
         """Add messages [OSS + Cloud]
 
-        Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
+        Append conversation messages to a session's working memory. One call carries 1–500 messages.  The write is asynchronous by default (`async_mode` true): the gateway validates and enqueues it, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead.  Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush.
 
         :param add_input: (required)
         :type add_input: AddInput
@@ -146,7 +152,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeAddData]:
         """Add messages [OSS + Cloud]
 
-        Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
+        Append conversation messages to a session's working memory. One call carries 1–500 messages.  The write is asynchronous by default (`async_mode` true): the gateway validates and enqueues it, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead.  Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush.
 
         :param add_input: (required)
         :type add_input: AddInput
@@ -219,7 +225,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Add messages [OSS + Cloud]
 
-        Append conversation messages to a session's working memory. Asynchronous by default (`async_mode` true): the gateway validates and enqueues the write, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead. Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush. One call carries 1–500 messages.
+        Append conversation messages to a session's working memory. One call carries 1–500 messages.  The write is asynchronous by default (`async_mode` true): the gateway validates and enqueues it, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead.  Distillation into long-term memory is always asynchronous — it runs on a session boundary, or when you call /api/v2/memory/flush.
 
         :param add_input: (required)
         :type add_input: AddInput
@@ -363,9 +369,9 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTagBindData:
-        """Bind tags to memory items [Cloud]
+        """Bind tags to memories [Cloud]
 
-        Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
+        Add tags to existing memories, keeping the tags they already carry.  Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence.  Idempotent, and batched over memory_ids × tags.
 
         :param tag_bind_input: (required)
         :type tag_bind_input: TagBindInput
@@ -435,9 +441,9 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTagBindData]:
-        """Bind tags to memory items [Cloud]
+        """Bind tags to memories [Cloud]
 
-        Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
+        Add tags to existing memories, keeping the tags they already carry.  Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence.  Idempotent, and batched over memory_ids × tags.
 
         :param tag_bind_input: (required)
         :type tag_bind_input: TagBindInput
@@ -507,9 +513,9 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Bind tags to memory items [Cloud]
+        """Bind tags to memories [Cloud]
 
-        Add tags to existing memories, keeping the tags they already carry. Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence. Idempotent, and batched over memory_ids x tags.
+        Add tags to existing memories, keeping the tags they already carry.  Tags are scoped by the memory ids themselves — pass `memory_type` plus the ids, not an app or project scope. Tags are created by use: binding a name that does not exist yet is how it comes into existence.  Idempotent, and batched over memory_ids × tags.
 
         :param tag_bind_input: (required)
         :type tag_bind_input: TagBindInput
@@ -636,6 +642,295 @@ class MemoryApi:
 
 
     @validate_call
+    def delete_memories_by_ids(
+        self,
+        delete_by_ids_input: DeleteByIdsInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeDeleteByIdsData:
+        """Soft-delete memory records by id [Cloud-only]
+
+        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+
+        :param delete_by_ids_input: (required)
+        :type delete_by_ids_input: DeleteByIdsInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_memories_by_ids_serialize(
+            delete_by_ids_input=delete_by_ids_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeDeleteByIdsData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_memories_by_ids_with_http_info(
+        self,
+        delete_by_ids_input: DeleteByIdsInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeDeleteByIdsData]:
+        """Soft-delete memory records by id [Cloud-only]
+
+        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+
+        :param delete_by_ids_input: (required)
+        :type delete_by_ids_input: DeleteByIdsInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_memories_by_ids_serialize(
+            delete_by_ids_input=delete_by_ids_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeDeleteByIdsData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_memories_by_ids_without_preload_content(
+        self,
+        delete_by_ids_input: DeleteByIdsInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Soft-delete memory records by id [Cloud-only]
+
+        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+
+        :param delete_by_ids_input: (required)
+        :type delete_by_ids_input: DeleteByIdsInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_memories_by_ids_serialize(
+            delete_by_ids_input=delete_by_ids_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeDeleteByIdsData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_memories_by_ids_serialize(
+        self,
+        delete_by_ids_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if delete_by_ids_input is not None:
+            _body_params = delete_by_ids_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/delete_by_ids',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def delete_memory(
         self,
         delete_input: DeleteInput,
@@ -654,7 +949,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeDeleteData:
         """Delete memories [Cloud-only]
 
-        Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
+        Soft-delete memories within a scope.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive.  The response echoes which scope filters were applied and how many records were removed across all memory types.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -726,7 +1021,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeDeleteData]:
         """Delete memories [Cloud-only]
 
-        Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
+        Soft-delete memories within a scope.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive.  The response echoes which scope filters were applied and how many records were removed across all memory types.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -798,7 +1093,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Delete memories [Cloud-only]
 
-        Soft-delete memories within a scope. At least one of `user_id`, `agent_id` or `session_id` is required (an empty body is rejected with 422), and `user_id` / `agent_id` are mutually exclusive. The response echoes which scope filters were applied and how many records were removed across all memory types.
+        Soft-delete memories within a scope.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive.  The response echoes which scope filters were applied and how many records were removed across all memory types.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -943,7 +1238,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeEditData:
         """Edit profile items [Cloud-only]
 
-        Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
+        Apply 1–50 edits to one user's profile in a single call.  Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`.  Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.  To change an episode's narrative, summary or subject, use /api/v2/memory/update instead.
 
         :param edit_input: (required)
         :type edit_input: EditInput
@@ -1015,7 +1310,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeEditData]:
         """Edit profile items [Cloud-only]
 
-        Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
+        Apply 1–50 edits to one user's profile in a single call.  Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`.  Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.  To change an episode's narrative, summary or subject, use /api/v2/memory/update instead.
 
         :param edit_input: (required)
         :type edit_input: EditInput
@@ -1087,7 +1382,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Edit profile items [Cloud-only]
 
-        Apply 1–50 edits to one user's profile in a single call. Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`. Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.
+        Apply 1–50 edits to one user's profile in a single call.  Each operation carries an `action` (add, update or delete), a `type` (explicit_info or implicit_traits), the item `data`, and an optional `reason`.  Profile is the only memory type this endpoint edits — `memory_type` is pinned to \"profile\"; every other type is produced by extraction. Operations are reported individually in the response, so some can be rejected while others apply.  To change an episode's narrative, summary or subject, use /api/v2/memory/update instead.
 
         :param edit_input: (required)
         :type edit_input: EditInput
@@ -1232,7 +1527,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeFlushData:
         """Force memory extraction [OSS + Cloud]
 
-        Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
+        Force extraction for a session instead of waiting for a boundary.  - `\"extracted\"` — memories were distilled. - `\"no_extraction\"` — there was nothing to extract.  A default (async) add that is still queued yields `\"no_extraction\"`, so either write with `async_mode: false` or poll the add's task before flushing.
 
         :param flush_input: (required)
         :type flush_input: FlushInput
@@ -1304,7 +1599,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeFlushData]:
         """Force memory extraction [OSS + Cloud]
 
-        Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
+        Force extraction for a session instead of waiting for a boundary.  - `\"extracted\"` — memories were distilled. - `\"no_extraction\"` — there was nothing to extract.  A default (async) add that is still queued yields `\"no_extraction\"`, so either write with `async_mode: false` or poll the add's task before flushing.
 
         :param flush_input: (required)
         :type flush_input: FlushInput
@@ -1376,7 +1671,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Force memory extraction [OSS + Cloud]
 
-        Force extraction for a session instead of waiting for a boundary. Returns status \"extracted\" when memories were distilled and \"no_extraction\" when there was nothing to extract — note that a default (async) add that is still queued yields \"no_extraction\", so either write with `async_mode: false` or poll the add's task before flushing.
+        Force extraction for a session instead of waiting for a boundary.  - `\"extracted\"` — memories were distilled. - `\"no_extraction\"` — there was nothing to extract.  A default (async) add that is still queued yields `\"no_extraction\"`, so either write with `async_mode: false` or poll the add's task before flushing.
 
         :param flush_input: (required)
         :type flush_input: FlushInput
@@ -1519,9 +1814,9 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeGetData:
-        """Get memories (paginated) [OSS + Cloud]
+        """Get memories [OSS + Cloud]
 
-        List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
+        List stored memories of one type, paginated.  - Exactly one of `user_id` / `agent_id` is required. - `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\". The other pairings are rejected with 422.  This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted — whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
 
         :param get_input: (required)
         :type get_input: GetInput
@@ -1591,9 +1886,9 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeGetData]:
-        """Get memories (paginated) [OSS + Cloud]
+        """Get memories [OSS + Cloud]
 
-        List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
+        List stored memories of one type, paginated.  - Exactly one of `user_id` / `agent_id` is required. - `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\". The other pairings are rejected with 422.  This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted — whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
 
         :param get_input: (required)
         :type get_input: GetInput
@@ -1663,9 +1958,9 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get memories (paginated) [OSS + Cloud]
+        """Get memories [OSS + Cloud]
 
-        List stored memories of one type, paginated. Exactly one of `user_id` / `agent_id` is required, and `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\" — the other pairings are rejected with 422. This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted, whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
+        List stored memories of one type, paginated.  - Exactly one of `user_id` / `agent_id` is required. - `memory_type` must match that owner: a user owns \"episode\" and \"profile\", an agent owns \"agent_case\" and \"agent_skill\". The other pairings are rejected with 422.  This is a structured read, not a query: it does not embed the request, so a memory is readable as soon as it is extracted — whereas the vector index /api/v2/memory/search relies on lags behind extraction by seconds.
 
         :param get_input: (required)
         :type get_input: GetInput
@@ -1808,7 +2103,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTagReplaceData:
-        """Replace (overwrite) tags on memory items [Cloud]
+        """Replace tags on memories [Cloud]
 
         Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
@@ -1880,7 +2175,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTagReplaceData]:
-        """Replace (overwrite) tags on memory items [Cloud]
+        """Replace tags on memories [Cloud]
 
         Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
@@ -1952,7 +2247,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Replace (overwrite) tags on memory items [Cloud]
+        """Replace tags on memories [Cloud]
 
         Overwrite the tag set on the given memories: tags absent from the request are dropped, and an empty `tags` list clears them all. Use /api/v2/memory/tag/bind to add without removing.
 
@@ -2099,7 +2394,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeSearchData:
         """Search memories [OSS + Cloud]
 
-        Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
+        Retrieve the memories relevant to a query.  Exactly one of `user_id` / `agent_id` is required, and it decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply.  The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
 
         :param search_input: (required)
         :type search_input: SearchInput
@@ -2171,7 +2466,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeSearchData]:
         """Search memories [OSS + Cloud]
 
-        Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
+        Retrieve the memories relevant to a query.  Exactly one of `user_id` / `agent_id` is required, and it decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply.  The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
 
         :param search_input: (required)
         :type search_input: SearchInput
@@ -2243,7 +2538,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Search memories [OSS + Cloud]
 
-        Retrieve the memories relevant to a query. Exactly one of `user_id` / `agent_id` is required and decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply. The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
+        Retrieve the memories relevant to a query.  Exactly one of `user_id` / `agent_id` is required, and it decides what comes back: a user owner returns episodes (plus profiles with `include_profile`), an agent owner returns agent cases and skills. All result collections are always present in the response, empty when they do not apply.  The vector-backed methods read an index that lags extraction by seconds — to read back something just extracted, use /api/v2/memory/get.
 
         :param search_input: (required)
         :type search_input: SearchInput
@@ -2370,6 +2665,295 @@ class MemoryApi:
 
 
     @validate_call
+    def submit_feedback(
+        self,
+        feedback_input: FeedbackInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeFeedbackData:
+        """Submit feedback about one memory [Cloud-only]
+
+        Rate one memory — an episode, a profile item, an agent case or an agent skill — as `positive` or `negative`, optionally saying why.  - Address the target the way /api/v2/memory/get or /search returned it: `memory_type` + `memory_id`, plus `item_id` for a profile (required there, rejected for the other kinds). - `reason` and `suggestion` go with negative ratings only; `note` is free text on either. - A target that does not exist, is deleted, or belongs to another tenant is rejected with 404.  Recording is not applying: nothing about the memory is updated, deleted, suppressed or re-indexed. The response is the id of the stored signal.
+
+        :param feedback_input: (required)
+        :type feedback_input: FeedbackInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._submit_feedback_serialize(
+            feedback_input=feedback_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeFeedbackData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def submit_feedback_with_http_info(
+        self,
+        feedback_input: FeedbackInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeFeedbackData]:
+        """Submit feedback about one memory [Cloud-only]
+
+        Rate one memory — an episode, a profile item, an agent case or an agent skill — as `positive` or `negative`, optionally saying why.  - Address the target the way /api/v2/memory/get or /search returned it: `memory_type` + `memory_id`, plus `item_id` for a profile (required there, rejected for the other kinds). - `reason` and `suggestion` go with negative ratings only; `note` is free text on either. - A target that does not exist, is deleted, or belongs to another tenant is rejected with 404.  Recording is not applying: nothing about the memory is updated, deleted, suppressed or re-indexed. The response is the id of the stored signal.
+
+        :param feedback_input: (required)
+        :type feedback_input: FeedbackInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._submit_feedback_serialize(
+            feedback_input=feedback_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeFeedbackData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def submit_feedback_without_preload_content(
+        self,
+        feedback_input: FeedbackInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Submit feedback about one memory [Cloud-only]
+
+        Rate one memory — an episode, a profile item, an agent case or an agent skill — as `positive` or `negative`, optionally saying why.  - Address the target the way /api/v2/memory/get or /search returned it: `memory_type` + `memory_id`, plus `item_id` for a profile (required there, rejected for the other kinds). - `reason` and `suggestion` go with negative ratings only; `note` is free text on either. - A target that does not exist, is deleted, or belongs to another tenant is rejected with 404.  Recording is not applying: nothing about the memory is updated, deleted, suppressed or re-indexed. The response is the id of the stored signal.
+
+        :param feedback_input: (required)
+        :type feedback_input: FeedbackInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._submit_feedback_serialize(
+            feedback_input=feedback_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeFeedbackData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _submit_feedback_serialize(
+        self,
+        feedback_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if feedback_input is not None:
+            _body_params = feedback_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/feedback',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def unbind_tags(
         self,
         tag_unbind_input: TagUnbindInput,
@@ -2386,7 +2970,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeTagUnbindData:
-        """Unbind tags from memory items [Cloud]
+        """Unbind tags from memories [Cloud]
 
         Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
@@ -2458,7 +3042,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeTagUnbindData]:
-        """Unbind tags from memory items [Cloud]
+        """Unbind tags from memories [Cloud]
 
         Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
@@ -2530,7 +3114,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Unbind tags from memory items [Cloud]
+        """Unbind tags from memories [Cloud]
 
         Remove the given tags from the given memories, leaving their other tags in place. Idempotent: unbinding a tag an item does not carry still counts as matched.
 
@@ -2643,6 +3227,295 @@ class MemoryApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/api/v2/memory/tag/unbind',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def update_memory(
+        self,
+        update_input: UpdateInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeUpdateData:
+        """Edit one memory record [Cloud-only]
+
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+
+        :param update_input: (required)
+        :type update_input: UpdateInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_memory_serialize(
+            update_input=update_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeUpdateData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def update_memory_with_http_info(
+        self,
+        update_input: UpdateInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeUpdateData]:
+        """Edit one memory record [Cloud-only]
+
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+
+        :param update_input: (required)
+        :type update_input: UpdateInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_memory_serialize(
+            update_input=update_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeUpdateData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def update_memory_without_preload_content(
+        self,
+        update_input: UpdateInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Edit one memory record [Cloud-only]
+
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+
+        :param update_input: (required)
+        :type update_input: UpdateInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_memory_serialize(
+            update_input=update_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeUpdateData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _update_memory_serialize(
+        self,
+        update_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if update_input is not None:
+            _body_params = update_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/update',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

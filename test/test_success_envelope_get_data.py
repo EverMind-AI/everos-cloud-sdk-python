@@ -61,7 +61,9 @@ class TestSuccessEnvelopeGetData(unittest.TestCase):
                                 ], 
                             tags = [
                                 ''
-                                ], )
+                                ], 
+                            edited_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                            reflect_state = 'pending', )
                         ], 
                     profiles = [
                         everos_cloud.models.profile_item.ProfileItem(
@@ -133,7 +135,9 @@ class TestSuccessEnvelopeGetData(unittest.TestCase):
                                 ], 
                             tags = [
                                 ''
-                                ], )
+                                ], 
+                            edited_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                            reflect_state = 'pending', )
                         ], 
                     profiles = [
                         everos_cloud.models.profile_item.ProfileItem(

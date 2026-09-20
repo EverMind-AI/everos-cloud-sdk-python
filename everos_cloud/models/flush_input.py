@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,9 +28,9 @@ class FlushInput(BaseModel):
     """
     FlushInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = Field(default='default', description="Scope the session lives in, defaulting to \"default\".")
-    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
-    session_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The session to extract from. Only messages already accumulated for this session are considered, so a still-queued async add yields \"no_extraction\".")
+    app_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Scope the session lives in, defaulting to \"default\".")
+    project_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
+    session_id: Annotated[str, Field(min_length=1, strict=True, max_length=256)] = Field(description="The session to extract from. Only messages already accumulated for this session are considered, so a still-queued async add yields \"no_extraction\".")
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "session_id"]
 

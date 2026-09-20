@@ -44,7 +44,7 @@ class TestAddInput(unittest.TestCase):
                         sender_id = '', 
                         sender_name = '', 
                         role = 'user', 
-                        timestamp = 56, 
+                        timestamp = 1000000000000, 
                         content = null, 
                         tool_calls = [
                             everos_cloud.models.tool_call.ToolCall(
@@ -66,7 +66,7 @@ class TestAddInput(unittest.TestCase):
                         sender_id = '', 
                         sender_name = '', 
                         role = 'user', 
-                        timestamp = 56, 
+                        timestamp = 1000000000000, 
                         content = null, 
                         tool_calls = [
                             everos_cloud.models.tool_call.ToolCall(

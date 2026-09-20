@@ -29,10 +29,10 @@ class SearchInput(BaseModel):
     """
     SearchInput
     """ # noqa: E501
-    app_id: Optional[StrictStr] = Field(default='default', description="Scope to search in, defaulting to \"default\". Must match the pair used on write.")
-    project_id: Optional[StrictStr] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
-    user_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
-    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None
+    app_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Scope to search in, defaulting to \"default\". Must match the pair used on write.")
+    project_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
+    user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
     query: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The natural-language query to retrieve against.")
     method: Optional[StrictStr] = Field(default='hybrid', description="Retrieval strategy. \"keyword\" is lexical, \"vector\" is embedding similarity, \"hybrid\" (default) combines both, and \"agentic\" lets the engine run a multi-round LLM-guided retrieval — more thorough, slower.")
     top_k: Optional[StrictInt] = Field(default=-1, description="Maximum number of hits. Either -1 (the default, letting the engine decide) or a value from 1 to 100; anything else is rejected with 422.")

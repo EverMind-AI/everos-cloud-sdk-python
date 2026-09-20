@@ -24,7 +24,7 @@ from setuptools import setup, find_packages  # noqa: H301
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 NAME = "everos-cloud"
-VERSION = "1.1.0"
+VERSION = "1.2.0-rc1"
 # Floor = the oldest interpreter CI actually runs (see .github/workflows/ci.yml in
 # the public repo). Nothing in the generated code needs it this high — the tree
 # parses as 3.8 — so this is a support policy, not a technical bound, and it is set

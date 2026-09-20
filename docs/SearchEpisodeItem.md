@@ -19,6 +19,8 @@ Name | Type | Description | Notes
 **type** | **str** | How the episode was produced — \&quot;Conversation\&quot; or \&quot;AgentConversation\&quot;. | 
 **atomic_facts** | [**List[SearchAtomicFactItem]**](SearchAtomicFactItem.md) | The facts extracted from this episode, each with its own relevance score. | [optional] 
 **tags** | **List[str]** | Tags attached through /api/v2/memory/tag/*. | [optional] 
+**edited_at** | **datetime** |  | [optional] 
+**reflect_state** | **str** |  | [optional] 
 **score** | **float** | Relevance of this episode to the query. What the number means depends on &#x60;method&#x60;: the hybrid path fuses its two routes into a probability in 0.0–1.0 (which is what &#x60;min_score&#x60; filters on), while keyword and vector pass the underlying engine&#39;s own score through — BM25 has no upper bound and vector similarity depends on the metric. So compare scores within one method, not across methods. | 
 
 ## Example

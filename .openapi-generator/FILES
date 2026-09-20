@@ -16,6 +16,8 @@ docs/Content1.md
 docs/ContentItem.md
 docs/Data.md
 docs/Data1.md
+docs/DeleteByIdsData.md
+docs/DeleteByIdsInput.md
 docs/DeleteData.md
 docs/DeleteInput.md
 docs/DeleteOperation.md
@@ -34,10 +36,13 @@ docs/EditResultItem.md
 docs/Envelope.md
 docs/EnvelopeResult.md
 docs/EpisodeItem.md
+docs/EpisodePatch.md
 docs/ErrorBody.md
 docs/ErrorEnvelope.md
 docs/ExplicitInfoData.md
 docs/ExplicitInfoPatch.md
+docs/FeedbackData.md
+docs/FeedbackInput.md
 docs/FilterNode.md
 docs/FlushData.md
 docs/FlushInput.md
@@ -56,6 +61,7 @@ docs/KnowledgeApi.md
 docs/MemoryApi.md
 docs/MessageItem.md
 docs/ProfileItem.md
+docs/Reason.md
 docs/RelatedTagUsageBody.md
 docs/RelatedTagUsageItem.md
 docs/RelatedTagUsageListData.md
@@ -81,6 +87,7 @@ docs/SuccessEnvelopeAddData.md
 docs/SuccessEnvelopeCategoryData.md
 docs/SuccessEnvelopeCategoryDeleteData.md
 docs/SuccessEnvelopeCategoryListData.md
+docs/SuccessEnvelopeDeleteByIdsData.md
 docs/SuccessEnvelopeDeleteData.md
 docs/SuccessEnvelopeDocData.md
 docs/SuccessEnvelopeDocDeleteData.md
@@ -88,6 +95,7 @@ docs/SuccessEnvelopeDocIngestData.md
 docs/SuccessEnvelopeDocListData.md
 docs/SuccessEnvelopeDocPatchData.md
 docs/SuccessEnvelopeEditData.md
+docs/SuccessEnvelopeFeedbackData.md
 docs/SuccessEnvelopeFlushData.md
 docs/SuccessEnvelopeGetData.md
 docs/SuccessEnvelopeKbData.md
@@ -103,6 +111,7 @@ docs/SuccessEnvelopeTopicDetailData.md
 docs/SuccessEnvelopeTopicFilterListData.md
 docs/SuccessEnvelopeTopicListData.md
 docs/SuccessEnvelopeTopicTagWriteData.md
+docs/SuccessEnvelopeUpdateData.md
 docs/TagBindData.md
 docs/TagBindInput.md
 docs/TagRef.md
@@ -130,6 +139,8 @@ docs/TopicListItem.md
 docs/TopicTagReplaceBody.md
 docs/TopicTagWriteData.md
 docs/UnprocessedMessageDTO.md
+docs/UpdateData.md
+docs/UpdateInput.md
 docs/UpdateOperation.md
 docs/ValidationError.md
 docs/ValidationErrorLocInner.md
@@ -160,6 +171,8 @@ everos_cloud/models/content1.py
 everos_cloud/models/content_item.py
 everos_cloud/models/data.py
 everos_cloud/models/data1.py
+everos_cloud/models/delete_by_ids_data.py
+everos_cloud/models/delete_by_ids_input.py
 everos_cloud/models/delete_data.py
 everos_cloud/models/delete_input.py
 everos_cloud/models/delete_operation.py
@@ -178,10 +191,13 @@ everos_cloud/models/edit_result_item.py
 everos_cloud/models/envelope.py
 everos_cloud/models/envelope_result.py
 everos_cloud/models/episode_item.py
+everos_cloud/models/episode_patch.py
 everos_cloud/models/error_body.py
 everos_cloud/models/error_envelope.py
 everos_cloud/models/explicit_info_data.py
 everos_cloud/models/explicit_info_patch.py
+everos_cloud/models/feedback_data.py
+everos_cloud/models/feedback_input.py
 everos_cloud/models/filter_node.py
 everos_cloud/models/flush_data.py
 everos_cloud/models/flush_input.py
@@ -198,6 +214,7 @@ everos_cloud/models/kb_patch_body.py
 everos_cloud/models/kb_search_data.py
 everos_cloud/models/message_item.py
 everos_cloud/models/profile_item.py
+everos_cloud/models/reason.py
 everos_cloud/models/related_tag_usage_body.py
 everos_cloud/models/related_tag_usage_item.py
 everos_cloud/models/related_tag_usage_list_data.py
@@ -222,6 +239,7 @@ everos_cloud/models/success_envelope_add_data.py
 everos_cloud/models/success_envelope_category_data.py
 everos_cloud/models/success_envelope_category_delete_data.py
 everos_cloud/models/success_envelope_category_list_data.py
+everos_cloud/models/success_envelope_delete_by_ids_data.py
 everos_cloud/models/success_envelope_delete_data.py
 everos_cloud/models/success_envelope_doc_data.py
 everos_cloud/models/success_envelope_doc_delete_data.py
@@ -229,6 +247,7 @@ everos_cloud/models/success_envelope_doc_ingest_data.py
 everos_cloud/models/success_envelope_doc_list_data.py
 everos_cloud/models/success_envelope_doc_patch_data.py
 everos_cloud/models/success_envelope_edit_data.py
+everos_cloud/models/success_envelope_feedback_data.py
 everos_cloud/models/success_envelope_flush_data.py
 everos_cloud/models/success_envelope_get_data.py
 everos_cloud/models/success_envelope_kb_data.py
@@ -244,6 +263,7 @@ everos_cloud/models/success_envelope_topic_detail_data.py
 everos_cloud/models/success_envelope_topic_filter_list_data.py
 everos_cloud/models/success_envelope_topic_list_data.py
 everos_cloud/models/success_envelope_topic_tag_write_data.py
+everos_cloud/models/success_envelope_update_data.py
 everos_cloud/models/tag_bind_data.py
 everos_cloud/models/tag_bind_input.py
 everos_cloud/models/tag_ref.py
@@ -270,6 +290,8 @@ everos_cloud/models/topic_list_item.py
 everos_cloud/models/topic_tag_replace_body.py
 everos_cloud/models/topic_tag_write_data.py
 everos_cloud/models/unprocessed_message_dto.py
+everos_cloud/models/update_data.py
+everos_cloud/models/update_input.py
 everos_cloud/models/update_operation.py
 everos_cloud/models/validation_error.py
 everos_cloud/models/validation_error_loc_inner.py
@@ -297,6 +319,8 @@ test/test_content1.py
 test/test_content_item.py
 test/test_data.py
 test/test_data1.py
+test/test_delete_by_ids_data.py
+test/test_delete_by_ids_input.py
 test/test_delete_data.py
 test/test_delete_input.py
 test/test_delete_operation.py
@@ -315,10 +339,13 @@ test/test_edit_result_item.py
 test/test_envelope.py
 test/test_envelope_result.py
 test/test_episode_item.py
+test/test_episode_patch.py
 test/test_error_body.py
 test/test_error_envelope.py
 test/test_explicit_info_data.py
 test/test_explicit_info_patch.py
+test/test_feedback_data.py
+test/test_feedback_input.py
 test/test_filter_node.py
 test/test_flush_data.py
 test/test_flush_input.py
@@ -337,6 +364,7 @@ test/test_knowledge_api.py
 test/test_memory_api.py
 test/test_message_item.py
 test/test_profile_item.py
+test/test_reason.py
 test/test_related_tag_usage_body.py
 test/test_related_tag_usage_item.py
 test/test_related_tag_usage_list_data.py
@@ -362,6 +390,7 @@ test/test_success_envelope_add_data.py
 test/test_success_envelope_category_data.py
 test/test_success_envelope_category_delete_data.py
 test/test_success_envelope_category_list_data.py
+test/test_success_envelope_delete_by_ids_data.py
 test/test_success_envelope_delete_data.py
 test/test_success_envelope_doc_data.py
 test/test_success_envelope_doc_delete_data.py
@@ -369,6 +398,7 @@ test/test_success_envelope_doc_ingest_data.py
 test/test_success_envelope_doc_list_data.py
 test/test_success_envelope_doc_patch_data.py
 test/test_success_envelope_edit_data.py
+test/test_success_envelope_feedback_data.py
 test/test_success_envelope_flush_data.py
 test/test_success_envelope_get_data.py
 test/test_success_envelope_kb_data.py
@@ -384,6 +414,7 @@ test/test_success_envelope_topic_detail_data.py
 test/test_success_envelope_topic_filter_list_data.py
 test/test_success_envelope_topic_list_data.py
 test/test_success_envelope_topic_tag_write_data.py
+test/test_success_envelope_update_data.py
 test/test_tag_bind_data.py
 test/test_tag_bind_input.py
 test/test_tag_ref.py
@@ -411,6 +442,8 @@ test/test_topic_list_item.py
 test/test_topic_tag_replace_body.py
 test/test_topic_tag_write_data.py
 test/test_unprocessed_message_dto.py
+test/test_update_data.py
+test/test_update_input.py
 test/test_update_operation.py
 test/test_validation_error.py
 test/test_validation_error_loc_inner.py
