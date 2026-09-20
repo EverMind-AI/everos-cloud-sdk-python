@@ -7,17 +7,21 @@ from everos_cloud import EverOS, EverOSAPIError, EverOSError, EverOSStorageError
 from everos_cloud.exceptions import ApiException
 from everos_cloud.models import (
     AddInput,
+    DeleteByIdsInput,
     DocIngestBody,
     DocIngestData,
     EditInput,
+    FeedbackInput,
     KbCreateInput,
     KbPatchBody,
     MessageItem,
+    Reason,
     SearchBody,
     SearchInput,
     TagBindInput,
     TagReplaceInput,
     TagUnbindInput,
+    UpdateInput,
 )
 
 
@@ -288,6 +292,118 @@ def test_tag_inputs_carry_no_scope():
     payload = mem.bind_tags.call_args.args[0]
     assert not hasattr(payload, "app_id") or payload.app_id is None
     assert not hasattr(payload, "project_id") or payload.project_id is None
+
+
+# ── single-memory edits (1.2.0) ──────────────────────────────────────────────
+def test_update_builds_patch_and_reason():
+    mem = MagicMock()
+    mem.update_memory.return_value = SimpleNamespace(data="UP")
+    c = _client(memory=mem)
+
+    assert c.update("m1", summary="Moved to Hangzhou", reason="wrong_subject") == "UP"
+    payload = mem.update_memory.call_args.args[0]
+    assert isinstance(payload, UpdateInput)
+    assert payload.memory_type == "episode" and payload.memory_id == "m1"
+    assert payload.patch.summary == "Moved to Hangzhou"
+    assert payload.patch.episode is None and payload.patch.subject is None
+    assert isinstance(payload.reason, Reason)
+    assert payload.reason.code == "wrong_subject" and payload.reason.note is None
+
+
+def test_update_reason_accepts_dict_model_or_nothing():
+    mem = MagicMock()
+    mem.update_memory.return_value = SimpleNamespace(data=None)
+    c = _client(memory=mem)
+
+    c.update("m1", episode="x", reason={"code": "wrong_time", "note": "was 2024"})
+    r = mem.update_memory.call_args.args[0].reason
+    assert r.code == "wrong_time" and r.note == "was 2024"
+
+    c.update("m1", episode="x", reason=Reason(code="style"))
+    assert mem.update_memory.call_args.args[0].reason.code == "style"
+
+    c.update("m1", episode="x")
+    assert mem.update_memory.call_args.args[0].reason is None
+
+
+def test_update_rejects_an_empty_patch():
+    mem = MagicMock()
+    c = _client(memory=mem)
+    with pytest.raises(ValueError):
+        c.update("m1")
+    mem.update_memory.assert_not_called()
+
+
+def test_delete_by_ids_builds_input_and_returns_data():
+    mem = MagicMock()
+    mem.delete_memories_by_ids.return_value = SimpleNamespace(data="D")
+    c = _client(memory=mem)
+
+    assert c.delete_by_ids(("m1", "m2"), reason="redundant") == "D"
+    payload = mem.delete_memories_by_ids.call_args.args[0]
+    assert isinstance(payload, DeleteByIdsInput)
+    assert payload.memory_type == "episode"
+    assert payload.memory_ids == ["m1", "m2"]          # tuple -> list
+    assert payload.reason.code == "redundant"
+
+    c.delete_by_ids(["m3"])
+    assert mem.delete_memories_by_ids.call_args.args[0].reason is None
+
+
+_OID = "66dff0f8a9f84d8c9f62f011"   # feedback validates memory_id as a 24-char object id
+
+
+def test_feedback_builds_input_and_returns_data():
+    mem = MagicMock()
+    mem.submit_feedback.return_value = SimpleNamespace(data="F")
+    c = _client(memory=mem)
+
+    assert c.feedback(_OID, "negative", reason="outdated", note="moved",
+                      suggestion="Lives in Shanghai now.") == "F"
+    payload = mem.submit_feedback.call_args.args[0]
+    assert isinstance(payload, FeedbackInput)
+    assert payload.memory_type == "episode" and payload.memory_id == _OID
+    assert payload.rating == "negative" and payload.reason == "outdated"
+    assert payload.note == "moved" and payload.suggestion == "Lives in Shanghai now."
+    assert payload.item_id is None
+
+    c.feedback(_OID, "positive", memory_type="profile", item_id="it_" + "0" * 24)
+    payload = mem.submit_feedback.call_args.args[0]
+    assert payload.memory_type == "profile" and payload.rating == "positive"
+    assert payload.item_id == "it_" + "0" * 24
+    assert payload.reason is None and payload.note is None and payload.suggestion is None
+
+
+def test_by_id_calls_carry_no_scope():
+    """These target memory ids, so app_id / project_id must not be injected."""
+    mem = MagicMock()
+    for name in ("update_memory", "delete_memories_by_ids", "submit_feedback"):
+        getattr(mem, name).return_value = SimpleNamespace(data=None)
+    c = EverOS("sk-test", app_id="myapp", project_id="proj")
+    c.memory = mem
+
+    c.update("m1", subject="s")
+    c.delete_by_ids(["m1"])
+    c.feedback(_OID, "positive")
+    for name in ("update_memory", "delete_memories_by_ids", "submit_feedback"):
+        payload = getattr(mem, name).call_args.args[0]
+        assert getattr(payload, "app_id", None) is None
+        assert getattr(payload, "project_id", None) is None
+
+
+def test_by_id_errors_and_timeout_go_through_call():
+    mem = MagicMock()
+    mem.update_memory.side_effect = ApiException(status=422, reason="Unprocessable")
+    c = _client(memory=mem)
+    with pytest.raises(EverOSAPIError) as ei:
+        c.update("bad", episode="x")
+    assert ei.value.status == 422
+
+    mem.submit_feedback.return_value = SimpleNamespace(data=None)
+    c2 = EverOS("sk-test", timeout=7)
+    c2.memory = mem
+    c2.feedback(_OID, "positive")
+    assert mem.submit_feedback.call_args.kwargs["_request_timeout"] == 7
 
 
 # ── knowledge base ───────────────────────────────────────────────────────────
@@ -680,6 +796,11 @@ def test_generated_name_on_the_facade_points_at_the_real_one():
     msg = str(ei.value)
     assert "client.kb_create" in msg                          # facade equivalent
     assert "client.knowledge.create_knowledge_base" in msg    # generated location
+
+    with pytest.raises(AttributeError) as ei:
+        c.submit_feedback
+    assert "client.feedback" in str(ei.value)
+    assert "client.memory.submit_feedback" in str(ei.value)
 
     # a generated method the facade does NOT cover: still says where it lives
     with pytest.raises(AttributeError) as ei:
