@@ -13,11 +13,12 @@ facade covers the high-traffic calls of each.
 
 Naming: the nine methods 1.0.0 shipped are bare verbs and stay that way — ``add`` /
 ``search`` / ``get`` / ``flush`` / ``edit`` / ``delete`` (memory), ``presign`` /
-``upload`` (storage), ``close``. They are public API and cannot be renamed. Everything
-added since carries its resource as a prefix — ``kb_`` / ``doc_`` / ``task_`` /
-``tag_`` — so completion groups by resource and no facade method collides with the
-generated method it wraps. The two styles sitting side by side is a consequence of that
-freeze, not a convention worth copying.
+``upload`` (storage), ``close``. They are public API and cannot be renamed. Memory
+methods added since follow the same bare-verb shape so the memory group stays one
+style and each name is the last segment of its route — ``update`` / ``delete_by_ids``
+/ ``feedback`` (1.2.0). Every other resource carries its name as a prefix — ``kb_`` /
+``doc_`` / ``task_`` / ``tag_`` — so completion groups by resource and no facade method
+collides with the generated method it wraps.
 
 Errors: every failure raised by this facade derives from :class:`EverOSError` —
 ``EverOSAPIError`` for HTTP errors, ``EverOSStorageError`` for object-upload failures,
@@ -39,17 +40,21 @@ from everos_cloud.models import (
     AddOperation,
     Content,
     ContentItem,
+    DeleteByIdsInput,
     DeleteInput,
     DeleteOperation,
     DocIngestBody,
     DocPatchBody,
     EditInput,
     EditInputOperationsInner,
+    EpisodePatch,
+    FeedbackInput,
     FlushInput,
     GetInput,
     KbCreateInput,
     KbPatchBody,
     MessageItem,
+    Reason,
     SearchBody,
     SearchInput,
     SignObjectItem,
@@ -57,6 +62,7 @@ from everos_cloud.models import (
     TagBindInput,
     TagReplaceInput,
     TagUnbindInput,
+    UpdateInput,
     UpdateOperation,
 )
 
@@ -80,6 +86,8 @@ _TRANSIENT_STATUS = frozenset({429, 500, 502, 503, 504})
 _FACADE_FOR = {
     "add_memory": "add", "search_memory": "search", "get_memory": "get",
     "flush_memory": "flush", "edit_profile": "edit", "delete_memory": "delete",
+    "update_memory": "update", "delete_memories_by_ids": "delete_by_ids",
+    "submit_feedback": "feedback",
     "sign_objects": "presign",
     "bind_tags": "tag_bind", "unbind_tags": "tag_unbind", "replace_tags": "tag_replace",
     "create_knowledge_base": "kb_create", "list_knowledge_bases": "kb_list",
@@ -106,6 +114,7 @@ _VIDEO_EXT = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
 
 MessageLike = Union[MessageItem, Mapping[str, Any]]
 ContentLike = Union[ContentItem, Mapping[str, Any], str]
+ReasonLike = Union[Reason, Mapping[str, Any], str]
 
 
 def _guess_file_type(name: str) -> str:
@@ -274,6 +283,15 @@ class EverOS:
         return EditInputOperationsInner(cls(**op))
 
     @staticmethod
+    def _to_reason(reason: ReasonLike | None) -> Reason | None:
+        """``"redundant"`` / ``{"code": ..., "note": ...}`` / ``Reason`` -> ``Reason``."""
+        if reason is None or isinstance(reason, Reason):
+            return reason
+        if isinstance(reason, str):
+            return Reason(code=reason)
+        return Reason(**reason)
+
+    @staticmethod
     def _to_content(content: ContentLike) -> ContentItem:
         """Coerce a document body into a ``ContentItem``.
 
@@ -421,6 +439,94 @@ class EverOS:
             )
         )
         return self._call(self.memory.delete_memory, payload).data
+
+    # -- single-memory edits -------------------------------------------------
+    # These target memories by id, so like the tag calls they carry NO app_id /
+    # project_id and `_scope` does not apply. Facade names are the last segment of
+    # the route: /memory/update -> update, /memory/delete_by_ids -> delete_by_ids,
+    # /memory/feedback -> feedback.
+    def update(
+        self,
+        memory_id: str,
+        *,
+        episode: str | None = None,
+        summary: str | None = None,
+        subject: str | None = None,
+        reason: ReasonLike | None = None,
+        memory_type: str = "episode",
+    ) -> Any:
+        """Patch one episode's ``episode`` text, ``summary`` and/or ``subject``.
+
+        Only the fields you pass change (last write wins). ``reason`` is a code such as
+        ``"wrong_subject"`` or ``{"code": ..., "note": ...}``. Returns ``UpdateData``,
+        whose ``unchanged`` is true when the patch matched what was stored.
+
+        Profile items are edited with :meth:`edit`, not here.
+        """
+        patch = _clean(episode=episode, summary=summary, subject=subject)
+        if not patch:
+            raise ValueError("update needs at least one of episode / summary / subject")
+        payload = UpdateInput(
+            **_clean(
+                memory_type=memory_type,
+                memory_id=memory_id,
+                patch=EpisodePatch(**patch),
+                reason=self._to_reason(reason),
+            )
+        )
+        return self._call(self.memory.update_memory, payload).data
+
+    def delete_by_ids(
+        self,
+        memory_ids: Sequence[str],
+        *,
+        reason: ReasonLike | None = None,
+        memory_type: str = "episode",
+    ) -> Any:
+        """Soft-delete 1-50 memories by id. Returns ``DeleteByIdsData``.
+
+        Ids that do not exist are skipped; one malformed id fails the whole batch (422).
+        To clear a whole user / agent / session, use :meth:`delete`.
+        """
+        payload = DeleteByIdsInput(
+            **_clean(
+                memory_type=memory_type,
+                memory_ids=list(memory_ids),
+                reason=self._to_reason(reason),
+            )
+        )
+        return self._call(self.memory.delete_memories_by_ids, payload).data
+
+    def feedback(
+        self,
+        memory_id: str,
+        rating: str,
+        *,
+        reason: str | None = None,
+        note: str | None = None,
+        suggestion: str | None = None,
+        item_id: str | None = None,
+        memory_type: str = "episode",
+    ) -> Any:
+        """Rate a memory ``"positive"`` or ``"negative"``. Returns ``FeedbackData``.
+
+        ``reason`` (a code such as ``"outdated"``), ``note`` and ``suggestion`` go with a
+        negative rating only. ``item_id`` names the item inside a profile memory. This
+        only records the rating — nothing is edited; use :meth:`update` /
+        :meth:`delete_by_ids` to change the memory itself.
+        """
+        payload = FeedbackInput(
+            **_clean(
+                memory_type=memory_type,
+                memory_id=memory_id,
+                item_id=item_id,
+                rating=rating,
+                reason=reason,
+                note=note,
+                suggestion=suggestion,
+            )
+        )
+        return self._call(self.memory.submit_feedback, payload).data
 
     # -- memory tags ---------------------------------------------------------
     # Tag calls carry NO app_id / project_id: the scope of a tag operation is the

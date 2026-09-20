@@ -93,11 +93,12 @@ multimodal upload — is in
 ### Two ways to call the API
 
 `EverOS` covers the common calls with plain kwargs in and the response's `.data` out.
-New methods are named `<resource>_<verb>` (`kb_create`, `doc_ingest`, `task_wait`,
-`tag_bind`), so typing `client.kb` lists the knowledge-base surface; the methods 1.0.0
-shipped are bare verbs (`add`, `search`, `get`, `flush`, `edit`, `delete`, `upload`).
+Memory methods are bare verbs named after their route (`add`, `search`, `get`, `flush`,
+`edit`, `delete`, `update`, `delete_by_ids`, `feedback`); every other resource is
+`<resource>_<verb>` (`kb_create`, `doc_ingest`, `task_wait`, `tag_bind`), so typing
+`client.kb` lists the knowledge-base surface.
 
-Everything the API offers — all 31 operations, including knowledge-base categories and
+Everything the API offers — all 37 operations, including knowledge-base categories and
 document topics — is on the generated typed clients, reachable as `client.memory`,
 `client.storage`, `client.knowledge`, `client.tasks`. Those take and return the full
 typed models, so responses arrive as an envelope you read `.data` from. The

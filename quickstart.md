@@ -56,6 +56,18 @@ client.edit("user-1", operations=[
 # ── Delete memories (scoped soft-delete) ──────────────────────────────────────
 client.delete(user_id="user-1", session_id="session-1")
 
+# ── Fix or remove single memories (1.2.0) ─────────────────────────────────────
+# update patches one episode's text / summary / subject; only the fields you pass
+# change. reason is optional: a code, or {"code": ..., "note": ...}.
+client.update("mem-1", summary="Moved to Hangzhou; lives near West Lake.",
+              reason="wrong_subject")
+client.delete_by_ids(["mem-2", "mem-3"], reason="redundant")   # 1-50 ids, soft delete
+
+# ── Rate a memory ─────────────────────────────────────────────────────────────
+# Record-only: nothing is edited. reason / note / suggestion go with "negative".
+client.feedback("mem-1", "negative", reason="outdated",
+                suggestion="The user currently lives in Shanghai.")
+
 # ── Upload multimodal data ────────────────────────────────────────────────────
 # Presigns + POSTs the file directly to S3, returns the object key you then
 # reference in a message's multimodal content. file_type is inferred from the ext.
@@ -143,11 +155,11 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 
 ## Method reference
 
-New facade methods are named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
-`client.task` / `client.tag` lists everything for that resource. The nine methods 1.0.0
-shipped are bare verbs with no prefix (`add` / `search` / `get` / `flush` / `edit` /
-`delete` for memory, `presign` / `upload` for storage, plus `close`) — that split is
-historical, not a rule: those names are public API since 1.0.0 and cannot be changed.
+Memory methods are bare verbs named after the last segment of their route (`add` /
+`search` / `get` / `flush` / `edit` / `delete` since 1.0.0, `update` / `delete_by_ids` /
+`feedback` since 1.2.0), as are `presign` / `upload` for storage and `close`. Every other
+resource is named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
+`client.task` / `client.tag` lists everything for that resource.
 
 | Method | Endpoint | Notes |
 |---|---|---|
@@ -156,7 +168,10 @@ historical, not a rule: those names are public API since 1.0.0 and cannot be cha
 | `get(memory_type, ...)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
 | `search(query, ...)` | `POST /api/v2/memory/search` | Keyword / vector / hybrid / agentic. |
 | `edit(user_id, operations)` | `POST /api/v2/memory/edit` | Bulk profile add / update / delete. |
-| `delete(...)` | `POST /api/v2/memory/delete` | Scoped soft-delete. |
+| `delete(...)` | `POST /api/v2/memory/delete` | Scoped soft-delete (whole user / agent / session). |
+| `update(memory_id, ...)` | `POST /api/v2/memory/update` | Patch one episode's text / summary / subject; `unchanged` in the result when nothing differed. |
+| `delete_by_ids(memory_ids, ...)` | `POST /api/v2/memory/delete_by_ids` | Soft-delete 1-50 memories by id; unknown ids are skipped. |
+| `feedback(memory_id, rating, ...)` | `POST /api/v2/memory/feedback` | Record a positive / negative rating; edits nothing. |
 | `upload(path)` | `POST /api/v2/object/sign` + S3 | Presign + direct-to-S3, returns `object_key`. |
 | `tag_bind` / `tag_unbind` / `tag_replace` | `POST /api/v2/memory/tag/*` | Add / remove / overwrite tags on memory ids. |
 | `kb_create(name, ...)` | `POST /api/v2/knowledge_bases` | Create a knowledge base. |
