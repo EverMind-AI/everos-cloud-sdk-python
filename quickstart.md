@@ -45,6 +45,14 @@ print(page.episodes)
 result = client.search("outdoor hobbies", user_id="user-1", top_k=10, include_profile=True)
 print(result.episodes)
 
+# ── Context Retrieval (1.3.0) ─────────────────────────────────────────────────
+# An LLM searches in rounds until it can answer the question, then returns the
+# memories it found (not an answer). Seconds, not milliseconds: keep it off the hot
+# path. Same result shape as search; cited marks what the answer rested on.
+result = client.context("What did I decide about the Q3 budget after the finance meeting?",
+                        user_id="user-1", top_k=10)
+cited = [ep for ep in result.episodes if ep.cited] or result.episodes[:5]
+
 # ── Edit a user's profile (bulk) ──────────────────────────────────────────────
 # action: add | update | delete   ·   type: explicit_info | implicit_traits
 client.edit("user-1", operations=[
@@ -157,7 +165,7 @@ context manager (`with EverOS(...) as client:`) to release connections on exit.
 
 Memory methods are bare verbs named after the last segment of their route (`add` /
 `search` / `get` / `flush` / `edit` / `delete` since 1.0.0, `update` / `delete_by_ids` /
-`feedback` since 1.2.0), as are `presign` / `upload` for storage and `close`. Every other
+`feedback` since 1.2.0, `context` since 1.3.0), as are `presign` / `upload` for storage and `close`. Every other
 resource is named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
 `client.task` / `client.tag` lists everything for that resource.
 
@@ -167,6 +175,7 @@ resource is named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
 | `flush(session_id)` | `POST /api/v2/memory/flush` | Force extraction for a session. |
 | `get(memory_type, ...)` | `POST /api/v2/memory/get` | Paginated list by `memory_type`. |
 | `search(query, ...)` | `POST /api/v2/memory/search` | Keyword / vector / hybrid / agentic. |
+| `context(query, user_id, ...)` | `POST /api/v2/memory/context` | Multi-round LLM retrieval for multi-hop / temporal questions; user owners only. |
 | `edit(user_id, operations)` | `POST /api/v2/memory/edit` | Bulk profile add / update / delete. |
 | `delete(...)` | `POST /api/v2/memory/delete` | Scoped soft-delete (whole user / agent / session). |
 | `update(memory_id, ...)` | `POST /api/v2/memory/update` | Patch one episode's text / summary / subject; `unchanged` in the result when nothing differed. |
