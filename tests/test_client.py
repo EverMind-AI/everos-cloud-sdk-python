@@ -7,6 +7,7 @@ from everos_cloud import EverOS, EverOSAPIError, EverOSError, EverOSStorageError
 from everos_cloud.exceptions import ApiException
 from everos_cloud.models import (
     AddInput,
+    ContextInput,
     DeleteByIdsInput,
     DocIngestBody,
     DocIngestData,
@@ -80,6 +81,38 @@ def test_search_drops_none_so_defaults_survive():
     assert isinstance(payload, SearchInput)
     assert payload.query == "outdoor hobbies"
     assert payload.method == "hybrid"       # model default preserved (not overwritten with None)
+
+
+def test_context_builds_input_and_returns_data():
+    mem = MagicMock()
+    mem.retrieve_context.return_value = SimpleNamespace(data="C")
+    c = _client(memory=mem)
+
+    assert c.context("what changed after the finance meeting?", user_id="u1", top_k=5) == "C"
+    payload = mem.retrieve_context.call_args.args[0]
+    assert isinstance(payload, ContextInput)
+    assert payload.user_id == "u1" and payload.top_k == 5
+    assert (payload.app_id, payload.project_id) == ("default", "default")
+    assert mem.retrieve_context.call_args.kwargs["_request_timeout"] == 60.0
+
+
+def test_context_sends_none_of_the_fields_the_server_rejects():
+    """/context answers 422 to method != "context", min_score, radius,
+    enable_llm_rerank and with_readable_episode; the body must carry none of them."""
+    mem = MagicMock()
+    mem.retrieve_context.return_value = SimpleNamespace(data=None)
+    c = _client(memory=mem)
+
+    c.context("q", user_id="u1", include_profile=True)
+    body = mem.retrieve_context.call_args.args[0].to_dict()
+    assert body.get("method", "context") == "context"
+    for field in ("min_score", "radius", "enable_llm_rerank", "with_readable_episode"):
+        assert field not in body
+
+
+def test_context_requires_a_user():
+    with pytest.raises(TypeError):
+        _client(memory=MagicMock()).context("q")
 
 
 def test_get_and_delete():

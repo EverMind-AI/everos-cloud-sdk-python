@@ -38,7 +38,8 @@ Add a conversation; EverOS turns it into structured, retrievable memory you can 
   gets sharper the more your agent is used.
 - **Structured memory, not chat logs** — extracts episodes, user profiles, and reusable
   agent cases & skills from raw conversations, so retrieval returns meaning, not transcripts.
-- **Retrieval that fits the query** — keyword, vector, hybrid (default), or agentic multi-step search.
+- **Retrieval that fits the query** — keyword, vector, hybrid (default), or agentic multi-step search,
+  plus Context Retrieval for questions that need several rounds of searching.
 - **Knowledge bases** — ingest documents into a searchable topic library alongside
   conversational memory; ingest is async and reports progress through the task API.
 - **Multimodal** — attach images, audio, and documents to any message.
@@ -94,7 +95,7 @@ multimodal upload — is in
 
 `EverOS` covers the common calls with plain kwargs in and the response's `.data` out.
 Memory methods are bare verbs named after their route (`add`, `search`, `get`, `flush`,
-`edit`, `delete`, `update`, `delete_by_ids`, `feedback`); every other resource is
+`edit`, `delete`, `update`, `delete_by_ids`, `feedback`, `context`); every other resource is
 `<resource>_<verb>` (`kb_create`, `doc_ingest`, `task_wait`, `tag_bind`), so typing
 `client.kb` lists the knowledge-base surface.
 

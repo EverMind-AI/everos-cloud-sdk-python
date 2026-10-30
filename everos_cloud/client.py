@@ -16,7 +16,7 @@ Naming: the nine methods 1.0.0 shipped are bare verbs and stay that way — ``ad
 ``upload`` (storage), ``close``. They are public API and cannot be renamed. Memory
 methods added since follow the same bare-verb shape so the memory group stays one
 style and each name is the last segment of its route — ``update`` / ``delete_by_ids``
-/ ``feedback`` (1.2.0). Every other resource carries its name as a prefix — ``kb_`` /
+/ ``feedback`` (1.2.0), ``context`` (1.3.0). Every other resource carries its name as a prefix — ``kb_`` /
 ``doc_`` / ``task_`` / ``tag_`` — so completion groups by resource and no facade method
 collides with the generated method it wraps.
 
@@ -40,6 +40,7 @@ from everos_cloud.models import (
     AddOperation,
     Content,
     ContentItem,
+    ContextInput,
     DeleteByIdsInput,
     DeleteInput,
     DeleteOperation,
@@ -87,7 +88,7 @@ _FACADE_FOR = {
     "add_memory": "add", "search_memory": "search", "get_memory": "get",
     "flush_memory": "flush", "edit_profile": "edit", "delete_memory": "delete",
     "update_memory": "update", "delete_memories_by_ids": "delete_by_ids",
-    "submit_feedback": "feedback",
+    "submit_feedback": "feedback", "retrieve_context": "context",
     "sign_objects": "presign",
     "bind_tags": "tag_bind", "unbind_tags": "tag_unbind", "replace_tags": "tag_replace",
     "create_knowledge_base": "kb_create", "list_knowledge_bases": "kb_list",
@@ -363,6 +364,38 @@ class EverOS:
             )
         )
         return self._call(self.memory.search_memory, payload).data
+
+    def context(
+        self,
+        query: str,
+        *,
+        user_id: str,
+        top_k: int | None = None,
+        include_profile: bool | None = None,
+        filters: Any = None,
+        app_id: str | None = None,
+        project_id: str | None = None,
+    ) -> Any:
+        """Context Retrieval: an LLM searches in rounds until the evidence suffices.
+
+        Returns ``SearchData``, the same shape as :meth:`search` — memories, not an
+        answer. ``episodes[].cited`` marks the ones the model's answer rested on, and
+        ``score`` is a rank-fusion score, not comparable with search scores. User owners
+        only. The server caps the loop at 45 s and returns what it found so far, which
+        fits the client's default 60 s timeout; a client built with a shorter timeout
+        should raise it for this call's sake.
+        """
+        payload = ContextInput(
+            **_clean(
+                query=query,
+                user_id=user_id,
+                top_k=top_k,
+                include_profile=include_profile,
+                filters=filters,
+                **self._scope(app_id, project_id),
+            )
+        )
+        return self._call(self.memory.retrieve_context, payload).data
 
     def get(
         self,
