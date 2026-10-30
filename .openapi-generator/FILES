@@ -14,6 +14,7 @@ docs/CategoryPatchBody.md
 docs/Content.md
 docs/Content1.md
 docs/ContentItem.md
+docs/ContextInput.md
 docs/Data.md
 docs/Data1.md
 docs/DeleteByIdsData.md
@@ -169,6 +170,7 @@ everos_cloud/models/category_patch_body.py
 everos_cloud/models/content.py
 everos_cloud/models/content1.py
 everos_cloud/models/content_item.py
+everos_cloud/models/context_input.py
 everos_cloud/models/data.py
 everos_cloud/models/data1.py
 everos_cloud/models/delete_by_ids_data.py
@@ -317,6 +319,7 @@ test/test_category_patch_body.py
 test/test_content.py
 test/test_content1.py
 test/test_content_item.py
+test/test_context_input.py
 test/test_data.py
 test/test_data1.py
 test/test_delete_by_ids_data.py

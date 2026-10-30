@@ -48,7 +48,6 @@ class TestUpdateData(unittest.TestCase):
                 summary = '',
                 subject = '',
                 episode = '',
-                readable_episode = '',
                 type = '',
                 atomic_facts = [
                     everos_cloud.models.atomic_fact_item.AtomicFactItem(
@@ -60,7 +59,8 @@ class TestUpdateData(unittest.TestCase):
                     ],
                 edited_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 reflect_state = 'pending',
-                unchanged = True
+                unchanged = True,
+                readable_episode = ''
             )
         else:
             return UpdateData(

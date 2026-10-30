@@ -48,7 +48,6 @@ class TestSearchEpisodeItem(unittest.TestCase):
                 summary = '',
                 subject = '',
                 episode = '',
-                readable_episode = '',
                 type = '',
                 atomic_facts = [
                     everos_cloud.models.search_atomic_fact_item.SearchAtomicFactItem(
@@ -61,7 +60,9 @@ class TestSearchEpisodeItem(unittest.TestCase):
                     ],
                 edited_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'),
                 reflect_state = 'pending',
-                score = 1.337
+                score = 1.337,
+                cited = True,
+                readable_episode = ''
             )
         else:
             return SearchEpisodeItem(

@@ -107,6 +107,88 @@
         "description": "Append conversation messages to a session's working memory. One call carries 1\u2013500 messages.\n\nThe write is asynchronous by default (`async_mode` true): the gateway validates and enqueues it, answering 202 with status \"queued\". Pass `async_mode: false` to forward synchronously and receive the engine's 200 result instead.\n\nDistillation into long-term memory is always asynchronous \u2014 it runs on a session boundary, or when you call /api/v2/memory/flush."
       }
     },
+    "/api/v2/memory/context": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Context Retrieval [Cloud-only]",
+        "description": "Retrieve memories with a multi-round, LLM-driven search loop.\n\nAn LLM plans and runs several searches over the owner's memories \u2014 keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session \u2014 and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.\n\nUse it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.\n\n**Request** \u2014 the same body as `/search`, except:\n- `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422.\n- `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score.\n- `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.\n\n**Response** \u2014 the same `SearchData` shape as `/search`:\n- The loop returns its memories in `episodes`, for a `user_id` owner only; for an `agent_id` owner `episodes`, `agent_cases` and `agent_skills` are empty. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`.\n- `episodes[].cited` is `true` for memories the model named as the ones its answer rested on.\n- `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01\u20130.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.\n\n**Limits** \u2014 by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.\n\n**Latency** \u2014 several LLM calls per request, so noticeably slower than `/search`.",
+        "operationId": "retrieveContext",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The memories the loop found, in `episodes`, using the same `SearchData` shape as `/search`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_SearchData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated but not permitted \u2014 either rejected by the auth service, or the account's memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit or quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The gateway could not reach the authentication service. Transient \u2014 retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2/memory/delete": {
       "post": {
         "tags": [
@@ -4052,6 +4134,109 @@
         "title": "ContentItem",
         "description": "A single content element (appendix A). Current phase: only ``type=\"text\"``."
       },
+      "ContextInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "App Id",
+            "default": "default",
+            "description": "Scope to search in, defaulting to \"default\". Must match the pair used on write."
+          },
+          "project_id": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Project Id",
+            "default": "default",
+            "description": "Second half of the scope, defaulting to \"default\"."
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "Search one user's memories \u2014 matched against the messages' `sender_id`. Exactly one of `user_id` / `agent_id` is required, and only a user owner gets episodes back."
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Id",
+            "description": "Accepted for symmetry with /search, but the loop retrieves user episodes only: with an agent owner every result collection is empty."
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Query",
+            "description": "The question to retrieve for. The loop keeps searching until it judges the evidence sufficient to answer it, so pass the whole question, not keywords."
+          },
+          "method": {
+            "type": "string",
+            "const": "context",
+            "title": "Method",
+            "description": "Fixed to `\"context\"`; may be omitted. Any other value is a 422.",
+            "default": "context"
+          },
+          "top_k": {
+            "type": "integer",
+            "title": "Top K",
+            "default": -1,
+            "description": "Maximum number of episodes returned. Either -1 (the default, letting the engine decide) or a value from 1 to 100; anything else is rejected with 422."
+          },
+          "min_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Score",
+            "description": "Not supported on `/context` \u2014 any value is a 422. Results are ranked by rank fusion, not by a similarity score, so there is no floor to apply."
+          },
+          "include_profile": {
+            "type": "boolean",
+            "title": "Include Profile",
+            "default": false,
+            "description": "Also return the user's profile alongside the episodes, as on /search."
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FilterNode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional filter tree, same shape as on /search. It is applied to every search the loop runs."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "ContextInput",
+        "description": "Request body of `POST /api/v2/memory/context`.\n\nThe same fields as the `/search` request, except that `method` is fixed to\n`\"context\"`, `min_score` is not supported, and `radius`, `enable_llm_rerank` and\n`with_readable_episode` are not accepted."
+      },
       "DeleteByIdsData": {
         "properties": {
           "memory_type": {
@@ -4845,18 +5030,6 @@
             "title": "Episode",
             "description": "The episode's stored narrative body. This is the indexed, searchable text."
           },
-          "readable_episode": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Readable Episode",
-            "description": "Human-readable rendering of `episode`, for display only \u2014 never indexed, filtered or scored. Present as a key but null unless the request asked for it (and the tenant is enabled for it); fall back to `episode` when it is null."
-          },
           "type": {
             "type": "string",
             "title": "Type",
@@ -4906,6 +5079,19 @@
             ],
             "title": "Reflect State",
             "description": "Set once the narrative has been edited by hand: \"pending\" until background consolidation has absorbed the new text (a search may briefly return both it and a merged narrative close to it), \"done\" afterwards. Absent on a memory whose narrative was never edited."
+          },
+          "readable_episode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readable Episode",
+            "deprecated": true,
+            "description": "Deprecated and always null. Read `episode` instead."
           }
         },
         "type": "object",
@@ -5150,7 +5336,7 @@
               }
             ],
             "title": "Reason",
-            "description": "Structured reason used for analysis; it never triggers mutation. Negative ratings only. No default: an unset reason means the caller was not asked, `other` means they rejected the list \u2014 collapsing the two would corrupt every breakdown. Same base list as `Reason.code` on /api/v2/memory/update and /delete_by_ids minus `missing`, which a rating cannot express because it always names a memory that exists. (`outdated` \u2014 \"right when written, wrong now\" \u2014 reaches `Reason.code` with the engine's next release; on release-20260901_v15 it is feedback-only.)"
+            "description": "Structured reason used for analysis; it never triggers mutation. Negative ratings only. No default: an unset reason means the caller was not asked, `other` means they rejected the list \u2014 collapsing the two would corrupt every breakdown. Same base list as `Reason.code` on /api/v2/memory/update and /delete_by_ids minus `missing`, which a rating cannot express because it always names a memory that exists."
           },
           "note": {
             "anyOf": [
@@ -5429,7 +5615,8 @@
             "type": "boolean",
             "title": "With Readable Episode",
             "default": false,
-            "description": "Attach a human-readable rendering to each returned episode, for display only. Ignored for every non-episode `memory_type` rather than rejected."
+            "deprecated": true,
+            "description": "Deprecated and has no effect. Still accepted so existing clients that send it keep working; new code should leave it out."
           },
           "filters": {
             "anyOf": [
@@ -5900,6 +6087,7 @@
             "type": "string",
             "enum": [
               "hallucination",
+              "outdated",
               "wrong_subject",
               "wrong_time",
               "redundant",
@@ -5909,7 +6097,7 @@
               "other"
             ],
             "title": "Code",
-            "description": "What was wrong, from the fixed list \u2014 hallucination, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as `FeedbackInput.reason` plus `missing`, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists). On the contract this SDK is generated from (engine release-20260901_v15) `outdated` is not yet accepted here \u2014 the engine adds it in its next release; until then record an outdated-type fix as `wrong_time` or `other`."
+            "description": "What was wrong, from the fixed list \u2014 hallucination, outdated, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as `FeedbackInput.reason` plus `missing`, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists)."
           },
           "note": {
             "anyOf": [
@@ -6418,18 +6606,6 @@
             "title": "Episode",
             "description": "The episode's stored narrative body. This is the indexed, searchable text."
           },
-          "readable_episode": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Readable Episode",
-            "description": "Human-readable rendering of `episode`, for display only \u2014 never indexed, filtered or scored. Present as a key but null unless the request asked for it (and the tenant is enabled for it); fall back to `episode` when it is null."
-          },
           "type": {
             "type": "string",
             "title": "Type",
@@ -6483,7 +6659,26 @@
           "score": {
             "type": "number",
             "title": "Score",
-            "description": "Relevance of this episode to the query. What the number means depends on `method`: the hybrid path fuses its two routes into a probability in 0.0\u20131.0 (which is what `min_score` filters on), while keyword and vector pass the underlying engine's own score through \u2014 BM25 has no upper bound and vector similarity depends on the metric. So compare scores within one method, not across methods."
+            "description": "Relevance of this episode to the query. What the number means depends on `method`: the hybrid path fuses its two routes into a probability in 0.0\u20131.0 (which is what `min_score` filters on), while keyword and vector pass the underlying engine's own score through \u2014 BM25 has no upper bound and vector similarity depends on the metric. On /api/v2/memory/context it is a rank-fusion score instead, roughly 0.01\u20130.05, plus 1.0 for a `cited` episode. So compare scores within one method, not across methods."
+          },
+          "cited": {
+            "type": "boolean",
+            "title": "Cited",
+            "description": "`/context` only: the retrieval model named this memory as one its answer rested on. Always `false` on `/search`.",
+            "default": false
+          },
+          "readable_episode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readable Episode",
+            "deprecated": true,
+            "description": "Deprecated and always null. Read `episode` instead."
           }
         },
         "type": "object",
@@ -6793,7 +6988,8 @@
             "type": "boolean",
             "title": "With Readable Episode",
             "default": false,
-            "description": "Attach a human-readable rendering of each episode to the returned items, for display only \u2014 it is not indexed, filterable or scored, and callers fall back to `episode` when it is null. Ignored for an agent owner."
+            "deprecated": true,
+            "description": "Deprecated and has no effect. Still accepted so existing clients that send it keep working; new code should leave it out."
           },
           "enable_llm_rerank": {
             "type": "boolean",
@@ -8411,18 +8607,6 @@
             "title": "Episode",
             "description": "The episode's stored narrative body. This is the indexed, searchable text."
           },
-          "readable_episode": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Readable Episode",
-            "description": "Human-readable rendering of `episode`, for display only \u2014 never indexed, filtered or scored. Present as a key but null unless the request asked for it (and the tenant is enabled for it); fall back to `episode` when it is null."
-          },
           "type": {
             "type": "string",
             "title": "Type",
@@ -8478,6 +8662,19 @@
             "title": "Unchanged",
             "default": false,
             "description": "True when the patch equalled what was already stored \u2014 nothing was written and nothing downstream was triggered."
+          },
+          "readable_episode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readable Episode",
+            "deprecated": true,
+            "description": "Deprecated and always null. Read `episode` instead."
           }
         },
         "type": "object",

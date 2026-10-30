@@ -16,13 +16,13 @@ Name | Type | Description | Notes
 **summary** | **str** | Short summary of the episode — what a result list should show. | 
 **subject** | **str** | What the episode is about, in a few words. | 
 **episode** | **str** | The episode&#39;s stored narrative body. This is the indexed, searchable text. | 
-**readable_episode** | **str** |  | [optional] 
 **type** | **str** | How the episode was produced — \&quot;Conversation\&quot; or \&quot;AgentConversation\&quot;. | 
 **atomic_facts** | [**List[AtomicFactItem]**](AtomicFactItem.md) | The individual facts extracted from this episode, nested rather than returned separately. | [optional] 
 **tags** | **List[str]** | Tags attached through /api/v2/memory/tag/*. | [optional] 
 **edited_at** | **datetime** |  | [optional] 
 **reflect_state** | **str** |  | [optional] 
 **unchanged** | **bool** | True when the patch equalled what was already stored — nothing was written and nothing downstream was triggered. | [optional] [default to False]
+**readable_episode** | **str** |  | [optional] 
 
 ## Example
 

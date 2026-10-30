@@ -12,6 +12,7 @@ Method | HTTP request | Description
 [**flush_memory**](MemoryApi.md#flush_memory) | **POST** /api/v2/memory/flush | Force memory extraction [OSS + Cloud]
 [**get_memory**](MemoryApi.md#get_memory) | **POST** /api/v2/memory/get | Get memories [OSS + Cloud]
 [**replace_tags**](MemoryApi.md#replace_tags) | **POST** /api/v2/memory/tag/replace | Replace tags on memories [Cloud]
+[**retrieve_context**](MemoryApi.md#retrieve_context) | **POST** /api/v2/memory/context | Context Retrieval [Cloud-only]
 [**search_memory**](MemoryApi.md#search_memory) | **POST** /api/v2/memory/search | Search memories [OSS + Cloud]
 [**submit_feedback**](MemoryApi.md#submit_feedback) | **POST** /api/v2/memory/feedback | Submit feedback about one memory [Cloud-only]
 [**unbind_tags**](MemoryApi.md#unbind_tags) | **POST** /api/v2/memory/tag/unbind | Unbind tags from memories [Cloud]
@@ -683,6 +684,90 @@ Name | Type | Description  | Notes
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **retrieve_context**
+> SuccessEnvelopeSearchData retrieve_context(context_input)
+
+Context Retrieval [Cloud-only]
+
+Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`, for a `user_id` owner only; for an `agent_id` owner `episodes`, `agent_cases` and `agent_skills` are empty. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.context_input import ContextInput
+from everos_cloud.models.success_envelope_search_data import SuccessEnvelopeSearchData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.MemoryApi(api_client)
+    context_input = everos_cloud.ContextInput() # ContextInput | 
+
+    try:
+        # Context Retrieval [Cloud-only]
+        api_response = api_instance.retrieve_context(context_input)
+        print("The response of MemoryApi->retrieve_context:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MemoryApi->retrieve_context: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **context_input** | [**ContextInput**](ContextInput.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopeSearchData**](SuccessEnvelopeSearchData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | The memories the loop found, in &#x60;episodes&#x60;, using the same &#x60;SearchData&#x60; shape as &#x60;/search&#x60;. |  -  |
 **422** | Validation Error |  -  |
 **401** | Missing or invalid bearer token. |  -  |
 **403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |

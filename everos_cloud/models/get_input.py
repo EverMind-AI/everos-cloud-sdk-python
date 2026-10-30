@@ -38,7 +38,7 @@ class GetInput(BaseModel):
     page_size: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(default=20, description="Items per page, 1 to 100 (default 20).")
     sort_by: Optional[StrictStr] = Field(default='timestamp', description="Order by \"timestamp\" (when the memory happened, default) or \"updated_at\" (when it was last written). Profiles and agent skills have no temporal column and always sort by \"updated_at\".")
     sort_order: Optional[StrictStr] = Field(default='desc', description="\"desc\" (default, newest first) or \"asc\".")
-    with_readable_episode: Optional[StrictBool] = Field(default=False, description="Attach a human-readable rendering to each returned episode, for display only. Ignored for every non-episode `memory_type` rather than rejected.")
+    with_readable_episode: Optional[StrictBool] = Field(default=False, description="Deprecated and has no effect. Still accepted so existing clients that send it keep working; new code should leave it out.")
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "memory_type", "page", "page_size", "sort_by", "sort_order", "with_readable_episode", "filters"]

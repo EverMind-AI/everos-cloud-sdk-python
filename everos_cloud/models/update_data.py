@@ -39,15 +39,15 @@ class UpdateData(BaseModel):
     summary: StrictStr = Field(description="Short summary of the episode — what a result list should show.")
     subject: StrictStr = Field(description="What the episode is about, in a few words.")
     episode: StrictStr = Field(description="The episode's stored narrative body. This is the indexed, searchable text.")
-    readable_episode: Optional[StrictStr] = None
     type: StrictStr = Field(description="How the episode was produced — \"Conversation\" or \"AgentConversation\".")
     atomic_facts: Optional[List[AtomicFactItem]] = Field(default=None, description="The individual facts extracted from this episode, nested rather than returned separately.")
     tags: Optional[List[StrictStr]] = Field(default=None, description="Tags attached through /api/v2/memory/tag/*.")
     edited_at: Optional[datetime] = None
     reflect_state: Optional[StrictStr] = None
     unchanged: Optional[StrictBool] = Field(default=False, description="True when the patch equalled what was already stored — nothing was written and nothing downstream was triggered.")
+    readable_episode: Optional[StrictStr] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "readable_episode", "type", "atomic_facts", "tags", "edited_at", "reflect_state", "unchanged"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "session_id", "timestamp", "sender_ids", "summary", "subject", "episode", "type", "atomic_facts", "tags", "edited_at", "reflect_state", "unchanged", "readable_episode"]
 
     @field_validator('reflect_state')
     def reflect_state_validate_enum(cls, value):
@@ -122,11 +122,6 @@ class UpdateData(BaseModel):
         if self.session_id is None and "session_id" in self.model_fields_set:
             _dict['session_id'] = None
 
-        # set to None if readable_episode (nullable) is None
-        # and model_fields_set contains the field
-        if self.readable_episode is None and "readable_episode" in self.model_fields_set:
-            _dict['readable_episode'] = None
-
         # set to None if edited_at (nullable) is None
         # and model_fields_set contains the field
         if self.edited_at is None and "edited_at" in self.model_fields_set:
@@ -136,6 +131,11 @@ class UpdateData(BaseModel):
         # and model_fields_set contains the field
         if self.reflect_state is None and "reflect_state" in self.model_fields_set:
             _dict['reflect_state'] = None
+
+        # set to None if readable_episode (nullable) is None
+        # and model_fields_set contains the field
+        if self.readable_episode is None and "readable_episode" in self.model_fields_set:
+            _dict['readable_episode'] = None
 
         return _dict
 
@@ -159,13 +159,13 @@ class UpdateData(BaseModel):
             "summary": obj.get("summary"),
             "subject": obj.get("subject"),
             "episode": obj.get("episode"),
-            "readable_episode": obj.get("readable_episode"),
             "type": obj.get("type"),
             "atomic_facts": [AtomicFactItem.from_dict(_item) for _item in obj["atomic_facts"]] if obj.get("atomic_facts") is not None else None,
             "tags": obj.get("tags"),
             "edited_at": obj.get("edited_at"),
             "reflect_state": obj.get("reflect_state"),
-            "unchanged": obj.get("unchanged") if obj.get("unchanged") is not None else False
+            "unchanged": obj.get("unchanged") if obj.get("unchanged") is not None else False,
+            "readable_episode": obj.get("readable_episode")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

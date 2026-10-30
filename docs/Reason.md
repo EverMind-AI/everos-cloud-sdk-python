@@ -6,7 +6,7 @@ Why the operator made the change. OPTIONAL on both ops: it is recorded on the au
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**code** | **str** | What was wrong, from the fixed list — hallucination, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as &#x60;FeedbackInput.reason&#x60; plus &#x60;missing&#x60;, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists). On the contract this SDK is generated from (engine release-20260901_v15) &#x60;outdated&#x60; is not yet accepted here — the engine adds it in its next release; until then record an outdated-type fix as &#x60;wrong_time&#x60; or &#x60;other&#x60;. | 
+**code** | **str** | What was wrong, from the fixed list — hallucination, outdated, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as &#x60;FeedbackInput.reason&#x60; plus &#x60;missing&#x60;, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists). | 
 **note** | **str** |  | [optional] 
 
 ## Example
