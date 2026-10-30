@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 **radius** | **float** |  | [optional] 
 **min_score** | **float** |  | [optional] 
 **include_profile** | **bool** | Also return the user&#39;s profile alongside the hits, saving a second call. Ignored for an agent owner, whose results carry no profiles. | [optional] [default to False]
-**with_readable_episode** | **bool** | Attach a human-readable rendering of each episode to the returned items, for display only — it is not indexed, filterable or scored, and callers fall back to &#x60;episode&#x60; when it is null. Ignored for an agent owner. | [optional] [default to False]
+**with_readable_episode** | **bool** | Deprecated and has no effect. Still accepted so existing clients that send it keep working; new code should leave it out. | [optional] [default to False]
 **enable_llm_rerank** | **bool** | Opt-in LLM rerank, and only for hybrid agent_case / agent_skill retrieval. The episode hybrid path has its own fact eviction and ignores this, as do keyword, vector and agentic. | [optional] [default to False]
 **filters** | [**FilterNode**](FilterNode.md) |  | [optional] 
 

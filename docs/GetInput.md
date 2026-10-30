@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **page_size** | **int** | Items per page, 1 to 100 (default 20). | [optional] [default to 20]
 **sort_by** | **str** | Order by \&quot;timestamp\&quot; (when the memory happened, default) or \&quot;updated_at\&quot; (when it was last written). Profiles and agent skills have no temporal column and always sort by \&quot;updated_at\&quot;. | [optional] [default to 'timestamp']
 **sort_order** | **str** | \&quot;desc\&quot; (default, newest first) or \&quot;asc\&quot;. | [optional] [default to 'desc']
-**with_readable_episode** | **bool** | Attach a human-readable rendering to each returned episode, for display only. Ignored for every non-episode &#x60;memory_type&#x60; rather than rejected. | [optional] [default to False]
+**with_readable_episode** | **bool** | Deprecated and has no effect. Still accepted so existing clients that send it keep working; new code should leave it out. | [optional] [default to False]
 **filters** | [**FilterNode**](FilterNode.md) |  | [optional] 
 
 ## Example

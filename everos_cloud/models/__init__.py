@@ -29,6 +29,7 @@ from everos_cloud.models.category_patch_body import CategoryPatchBody
 from everos_cloud.models.content import Content
 from everos_cloud.models.content1 import Content1
 from everos_cloud.models.content_item import ContentItem
+from everos_cloud.models.context_input import ContextInput
 from everos_cloud.models.data import Data
 from everos_cloud.models.data1 import Data1
 from everos_cloud.models.delete_by_ids_data import DeleteByIdsData

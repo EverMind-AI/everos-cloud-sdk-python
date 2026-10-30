@@ -83,6 +83,13 @@ class TestMemoryApi(unittest.TestCase):
         """
         pass
 
+    def test_retrieve_context(self) -> None:
+        """Test case for retrieve_context
+
+        Context Retrieval [Cloud-only]
+        """
+        pass
+
     def test_search_memory(self) -> None:
         """Test case for search_memory
 

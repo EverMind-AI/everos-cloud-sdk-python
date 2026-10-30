@@ -39,7 +39,7 @@ class SearchInput(BaseModel):
     radius: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
     min_score: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
     include_profile: Optional[StrictBool] = Field(default=False, description="Also return the user's profile alongside the hits, saving a second call. Ignored for an agent owner, whose results carry no profiles.")
-    with_readable_episode: Optional[StrictBool] = Field(default=False, description="Attach a human-readable rendering of each episode to the returned items, for display only — it is not indexed, filterable or scored, and callers fall back to `episode` when it is null. Ignored for an agent owner.")
+    with_readable_episode: Optional[StrictBool] = Field(default=False, description="Deprecated and has no effect. Still accepted so existing clients that send it keep working; new code should leave it out.")
     enable_llm_rerank: Optional[StrictBool] = Field(default=False, description="Opt-in LLM rerank, and only for hybrid agent_case / agent_skill retrieval. The episode hybrid path has its own fact eviction and ignores this, as do keyword, vector and agentic.")
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}

@@ -28,7 +28,7 @@ class Reason(BaseModel):
     """
     Why the operator made the change. OPTIONAL on both ops: it is recorded on the audit event for quality analysis, never used to gate anything. When given, ``code`` is required and ``note`` is free text.
     """ # noqa: E501
-    code: StrictStr = Field(description="What was wrong, from the fixed list — hallucination, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as `FeedbackInput.reason` plus `missing`, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists). On the contract this SDK is generated from (engine release-20260901_v15) `outdated` is not yet accepted here — the engine adds it in its next release; until then record an outdated-type fix as `wrong_time` or `other`.")
+    code: StrictStr = Field(description="What was wrong, from the fixed list — hallucination, outdated, wrong_subject, wrong_time, redundant, missing, privacy, style, other. Required whenever a reason is given. Same base list as `FeedbackInput.reason` plus `missing`, which only an edit can express (an operator fixes a record that left something out; a rating always names a memory that exists).")
     note: Optional[Annotated[str, Field(strict=True, max_length=256)]] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["code", "note"]
@@ -36,8 +36,8 @@ class Reason(BaseModel):
     @field_validator('code')
     def code_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['hallucination', 'wrong_subject', 'wrong_time', 'redundant', 'missing', 'privacy', 'style', 'other']):
-            raise ValueError("must be one of enum values ('hallucination', 'wrong_subject', 'wrong_time', 'redundant', 'missing', 'privacy', 'style', 'other')")
+        if value not in set(['hallucination', 'outdated', 'wrong_subject', 'wrong_time', 'redundant', 'missing', 'privacy', 'style', 'other']):
+            raise ValueError("must be one of enum values ('hallucination', 'outdated', 'wrong_subject', 'wrong_time', 'redundant', 'missing', 'privacy', 'style', 'other')")
         return value
 
     model_config = ConfigDict(
