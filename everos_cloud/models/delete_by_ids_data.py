@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,8 +29,9 @@ class DeleteByIdsData(BaseModel):
     """ # noqa: E501
     memory_type: StrictStr = Field(description="The memory type the request named.")
     success: StrictBool = Field(description="Always true on a 200 — the batch was applied. Failures use the error envelope instead.")
+    deleted: StrictInt = Field(description="Records this request removed. Ids that were absent, already deleted, another tenant's or (with `user_id`) another user's are skipped and count 0 alike.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["memory_type", "success"]
+    __properties: ClassVar[List[str]] = ["memory_type", "success", "deleted"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,7 +92,8 @@ class DeleteByIdsData(BaseModel):
 
         _obj = cls.model_validate({
             "memory_type": obj.get("memory_type"),
-            "success": obj.get("success")
+            "success": obj.get("success"),
+            "deleted": obj.get("deleted")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

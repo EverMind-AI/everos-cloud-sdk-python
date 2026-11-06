@@ -74,7 +74,14 @@ from everos_cloud.models.kb_list_data import KbListData
 from everos_cloud.models.kb_patch_body import KbPatchBody
 from everos_cloud.models.kb_search_data import KbSearchData
 from everos_cloud.models.message_item import MessageItem
+from everos_cloud.models.mongo_value import MongoValue
 from everos_cloud.models.profile_item import ProfileItem
+from everos_cloud.models.purge_confirm_input import PurgeConfirmInput
+from everos_cloud.models.purge_job_data import PurgeJobData
+from everos_cloud.models.purge_request_data import PurgeRequestData
+from everos_cloud.models.purge_request_input import PurgeRequestInput
+from everos_cloud.models.purge_step_data import PurgeStepData
+from everos_cloud.models.purge_summary import PurgeSummary
 from everos_cloud.models.reason import Reason
 from everos_cloud.models.related_tag_usage_body import RelatedTagUsageBody
 from everos_cloud.models.related_tag_usage_item import RelatedTagUsageItem
@@ -115,6 +122,8 @@ from everos_cloud.models.success_envelope_kb_data import SuccessEnvelopeKbData
 from everos_cloud.models.success_envelope_kb_delete_data import SuccessEnvelopeKbDeleteData
 from everos_cloud.models.success_envelope_kb_list_data import SuccessEnvelopeKbListData
 from everos_cloud.models.success_envelope_kb_search_data import SuccessEnvelopeKbSearchData
+from everos_cloud.models.success_envelope_purge_job_data import SuccessEnvelopePurgeJobData
+from everos_cloud.models.success_envelope_purge_request_data import SuccessEnvelopePurgeRequestData
 from everos_cloud.models.success_envelope_related_tag_usage_list_data import SuccessEnvelopeRelatedTagUsageListData
 from everos_cloud.models.success_envelope_search_data import SuccessEnvelopeSearchData
 from everos_cloud.models.success_envelope_tag_bind_data import SuccessEnvelopeTagBindData

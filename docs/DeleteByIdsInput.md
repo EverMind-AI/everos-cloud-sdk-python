@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **memory_type** | **str** | Kind of the memories being deleted. Only \&quot;episode\&quot; is accepted today. | 
 **memory_ids** | **List[str]** | 1 to 50 memory ids. Every one must be well-formed; duplicates are collapsed. | 
 **reason** | [**Reason**](Reason.md) |  | [optional] 
+**user_id** | **str** |  | [optional] 
 
 ## Example
 

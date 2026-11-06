@@ -39,7 +39,8 @@ class TestUpdateInput(unittest.TestCase):
                 memory_type = '0',
                 memory_id = '0',
                 patch = { },
-                reason = { }
+                reason = { },
+                user_id = '0'
             )
         else:
             return UpdateInput(

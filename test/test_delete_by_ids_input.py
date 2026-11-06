@@ -40,7 +40,8 @@ class TestDeleteByIdsInput(unittest.TestCase):
                 memory_ids = [
                     ''
                     ],
-                reason = { }
+                reason = { },
+                user_id = '0'
             )
         else:
             return DeleteByIdsInput(

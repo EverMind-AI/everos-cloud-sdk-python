@@ -6,12 +6,15 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**add_memory**](MemoryApi.md#add_memory) | **POST** /api/v2/memory/add | Add messages [OSS + Cloud]
 [**bind_tags**](MemoryApi.md#bind_tags) | **POST** /api/v2/memory/tag/bind | Bind tags to memories [Cloud]
+[**confirm_purge**](MemoryApi.md#confirm_purge) | **POST** /api/v2/memory/purge/confirm | Confirm a memory-space purge (step 2 of 2) [Cloud-only]
 [**delete_memories_by_ids**](MemoryApi.md#delete_memories_by_ids) | **POST** /api/v2/memory/delete_by_ids | Soft-delete memory records by id [Cloud-only]
 [**delete_memory**](MemoryApi.md#delete_memory) | **POST** /api/v2/memory/delete | Delete memories [Cloud-only]
 [**edit_profile**](MemoryApi.md#edit_profile) | **POST** /api/v2/memory/edit | Edit profile items [Cloud-only]
 [**flush_memory**](MemoryApi.md#flush_memory) | **POST** /api/v2/memory/flush | Force memory extraction [OSS + Cloud]
 [**get_memory**](MemoryApi.md#get_memory) | **POST** /api/v2/memory/get | Get memories [OSS + Cloud]
+[**get_purge_job**](MemoryApi.md#get_purge_job) | **GET** /api/v2/memory/purge/{job_id} | Get a memory-space purge job [Cloud-only]
 [**replace_tags**](MemoryApi.md#replace_tags) | **POST** /api/v2/memory/tag/replace | Replace tags on memories [Cloud]
+[**request_purge**](MemoryApi.md#request_purge) | **POST** /api/v2/memory/purge | Request a memory-space purge (step 1 of 2) [Cloud-only]
 [**retrieve_context**](MemoryApi.md#retrieve_context) | **POST** /api/v2/memory/context | Context Retrieval [Cloud-only]
 [**search_memory**](MemoryApi.md#search_memory) | **POST** /api/v2/memory/search | Search memories [OSS + Cloud]
 [**submit_feedback**](MemoryApi.md#submit_feedback) | **POST** /api/v2/memory/feedback | Submit feedback about one memory [Cloud-only]
@@ -188,12 +191,96 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **confirm_purge**
+> SuccessEnvelopePurgeJobData confirm_purge(purge_confirm_input)
+
+Confirm a memory-space purge (step 2 of 2) [Cloud-only]
+
+**Permanent — there is no undo.** Step 2 of 2: confirms the `nonce` from `POST /purge` and queues the purge (202). The scope is the one the nonce was issued for.  From this moment every write to the memory space (add, flush, delete, update, feedback, tags, knowledge changes) is rejected with `409 purge_in_progress` until the purge ends; reads keep working and may return partial results. Poll `GET /purge/{job_id}` for progress.  Only one purge per memory space runs at a time: confirming while one is queued or running returns that job. An unknown, expired or already used nonce is `404 purge_nonce_invalid`.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.purge_confirm_input import PurgeConfirmInput
+from everos_cloud.models.success_envelope_purge_job_data import SuccessEnvelopePurgeJobData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.MemoryApi(api_client)
+    purge_confirm_input = everos_cloud.PurgeConfirmInput() # PurgeConfirmInput | 
+
+    try:
+        # Confirm a memory-space purge (step 2 of 2) [Cloud-only]
+        api_response = api_instance.confirm_purge(purge_confirm_input)
+        print("The response of MemoryApi->confirm_purge:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MemoryApi->confirm_purge: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **purge_confirm_input** | [**PurgeConfirmInput**](PurgeConfirmInput.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopePurgeJobData**](SuccessEnvelopePurgeJobData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**202** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. Besides the account-wide limits, each memory space may send /purge and /purge/confirm only a limited number of times per minute (10 each by default); wait for the &#x60;Retry-After&#x60; header. Requests the engine rejects do not count against this limit. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **delete_memories_by_ids**
 > SuccessEnvelopeDeleteByIdsData delete_memories_by_ids(delete_by_ids_input)
 
 Soft-delete memory records by id [Cloud-only]
 
-Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
 ### Example
 
@@ -608,6 +695,89 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_purge_job**
+> SuccessEnvelopePurgeJobData get_purge_job(job_id)
+
+Get a memory-space purge job [Cloud-only]
+
+Read a purge job by the `job_id` that /api/v2/memory/purge/confirm returned.  `status` goes `queued` → `running` → `succeeded` or `failed`. `steps` lists every store the purge touches (for example `mongo:v2_episodes` or `es:episode`) with its own state and deleted count, and `error` for a store that failed.  Writes to the memory space are rejected with `409 purge_in_progress` until the job has ended, so poll this before writing again.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.success_envelope_purge_job_data import SuccessEnvelopePurgeJobData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.MemoryApi(api_client)
+    job_id = 'job_id_example' # str | 
+
+    try:
+        # Get a memory-space purge job [Cloud-only]
+        api_response = api_instance.get_purge_job(job_id)
+        print("The response of MemoryApi->get_purge_job:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MemoryApi->get_purge_job: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **job_id** | **str**|  | 
+
+### Return type
+
+[**SuccessEnvelopePurgeJobData**](SuccessEnvelopePurgeJobData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **replace_tags**
 > SuccessEnvelopeTagReplaceData replace_tags(tag_replace_input)
 
@@ -688,6 +858,90 @@ Name | Type | Description  | Notes
 **401** | Missing or invalid bearer token. |  -  |
 **403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
 **429** | Rate limit or quota exceeded. |  -  |
+**503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **request_purge**
+> SuccessEnvelopePurgeRequestData request_purge(purge_request_input)
+
+Request a memory-space purge (step 1 of 2) [Cloud-only]
+
+**Permanent — there is no undo.** Step 1 of 2: asks for a purge and returns a `nonce`. Nothing is deleted yet.  - `scope: \"space\"` purges the whole memory space; `\"app\"` one app (`app_id`); `\"project\"` one project of one app (`app_id` + `project_id`). - Confirm with `POST /purge/confirm` before `expires_at` (5 minutes). The nonce is single use and only valid for the same memory space and API key.  What is deleted: memories, sessions, messages, memory cells, feedback, events and (space scope only) senders and engine knowledge bases, from every index. Not deleted: files uploaded through `/object/sign`, and data of the separate knowledge-base service.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.purge_request_input import PurgeRequestInput
+from everos_cloud.models.success_envelope_purge_request_data import SuccessEnvelopePurgeRequestData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.MemoryApi(api_client)
+    purge_request_input = everos_cloud.PurgeRequestInput() # PurgeRequestInput | 
+
+    try:
+        # Request a memory-space purge (step 1 of 2) [Cloud-only]
+        api_response = api_instance.request_purge(purge_request_input)
+        print("The response of MemoryApi->request_purge:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MemoryApi->request_purge: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **purge_request_input** | [**PurgeRequestInput**](PurgeRequestInput.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopePurgeRequestData**](SuccessEnvelopePurgeRequestData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+**401** | Missing or invalid bearer token. |  -  |
+**403** | Authenticated but not permitted — either rejected by the auth service, or the account&#39;s memory API version does not match the interface version implied by the path (a v1 account calling an /api/v2 route). |  -  |
+**429** | Rate limit or quota exceeded. Besides the account-wide limits, each memory space may send /purge and /purge/confirm only a limited number of times per minute (10 each by default); wait for the &#x60;Retry-After&#x60; header. Requests the engine rejects do not count against this limit. |  -  |
 **503** | The gateway could not reach the authentication service. Transient — retry with backoff. |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -1033,7 +1287,7 @@ Name | Type | Description  | Notes
 
 Edit one memory record [Cloud-only]
 
-Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
 ### Example
 
