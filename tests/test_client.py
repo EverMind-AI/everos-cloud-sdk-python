@@ -16,6 +16,8 @@ from everos_cloud.models import (
     KbCreateInput,
     KbPatchBody,
     MessageItem,
+    PurgeConfirmInput,
+    PurgeRequestInput,
     Reason,
     SearchBody,
     SearchInput,
@@ -858,3 +860,219 @@ def test_getattr_hook_does_not_break_normal_lookup():
         with pytest.raises(AttributeError) as ei:
             getattr(c, dunder)
         assert "generated method name" not in str(ei.value)
+
+
+# ── owner guard on update / delete_by_ids (1.3.0) ────────────────────────────
+def test_update_and_delete_by_ids_send_user_id_only_when_given():
+    mem = MagicMock()
+    mem.update_memory.return_value = SimpleNamespace(data="UPDATED")
+    mem.delete_memories_by_ids.return_value = SimpleNamespace(data="DELETED")
+    c = _client(memory=mem)
+
+    c.update("m1", subject="t", user_id="u1")
+    c.delete_by_ids(["m1"], user_id="u1")
+    assert mem.update_memory.call_args.args[0].user_id == "u1"
+    assert mem.delete_memories_by_ids.call_args.args[0].user_id == "u1"
+
+    c.update("m1", subject="t")
+    c.delete_by_ids(["m1"])
+    assert "user_id" not in mem.update_memory.call_args.args[0].to_dict()
+    assert "user_id" not in mem.delete_memories_by_ids.call_args.args[0].to_dict()
+
+
+def test_user_id_guard_never_comes_from_the_client_scope():
+    """The guard names a user, not a scope: no client default may fill it in."""
+    mem = MagicMock()
+    c = EverOS("sk-test", app_id="my-app", project_id="p1")
+    c.memory = mem
+    c.update("m1", subject="t")
+    assert mem.update_memory.call_args.args[0].user_id is None
+
+
+# ── memory-space purge (1.3.0) ───────────────────────────────────────────────
+def _job(status, finished_at=None, steps=None):
+    return SimpleNamespace(status=status, finished_at=finished_at, steps=steps or [])
+
+
+def test_purge_request_sends_exactly_the_scope_it_is_given():
+    mem = MagicMock()
+    mem.request_purge.return_value = SimpleNamespace(data="NONCE")
+    c = _client(memory=mem)
+
+    assert c.purge_request("project", app_id="a1", project_id="p1") == "NONCE"
+    payload = mem.request_purge.call_args.args[0]
+    assert isinstance(payload, PurgeRequestInput)
+    assert (payload.scope, payload.app_id, payload.project_id) == ("project", "a1", "p1")
+
+
+def test_purge_scope_never_inherits_the_client_defaults():
+    """A client built for one app must not turn a space purge into an app purge, or an
+    app purge into a different app's: the target is only ever what the call names."""
+    mem = MagicMock()
+    c = EverOS("sk-test", app_id="my-app", project_id="p1")
+    c.memory = mem
+
+    c.purge_request("space")
+    sent = mem.request_purge.call_args.args[0].to_dict()
+    assert sent == {"scope": "space"}
+
+
+def test_there_is_no_one_call_purge():
+    """The two-step nonce is the safety mechanism; the facade must not collapse it."""
+    assert not hasattr(EverOS, "purge")
+    assert not hasattr(EverOS, "purge_space")
+
+
+def test_purge_confirm_and_get():
+    mem = MagicMock()
+    mem.confirm_purge.return_value = SimpleNamespace(data="JOB")
+    mem.get_purge_job.return_value = SimpleNamespace(data="STATUS")
+    c = _client(memory=mem)
+
+    nonce = "3f9c2a7d8e1b4c6a9f0e2d4b6a8c0e1f"
+    assert c.purge_confirm(nonce) == "JOB"
+    payload = mem.confirm_purge.call_args.args[0]
+    assert isinstance(payload, PurgeConfirmInput) and payload.nonce == nonce
+
+    assert c.purge_get("job-1") == "STATUS"
+    assert mem.get_purge_job.call_args.args[0] == "job-1"
+
+
+def test_purge_wait_polls_until_succeeded():
+    mem = MagicMock()
+    mem.get_purge_job.side_effect = [
+        SimpleNamespace(data=_job("queued")),
+        SimpleNamespace(data=_job("running")),
+        ApiException(status=503, reason="unavailable"),
+        SimpleNamespace(data=_job("succeeded", finished_at="2026-11-06T00:00:00Z")),
+    ]
+    c = _client(memory=mem)
+
+    assert c.purge_wait("job-1", interval=0).status == "succeeded"
+    assert mem.get_purge_job.call_count == 4
+
+
+def test_purge_wait_raises_naming_the_failed_stores():
+    mem = MagicMock()
+    failed = _job(
+        "failed",
+        finished_at="2026-11-06T00:00:00Z",
+        steps=[
+            SimpleNamespace(store="mongo:v2_episodes", state="done", error=None),
+            SimpleNamespace(store="es:episode", state="failed", error="timed out"),
+        ],
+    )
+    mem.get_purge_job.return_value = SimpleNamespace(data=failed)
+    c = _client(memory=mem)
+
+    with pytest.raises(EverOSError) as ei:
+        c.purge_wait("job-1", interval=0)
+    assert "es:episode: timed out" in str(ei.value)
+    assert "mongo:v2_episodes" not in str(ei.value)
+    assert ei.value.job is failed
+
+    assert c.purge_wait("job-1", interval=0, raise_on_failure=False) is failed
+
+
+def test_purge_wait_times_out_with_the_last_job():
+    mem = MagicMock()
+    mem.get_purge_job.return_value = SimpleNamespace(data=_job("running"))
+    c = _client(memory=mem)
+
+    with pytest.raises(EverOSError) as ei:
+        c.purge_wait("job-1", timeout=0, interval=0)
+    assert "running" in str(ei.value)
+    assert ei.value.job.status == "running"
+
+
+def test_purge_wait_stops_on_an_unknown_terminal_status():
+    mem = MagicMock()
+    mem.get_purge_job.return_value = SimpleNamespace(
+        data=_job("cancelled", finished_at="2026-11-06T00:00:00Z")
+    )
+    c = _client(memory=mem)
+    assert c.purge_wait("job-1", interval=0).status == "cancelled"
+    assert mem.get_purge_job.call_count == 1
+
+
+def test_generated_purge_names_point_at_the_facade():
+    c = EverOS("sk-test")
+    with pytest.raises(AttributeError) as ei:
+        c.request_purge
+    assert "client.purge_request(" in str(ei.value)
+
+
+def _request(scope, app_id=None, project_id=None):
+    return SimpleNamespace(nonce="3f9c2a7d8e1b4c6a9f0e2d4b6a8c0e1f", scope=scope,
+                           app_id=app_id, project_id=project_id)
+
+
+def test_purge_confirm_takes_the_request_and_returns_a_matching_job():
+    mem = MagicMock()
+    job = SimpleNamespace(job_id="j1", status="queued", scope="project", app_id="a1", project_id="p1")
+    mem.confirm_purge.return_value = SimpleNamespace(data=job)
+    c = _client(memory=mem)
+
+    assert c.purge_confirm(_request("project", "a1", "p1")) is job
+    assert mem.confirm_purge.call_args.args[0].nonce == "3f9c2a7d8e1b4c6a9f0e2d4b6a8c0e1f"
+
+
+def test_purge_confirm_raises_when_another_purge_answered():
+    """While a purge runs, confirm spends the nonce and returns THAT job, whatever its
+    scope. Handed the request, the facade must not let it pass as the caller's purge."""
+    mem = MagicMock()
+    other = SimpleNamespace(job_id="j-other", status="running", scope="app", app_id="a9", project_id=None)
+    mem.confirm_purge.return_value = SimpleNamespace(data=other)
+    c = _client(memory=mem)
+
+    with pytest.raises(EverOSError) as ei:
+        c.purge_confirm(_request("project", "a1", "p1"))
+    msg = str(ei.value)
+    assert "j-other" in msg and "app a9" in msg and "project a1/p1" in msg
+    assert "purge_request again" in msg
+    assert ei.value.job is other
+
+
+def test_purge_confirm_with_a_bare_nonce_cannot_check():
+    mem = MagicMock()
+    other = SimpleNamespace(job_id="j-other", status="running", scope="space", app_id=None, project_id=None)
+    mem.confirm_purge.return_value = SimpleNamespace(data=other)
+    c = _client(memory=mem)
+    assert c.purge_confirm("3f9c2a7d8e1b4c6a9f0e2d4b6a8c0e1f") is other
+
+
+def test_purge_confirm_rejects_anything_without_a_nonce():
+    c = _client(memory=MagicMock())
+    with pytest.raises(TypeError):
+        c.purge_confirm(SimpleNamespace(scope="space"))
+
+
+@pytest.mark.parametrize(
+    ("body", "code", "message"),
+    [
+        ('{"request_id": "r", "error": {"code": "purge_in_progress", "message": "busy"}}',
+         "purge_in_progress", "busy"),
+        (b'{"code": "InvalidParameter", "message": "bad timestamp"}', "InvalidParameter", "bad timestamp"),
+        ({"error": {"code": "not_found"}}, "not_found", None),
+        ("<html>bad gateway</html>", None, None),
+        (None, None, None),
+        ('{"error": "route quota exceeded"}', None, "route quota exceeded"),
+        ('{"error": 42}', None, None),
+    ],
+)
+def test_api_errors_expose_the_body_code_and_message(body, code, message):
+    err = EverOSAPIError(409, body)
+    assert (err.status, err.code, err.message) == (409, code, message)
+    assert "status=409" in str(err)
+    if code:
+        assert code in str(err)
+
+
+def test_a_write_during_a_purge_surfaces_its_code():
+    mem = MagicMock()
+    mem.flush_memory.side_effect = ApiException(status=409, reason="Conflict")
+    mem.flush_memory.side_effect.body = '{"error": {"code": "purge_in_progress", "message": "purge running"}}'
+    c = _client(memory=mem)
+    with pytest.raises(EverOSAPIError) as ei:
+        c.flush("s1")
+    assert ei.value.code == "purge_in_progress"

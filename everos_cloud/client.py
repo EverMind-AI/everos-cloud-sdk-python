@@ -18,14 +18,17 @@ methods added since follow the same bare-verb shape so the memory group stays on
 style and each name is the last segment of its route — ``update`` / ``delete_by_ids``
 / ``feedback`` (1.2.0), ``context`` (1.3.0). Every other resource carries its name as a prefix — ``kb_`` /
 ``doc_`` / ``task_`` / ``tag_`` — so completion groups by resource and no facade method
-collides with the generated method it wraps.
+collides with the generated method it wraps. The memory-space purge (1.3.0) is a memory
+route but a multi-call flow, so it takes a prefix like ``task_``: ``purge_request`` /
+``purge_confirm`` / ``purge_get`` / ``purge_wait``.
 
 Errors: every failure raised by this facade derives from :class:`EverOSError` —
 ``EverOSAPIError`` for HTTP errors, ``EverOSStorageError`` for object-upload failures,
-and a plain ``EverOSError`` for a task that fails or outlives its wait timeout.
+and a plain ``EverOSError`` for a task or purge that fails or outlives its wait timeout.
 """
 from __future__ import annotations
 
+import json
 import mimetypes
 import os
 import time
@@ -55,6 +58,9 @@ from everos_cloud.models import (
     KbCreateInput,
     KbPatchBody,
     MessageItem,
+    PurgeConfirmInput,
+    PurgeRequestData,
+    PurgeRequestInput,
     Reason,
     SearchBody,
     SearchInput,
@@ -73,6 +79,7 @@ DEFAULT_TIMEOUT = 60.0  # seconds; agentic search / LLM rerank can be slow
 DEFAULT_TASK_TIMEOUT = 300.0  # seconds to wait for an async task before giving up
 DEFAULT_TASK_INTERVAL = 2.0  # seconds before the first task re-poll
 DEFAULT_TASK_MAX_INTERVAL = 15.0  # ceiling for the backoff between task polls
+DEFAULT_PURGE_TIMEOUT = 1800.0  # seconds; a purge of a large memory space takes minutes
 
 # Statuses worth retrying DURING a poll rather than aborting the whole wait. A long
 # ingest polled at a fixed interval is itself a source of 429s, and a wait that dies
@@ -98,6 +105,8 @@ _FACADE_FOR = {
     "list_documents": "doc_list", "get_document": "doc_get",
     "update_document": "doc_update", "delete_document": "doc_delete",
     "get_task_status": "task_get", "list_tasks": "task_list",
+    "request_purge": "purge_request", "confirm_purge": "purge_confirm",
+    "get_purge_job": "purge_get",
 }
 _API_ATTRS = ("memory", "storage", "knowledge", "tasks")
 
@@ -107,6 +116,8 @@ _API_ATTRS = ("memory", "storage", "knowledge", "tasks")
 # and the contract documents `finished_at` as "absent while the task is not in a
 # terminal state" — so the timestamp, not the enum, is the load-bearing signal.
 _TERMINAL_TASK_STATUS = frozenset({"success", "failed"})
+# Same reasoning for purge jobs, whose terminal statuses are spelled differently.
+_TERMINAL_PURGE_STATUS = frozenset({"succeeded", "failed"})
 
 _OP_CLASSES = {"add": AddOperation, "update": UpdateOperation, "delete": DeleteOperation}
 
@@ -154,17 +165,77 @@ def _task_finished(item: Any) -> bool:
     return getattr(item, "status", None) in _TERMINAL_TASK_STATUS
 
 
+def _purge_finished(job: Any) -> bool:
+    """Has this purge job ended? Same rule as :func:`_task_finished`."""
+    if getattr(job, "finished_at", None) is not None:
+        return True
+    return getattr(job, "status", None) in _TERMINAL_PURGE_STATUS
+
+
+def _scope_text(scope: tuple) -> str:
+    """``("project", "a1", "p1")`` -> ``"project a1/p1"``, for messages."""
+    kind, app_id, project_id = scope
+    ids = "/".join(x for x in (app_id, project_id) if x)
+    return f"{kind} {ids}" if ids else str(kind)
+
+
+def _purge_failure(job: Any) -> str:
+    """The stores that failed, with their errors, for the exception message."""
+    failed = [
+        f"{getattr(s, 'store', '?')}: {getattr(s, 'error', None) or 'no reason given'}"
+        for s in (getattr(job, "steps", None) or [])
+        if getattr(s, "state", None) == "failed"
+    ]
+    return "; ".join(failed) or "no reason given"
+
+
 class EverOSError(Exception):
     """Base class for every error raised by the EverOS facade."""
 
 
+def _error_fields(body: Any) -> tuple[str | None, str | None]:
+    """``(code, message)`` from an error body, or ``(None, None)``.
+
+    The API answers errors in a few shapes: the memory engine's envelope
+    ``{"request_id": ..., "error": {"code": ..., "message": ...}}``, a flat
+    ``{"code": ..., "message": ...}`` from the gateway's own checks, and
+    ``{"error": "<text>"}`` from its quota check (message only). Anything else
+    (empty, not JSON, an HTML page from a proxy) yields ``None`` rather than raising:
+    this runs while an error is already being reported.
+    """
+    if isinstance(body, (bytes, bytearray)):
+        body = body.decode("utf-8", "replace")
+    if isinstance(body, str):
+        try:
+            body = json.loads(body)
+        except ValueError:
+            return None, None
+    if not isinstance(body, Mapping):
+        return None, None
+    err = body.get("error")
+    if isinstance(err, str):
+        return None, err
+    src = err if isinstance(err, Mapping) else body
+    code, message = src.get("code"), src.get("message")
+    return (code if isinstance(code, str) else None, message if isinstance(message, str) else None)
+
+
 class EverOSAPIError(EverOSError):
-    """A memory endpoint returned an HTTP error (wraps the SDK's ``ApiException``)."""
+    """A memory endpoint returned an HTTP error (wraps the SDK's ``ApiException``).
+
+    ``status`` is the HTTP status and ``body`` the raw response body. ``code`` and
+    ``message`` are read from the body when it carries them, so a caller can branch on
+    the error rather than the status alone — e.g. ``"purge_in_progress"`` (a write
+    during a purge: retry once it ends) versus another 409. Both are ``None`` when the
+    body does not say.
+    """
 
     def __init__(self, status: Any, body: Any = None) -> None:
-        super().__init__(f"EverOS API error: status={status}")
         self.status = status
         self.body = body
+        self.code, self.message = _error_fields(body)
+        detail = f" code={self.code}" if self.code else ""
+        super().__init__(f"EverOS API error: status={status}{detail}" + (f": {self.message}" if self.message else ""))
 
 
 class EverOSStorageError(EverOSError):
@@ -486,6 +557,7 @@ class EverOS:
         summary: str | None = None,
         subject: str | None = None,
         reason: ReasonLike | None = None,
+        user_id: str | None = None,
         memory_type: str = "episode",
     ) -> Any:
         """Patch one episode's ``episode`` text, ``summary`` and/or ``subject``.
@@ -493,6 +565,11 @@ class EverOS:
         Only the fields you pass change (last write wins). ``reason`` is a code such as
         ``"wrong_subject"`` or ``{"code": ..., "note": ...}``. Returns ``UpdateData``,
         whose ``unchanged`` is true when the patch matched what was stored.
+
+        ``user_id`` limits the edit to that user's memory: a memory owned by anyone else
+        is a 404, exactly like a missing one. In an agent tool, set it from your own
+        session (the signed-in user), never from model output, so a wrong or invented
+        ``memory_id`` cannot reach another user's memory.
 
         Profile items are edited with :meth:`edit`, not here.
         """
@@ -505,6 +582,7 @@ class EverOS:
                 memory_id=memory_id,
                 patch=EpisodePatch(**patch),
                 reason=self._to_reason(reason),
+                user_id=user_id,
             )
         )
         return self._call(self.memory.update_memory, payload).data
@@ -514,18 +592,24 @@ class EverOS:
         memory_ids: Sequence[str],
         *,
         reason: ReasonLike | None = None,
+        user_id: str | None = None,
         memory_type: str = "episode",
     ) -> Any:
         """Soft-delete 1-50 memories by id. Returns ``DeleteByIdsData``.
 
         Ids that do not exist are skipped; one malformed id fails the whole batch (422).
-        To clear a whole user / agent / session, use :meth:`delete`.
+        ``deleted`` on the result counts what this call removed, so a 0 means nothing
+        was. ``user_id`` deletes only that user's memories: ids owned by anyone else are
+        skipped like missing ones. As with :meth:`update`, set it from your own session,
+        never from model output. To clear a whole user / agent / session, use
+        :meth:`delete`.
         """
         payload = DeleteByIdsInput(
             **_clean(
                 memory_type=memory_type,
                 memory_ids=list(memory_ids),
                 reason=self._to_reason(reason),
+                user_id=user_id,
             )
         )
         return self._call(self.memory.delete_memories_by_ids, payload).data
@@ -772,35 +856,160 @@ class EverOS:
         A non-transient HTTP error propagates as ``EverOSAPIError``, as does a
         transient one that outlives the deadline.
         """
-        deadline = time.monotonic() + timeout
-        delay = interval
-        item = None
-        while True:
-            try:
-                item = self.task_get(task_id)
-            except EverOSAPIError as exc:
-                # Out of budget, or not the kind of failure that will pass: give up.
-                if exc.status not in _TRANSIENT_STATUS or time.monotonic() >= deadline:
-                    raise
-            else:
-                if _task_finished(item):
-                    break
-                if time.monotonic() >= deadline:
-                    err = EverOSError(
-                        f"task {task_id} still {getattr(item, 'status', 'unknown')!r} "
-                        f"after {timeout}s"
-                    )
-                    err.task = item
-                    raise err
-            time.sleep(delay)
-            delay = min(delay * 2, max_interval) if delay else delay
-
+        item = self._poll(
+            lambda: self.task_get(task_id),
+            _task_finished,
+            what=f"task {task_id}",
+            attr="task",
+            timeout=timeout,
+            interval=interval,
+            max_interval=max_interval,
+        )
         if raise_on_failure and getattr(item, "status", None) == "failed":
             reason = getattr(item, "error", None) or getattr(item, "error_code", None) or "no reason given"
             err = EverOSError(f"task {task_id} failed: {reason}")
             err.task = item
             raise err
         return item
+
+    def _poll(
+        self,
+        fetch: Any,
+        finished: Any,
+        *,
+        what: str,
+        attr: str,
+        timeout: float,
+        interval: float,
+        max_interval: float,
+    ) -> Any:
+        """Call ``fetch`` until ``finished(item)``, with backoff; the loop behind every wait.
+
+        Backs off from ``interval`` up to ``max_interval``. A transient failure (429 /
+        5xx) is retried on the same schedule; any other HTTP error, or a transient one
+        past the deadline, propagates as ``EverOSAPIError``. Still unfinished at
+        ``timeout`` raises ``EverOSError`` with the last item seen on ``err.<attr>``.
+        """
+        deadline = time.monotonic() + timeout
+        delay = interval
+        item = None
+        while True:
+            try:
+                item = fetch()
+            except EverOSAPIError as exc:
+                # Out of budget, or not the kind of failure that will pass: give up.
+                if exc.status not in _TRANSIENT_STATUS or time.monotonic() >= deadline:
+                    raise
+            else:
+                if finished(item):
+                    return item
+                if time.monotonic() >= deadline:
+                    err = EverOSError(
+                        f"{what} still {getattr(item, 'status', 'unknown')!r} after {timeout}s"
+                    )
+                    setattr(err, attr, item)
+                    raise err
+            time.sleep(delay)
+            delay = min(delay * 2, max_interval) if delay else delay
+
+    # -- memory-space purge --------------------------------------------------
+    # Permanent: there is no undo. The API makes a purge two calls on purpose (a nonce
+    # from step 1, confirmed within 5 minutes) so that one mistaken call cannot wipe a
+    # memory space, and the facade keeps them two: there is deliberately no one-call
+    # purge. For the same reason the scope ids never come from the client's
+    # app_id / project_id defaults: what gets purged is always written at the call site.
+    def purge_request(
+        self,
+        scope: str,
+        *,
+        app_id: str | None = None,
+        project_id: str | None = None,
+    ) -> Any:
+        """Step 1 of 2: ask to purge. **Deletes nothing.** Returns ``PurgeRequestData``.
+
+        ``scope`` is ``"space"`` (the whole memory space of this API key), ``"app"``
+        (pass ``app_id``) or ``"project"`` (pass ``app_id`` and ``project_id``); each
+        takes exactly its own ids, and a missing or extra one is a 422. The result's
+        ``summary`` counts what would be deleted right now; check it, then pass the
+        result (or its ``nonce``) to :meth:`purge_confirm` before ``expires_at``
+        (5 minutes). Counting can take up to about 30 seconds on a large memory space;
+        a count that did not finish is ``None`` and ``summary.complete`` is false, so
+        check ``complete`` before trusting the numbers.
+        """
+        payload = PurgeRequestInput(**_clean(scope=scope, app_id=app_id, project_id=project_id))
+        return self._call(self.memory.request_purge, payload).data
+
+    def purge_confirm(self, request: PurgeRequestData | str) -> Any:
+        """Step 2 of 2: start the purge. **Permanent.** Returns the queued ``PurgeJobData``.
+
+        Pass the result of :meth:`purge_request` (recommended) or just its ``nonce``.
+        The scope is the one the nonce was issued for. The nonce works once, only with
+        the same API key; an unknown, expired or used one is a 404 and nothing happens.
+        Until the job ends, every write to the memory space is a 409. Follow it with
+        :meth:`purge_wait` or :meth:`purge_get`.
+
+        Only one purge runs per memory space. Confirming while one is queued or running
+        uses up the nonce and returns THAT job, whatever its scope, without queuing
+        yours. Given the request result, this method checks the returned job against
+        the scope you asked for and raises ``EverOSError`` (the running job on
+        ``.job``) when they differ: wait for it to end, then call :meth:`purge_request`
+        again. Given a bare nonce it cannot tell, so compare ``job.scope`` yourself.
+        """
+        nonce = request if isinstance(request, str) else getattr(request, "nonce", None)
+        if not isinstance(nonce, str):
+            raise TypeError("purge_confirm takes the purge_request() result or its nonce string")
+        job = self._call(self.memory.confirm_purge, PurgeConfirmInput(nonce=nonce)).data
+        if not isinstance(request, str):
+            asked = (request.scope, getattr(request, "app_id", None), getattr(request, "project_id", None))
+            got = (getattr(job, "scope", None), getattr(job, "app_id", None), getattr(job, "project_id", None))
+            if got != asked:
+                err = EverOSError(
+                    f"another purge is already {getattr(job, 'status', 'running')!r} in this "
+                    f"memory space (job {getattr(job, 'job_id', '?')}, scope {_scope_text(got)}); "
+                    f"yours ({_scope_text(asked)}) was not queued and its nonce is used up. "
+                    "Wait for that job to end, then call purge_request again."
+                )
+                err.job = job
+                raise err
+        return job
+
+    def purge_get(self, job_id: str) -> Any:
+        """Read a purge job. Returns ``PurgeJobData`` (``status``, per-store ``steps``)."""
+        return self._call(self.memory.get_purge_job, job_id).data
+
+    def purge_wait(
+        self,
+        job_id: str,
+        *,
+        timeout: float = DEFAULT_PURGE_TIMEOUT,
+        interval: float = DEFAULT_TASK_INTERVAL,
+        max_interval: float = DEFAULT_TASK_MAX_INTERVAL,
+        raise_on_failure: bool = True,
+    ) -> Any:
+        """Poll a purge job until it ends and return the terminal ``PurgeJobData``.
+
+        Same polling as :meth:`task_wait`. Raises ``EverOSError`` naming the failed
+        stores if the job fails (unless ``raise_on_failure=False``, which returns it), or
+        if it is still running at ``timeout``; the last job seen is on the error's
+        ``.job``. Timing out only ends the wait, not the purge, which keeps running on
+        the server (it fails on its own only after repeated retries, within about two
+        hours): call ``purge_wait`` again to keep waiting. A purge that failed partway
+        stays partly done: request a new one.
+        """
+        job = self._poll(
+            lambda: self.purge_get(job_id),
+            _purge_finished,
+            what=f"purge {job_id}",
+            attr="job",
+            timeout=timeout,
+            interval=interval,
+            max_interval=max_interval,
+        )
+        if raise_on_failure and getattr(job, "status", None) == "failed":
+            err = EverOSError(f"purge {job_id} failed: {_purge_failure(job)}")
+            err.job = job
+            raise err
+        return job
 
     # -- storage -------------------------------------------------------------
     def presign(self, objects: Sequence[Any]) -> Any:

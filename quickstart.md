@@ -71,6 +71,15 @@ client.update("mem-1", summary="Moved to Hangzhou; lives near West Lake.",
               reason="wrong_subject")
 client.delete_by_ids(["mem-2", "mem-3"], reason="redundant")   # 1-50 ids, soft delete
 
+# In an agent tool acting for one user, pass user_id (1.3.0) from YOUR session, never
+# from model output: a memory owned by anyone else is then a 404 on update and is
+# skipped on delete_by_ids, so a wrong or invented id cannot reach another user's
+# memory. `deleted` counts what was actually removed.
+client.update("mem-1", summary="...", user_id=current_user_id)
+result = client.delete_by_ids(["mem-2"], user_id=current_user_id)
+if result.deleted == 0:
+    ...  # nothing of this user's was removed
+
 # ── Rate a memory ─────────────────────────────────────────────────────────────
 # Record-only: nothing is edited. reason / note / suggestion go with "negative".
 client.feedback("mem-1", "negative", reason="outdated",
@@ -144,6 +153,46 @@ if task.status == "failed":
     print(task.error)
 ```
 
+## Purge a memory space
+
+**Permanent — there is no undo.** A purge deletes all memory data in the memory space,
+one app, or one project, so you can reuse it from empty. It takes two calls on purpose,
+and the SDK keeps them two: there is no one-call purge. The scope is only ever what you
+pass, never the client's `app_id` / `project_id` defaults.
+
+```python
+# 1. Request: deletes nothing. Returns a nonce and a count of what would be deleted.
+req = client.purge_request("project", app_id="my_app", project_id="staging")
+print(req.summary.mongo_total, req.summary.complete)    # check before you confirm
+
+# 2. Confirm within 5 minutes: starts the purge. Pass `req`, not just `req.nonce`:
+#    if another purge is already running, the server returns THAT job and your nonce is
+#    used up; given `req`, the SDK notices the different scope and raises EverOSError.
+job = client.purge_confirm(req)
+
+# 3. Wait for it. Writes to the memory space are rejected (409) until it ends.
+job = client.purge_wait(job.job_id)                     # raises if it fails or times out
+```
+
+`scope` is `"space"` (no ids), `"app"` (`app_id`) or `"project"` (`app_id` +
+`project_id`); a missing or extra id is a 422. Files uploaded through `upload` are not
+deleted. See https://docs.evermind.ai/cloud/purge for what else stays behind.
+
+While a purge runs, writes fail with HTTP 409. Branch on the error's `code` rather
+than the status alone:
+
+```python
+from everos_cloud import EverOSAPIError
+
+try:
+    client.add(session_id="s1", messages=[...])
+except EverOSAPIError as e:
+    if e.code == "purge_in_progress":
+        ...  # retry after the purge ends
+    else:
+        raise
+```
+
 ## Memory tags
 
 Tags are scoped by the memory ids themselves — no `app_id` / `project_id`.
@@ -155,9 +204,10 @@ client.tag_replace("episode", ["mem-2"], ["archived"])           # overwrite
 ```
 
 Every method returns the endpoint's `.data`. Failures raise `EverOSError`
-(`EverOSAPIError` for HTTP errors, `EverOSStorageError` for uploads, and a plain
-`EverOSError` for a task that fails or outlives its `task_wait` timeout — the last
-task seen is on the error's `.task`). Set a
+(`EverOSAPIError` for HTTP errors, with `.status`, and `.code` / `.message` when the
+response names them, `EverOSStorageError` for uploads, and a plain
+`EverOSError` for a task or purge that fails or outlives its `task_wait` /
+`purge_wait` timeout — the last task or job seen is on the error's `.task` / `.job`). Set a
 per-client request timeout with `EverOS(api_key=..., timeout=30)`, or use it as a
 context manager (`with EverOS(...) as client:`) to release connections on exit.
 
@@ -167,7 +217,8 @@ Memory methods are bare verbs named after the last segment of their route (`add`
 `search` / `get` / `flush` / `edit` / `delete` since 1.0.0, `update` / `delete_by_ids` /
 `feedback` since 1.2.0, `context` since 1.3.0), as are `presign` / `upload` for storage and `close`. Every other
 resource is named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
-`client.task` / `client.tag` lists everything for that resource.
+`client.task` / `client.tag` / `client.purge` lists everything for that resource. The
+purge is a memory route but a multi-call flow, so it is `purge_<verb>` like `task_`.
 
 | Method | Endpoint | Notes |
 |---|---|---|
@@ -178,8 +229,8 @@ resource is named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
 | `context(query, user_id, ...)` | `POST /api/v2/memory/context` | Multi-round LLM retrieval for multi-hop / temporal questions; user owners only. |
 | `edit(user_id, operations)` | `POST /api/v2/memory/edit` | Bulk profile add / update / delete. |
 | `delete(...)` | `POST /api/v2/memory/delete` | Scoped soft-delete (whole user / agent / session). |
-| `update(memory_id, ...)` | `POST /api/v2/memory/update` | Patch one episode's text / summary / subject; `unchanged` in the result when nothing differed. |
-| `delete_by_ids(memory_ids, ...)` | `POST /api/v2/memory/delete_by_ids` | Soft-delete 1-50 memories by id; unknown ids are skipped. |
+| `update(memory_id, ...)` | `POST /api/v2/memory/update` | Patch one episode's text / summary / subject; `unchanged` in the result when nothing differed. `user_id=` limits it to that user's memory. |
+| `delete_by_ids(memory_ids, ...)` | `POST /api/v2/memory/delete_by_ids` | Soft-delete 1-50 memories by id; unknown ids are skipped and `deleted` counts the rest. `user_id=` limits it to that user's memories. |
 | `feedback(memory_id, rating, ...)` | `POST /api/v2/memory/feedback` | Record a positive / negative rating; edits nothing. |
 | `upload(path)` | `POST /api/v2/object/sign` + S3 | Presign + direct-to-S3, returns `object_key`. |
 | `tag_bind` / `tag_unbind` / `tag_replace` | `POST /api/v2/memory/tag/*` | Add / remove / overwrite tags on memory ids. |
@@ -193,6 +244,9 @@ resource is named `<resource>_<verb>`, so typing `client.kb` / `client.doc` /
 | `task_get(task_id)` | `GET /api/v2/tasks/{task_id}` | One task's status. |
 | `task_list(...)` | `GET /api/v2/tasks` | Filter by status / session / time window. |
 | `task_wait(task_id, ...)` | polls `GET /api/v2/tasks/{task_id}` | Blocks until terminal, backing off between polls and riding out transient 429/5xx; raises on failure/timeout. |
+| `purge_request(scope, ...)` | `POST /api/v2/memory/purge` | Step 1 of a purge: returns a `nonce` and a count; deletes nothing. |
+| `purge_confirm(request)` | `POST /api/v2/memory/purge/confirm` | Step 2: starts the permanent purge (202 job). Pass the `purge_request` result so a different running purge is caught. |
+| `purge_get(job_id)` / `purge_wait(job_id, ...)` | `GET /api/v2/memory/purge/{job_id}` | Read the job, or poll it until it ends (same polling as `task_wait`). |
 
 ## Low-level typed client (advanced)
 
