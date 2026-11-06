@@ -17,6 +17,7 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
+from pydantic import StrictStr
 from everos_cloud.models.add_input import AddInput
 from everos_cloud.models.context_input import ContextInput
 from everos_cloud.models.delete_by_ids_input import DeleteByIdsInput
@@ -25,6 +26,8 @@ from everos_cloud.models.edit_input import EditInput
 from everos_cloud.models.feedback_input import FeedbackInput
 from everos_cloud.models.flush_input import FlushInput
 from everos_cloud.models.get_input import GetInput
+from everos_cloud.models.purge_confirm_input import PurgeConfirmInput
+from everos_cloud.models.purge_request_input import PurgeRequestInput
 from everos_cloud.models.search_input import SearchInput
 from everos_cloud.models.success_envelope_add_data import SuccessEnvelopeAddData
 from everos_cloud.models.success_envelope_delete_by_ids_data import SuccessEnvelopeDeleteByIdsData
@@ -33,6 +36,8 @@ from everos_cloud.models.success_envelope_edit_data import SuccessEnvelopeEditDa
 from everos_cloud.models.success_envelope_feedback_data import SuccessEnvelopeFeedbackData
 from everos_cloud.models.success_envelope_flush_data import SuccessEnvelopeFlushData
 from everos_cloud.models.success_envelope_get_data import SuccessEnvelopeGetData
+from everos_cloud.models.success_envelope_purge_job_data import SuccessEnvelopePurgeJobData
+from everos_cloud.models.success_envelope_purge_request_data import SuccessEnvelopePurgeRequestData
 from everos_cloud.models.success_envelope_search_data import SuccessEnvelopeSearchData
 from everos_cloud.models.success_envelope_tag_bind_data import SuccessEnvelopeTagBindData
 from everos_cloud.models.success_envelope_tag_replace_data import SuccessEnvelopeTagReplaceData
@@ -643,6 +648,295 @@ class MemoryApi:
 
 
     @validate_call
+    def confirm_purge(
+        self,
+        purge_confirm_input: PurgeConfirmInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopePurgeJobData:
+        """Confirm a memory-space purge (step 2 of 2) [Cloud-only]
+
+        **Permanent — there is no undo.** Step 2 of 2: confirms the `nonce` from `POST /purge` and queues the purge (202). The scope is the one the nonce was issued for.  From this moment every write to the memory space (add, flush, delete, update, feedback, tags, knowledge changes) is rejected with `409 purge_in_progress` until the purge ends; reads keep working and may return partial results. Poll `GET /purge/{job_id}` for progress.  Only one purge per memory space runs at a time: confirming while one is queued or running returns that job. An unknown, expired or already used nonce is `404 purge_nonce_invalid`.
+
+        :param purge_confirm_input: (required)
+        :type purge_confirm_input: PurgeConfirmInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._confirm_purge_serialize(
+            purge_confirm_input=purge_confirm_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': "SuccessEnvelopePurgeJobData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def confirm_purge_with_http_info(
+        self,
+        purge_confirm_input: PurgeConfirmInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopePurgeJobData]:
+        """Confirm a memory-space purge (step 2 of 2) [Cloud-only]
+
+        **Permanent — there is no undo.** Step 2 of 2: confirms the `nonce` from `POST /purge` and queues the purge (202). The scope is the one the nonce was issued for.  From this moment every write to the memory space (add, flush, delete, update, feedback, tags, knowledge changes) is rejected with `409 purge_in_progress` until the purge ends; reads keep working and may return partial results. Poll `GET /purge/{job_id}` for progress.  Only one purge per memory space runs at a time: confirming while one is queued or running returns that job. An unknown, expired or already used nonce is `404 purge_nonce_invalid`.
+
+        :param purge_confirm_input: (required)
+        :type purge_confirm_input: PurgeConfirmInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._confirm_purge_serialize(
+            purge_confirm_input=purge_confirm_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': "SuccessEnvelopePurgeJobData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def confirm_purge_without_preload_content(
+        self,
+        purge_confirm_input: PurgeConfirmInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Confirm a memory-space purge (step 2 of 2) [Cloud-only]
+
+        **Permanent — there is no undo.** Step 2 of 2: confirms the `nonce` from `POST /purge` and queues the purge (202). The scope is the one the nonce was issued for.  From this moment every write to the memory space (add, flush, delete, update, feedback, tags, knowledge changes) is rejected with `409 purge_in_progress` until the purge ends; reads keep working and may return partial results. Poll `GET /purge/{job_id}` for progress.  Only one purge per memory space runs at a time: confirming while one is queued or running returns that job. An unknown, expired or already used nonce is `404 purge_nonce_invalid`.
+
+        :param purge_confirm_input: (required)
+        :type purge_confirm_input: PurgeConfirmInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._confirm_purge_serialize(
+            purge_confirm_input=purge_confirm_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '202': "SuccessEnvelopePurgeJobData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _confirm_purge_serialize(
+        self,
+        purge_confirm_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if purge_confirm_input is not None:
+            _body_params = purge_confirm_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/purge/confirm',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def delete_memories_by_ids(
         self,
         delete_by_ids_input: DeleteByIdsInput,
@@ -661,7 +955,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeDeleteByIdsData:
         """Soft-delete memory records by id [Cloud-only]
 
-        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
         :param delete_by_ids_input: (required)
         :type delete_by_ids_input: DeleteByIdsInput
@@ -733,7 +1027,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeDeleteByIdsData]:
         """Soft-delete memory records by id [Cloud-only]
 
-        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
         :param delete_by_ids_input: (required)
         :type delete_by_ids_input: DeleteByIdsInput
@@ -805,7 +1099,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Soft-delete memory records by id [Cloud-only]
 
-        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped rather than reported — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
         :param delete_by_ids_input: (required)
         :type delete_by_ids_input: DeleteByIdsInput
@@ -2088,6 +2382,282 @@ class MemoryApi:
 
 
     @validate_call
+    def get_purge_job(
+        self,
+        job_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopePurgeJobData:
+        """Get a memory-space purge job [Cloud-only]
+
+        Read a purge job by the `job_id` that /api/v2/memory/purge/confirm returned.  `status` goes `queued` → `running` → `succeeded` or `failed`. `steps` lists every store the purge touches (for example `mongo:v2_episodes` or `es:episode`) with its own state and deleted count, and `error` for a store that failed.  Writes to the memory space are rejected with `409 purge_in_progress` until the job has ended, so poll this before writing again.
+
+        :param job_id: (required)
+        :type job_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_purge_job_serialize(
+            job_id=job_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopePurgeJobData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_purge_job_with_http_info(
+        self,
+        job_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopePurgeJobData]:
+        """Get a memory-space purge job [Cloud-only]
+
+        Read a purge job by the `job_id` that /api/v2/memory/purge/confirm returned.  `status` goes `queued` → `running` → `succeeded` or `failed`. `steps` lists every store the purge touches (for example `mongo:v2_episodes` or `es:episode`) with its own state and deleted count, and `error` for a store that failed.  Writes to the memory space are rejected with `409 purge_in_progress` until the job has ended, so poll this before writing again.
+
+        :param job_id: (required)
+        :type job_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_purge_job_serialize(
+            job_id=job_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopePurgeJobData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_purge_job_without_preload_content(
+        self,
+        job_id: StrictStr,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get a memory-space purge job [Cloud-only]
+
+        Read a purge job by the `job_id` that /api/v2/memory/purge/confirm returned.  `status` goes `queued` → `running` → `succeeded` or `failed`. `steps` lists every store the purge touches (for example `mongo:v2_episodes` or `es:episode`) with its own state and deleted count, and `error` for a store that failed.  Writes to the memory space are rejected with `409 purge_in_progress` until the job has ended, so poll this before writing again.
+
+        :param job_id: (required)
+        :type job_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_purge_job_serialize(
+            job_id=job_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopePurgeJobData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_purge_job_serialize(
+        self,
+        job_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if job_id is not None:
+            _path_params['job_id'] = job_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v2/memory/purge/{job_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def replace_tags(
         self,
         tag_replace_input: TagReplaceInput,
@@ -2361,6 +2931,295 @@ class MemoryApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/api/v2/memory/tag/replace',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def request_purge(
+        self,
+        purge_request_input: PurgeRequestInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopePurgeRequestData:
+        """Request a memory-space purge (step 1 of 2) [Cloud-only]
+
+        **Permanent — there is no undo.** Step 1 of 2: asks for a purge and returns a `nonce`. Nothing is deleted yet.  - `scope: \"space\"` purges the whole memory space; `\"app\"` one app (`app_id`); `\"project\"` one project of one app (`app_id` + `project_id`). - Confirm with `POST /purge/confirm` before `expires_at` (5 minutes). The nonce is single use and only valid for the same memory space and API key.  What is deleted: memories, sessions, messages, memory cells, feedback, events and (space scope only) senders and engine knowledge bases, from every index. Not deleted: files uploaded through `/object/sign`, and data of the separate knowledge-base service.
+
+        :param purge_request_input: (required)
+        :type purge_request_input: PurgeRequestInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._request_purge_serialize(
+            purge_request_input=purge_request_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopePurgeRequestData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def request_purge_with_http_info(
+        self,
+        purge_request_input: PurgeRequestInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopePurgeRequestData]:
+        """Request a memory-space purge (step 1 of 2) [Cloud-only]
+
+        **Permanent — there is no undo.** Step 1 of 2: asks for a purge and returns a `nonce`. Nothing is deleted yet.  - `scope: \"space\"` purges the whole memory space; `\"app\"` one app (`app_id`); `\"project\"` one project of one app (`app_id` + `project_id`). - Confirm with `POST /purge/confirm` before `expires_at` (5 minutes). The nonce is single use and only valid for the same memory space and API key.  What is deleted: memories, sessions, messages, memory cells, feedback, events and (space scope only) senders and engine knowledge bases, from every index. Not deleted: files uploaded through `/object/sign`, and data of the separate knowledge-base service.
+
+        :param purge_request_input: (required)
+        :type purge_request_input: PurgeRequestInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._request_purge_serialize(
+            purge_request_input=purge_request_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopePurgeRequestData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def request_purge_without_preload_content(
+        self,
+        purge_request_input: PurgeRequestInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Request a memory-space purge (step 1 of 2) [Cloud-only]
+
+        **Permanent — there is no undo.** Step 1 of 2: asks for a purge and returns a `nonce`. Nothing is deleted yet.  - `scope: \"space\"` purges the whole memory space; `\"app\"` one app (`app_id`); `\"project\"` one project of one app (`app_id` + `project_id`). - Confirm with `POST /purge/confirm` before `expires_at` (5 minutes). The nonce is single use and only valid for the same memory space and API key.  What is deleted: memories, sessions, messages, memory cells, feedback, events and (space scope only) senders and engine knowledge bases, from every index. Not deleted: files uploaded through `/object/sign`, and data of the separate knowledge-base service.
+
+        :param purge_request_input: (required)
+        :type purge_request_input: PurgeRequestInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._request_purge_serialize(
+            purge_request_input=purge_request_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopePurgeRequestData",
+            '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _request_purge_serialize(
+        self,
+        purge_request_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if purge_request_input is not None:
+            _body_params = purge_request_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/purge',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -3551,7 +4410,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeUpdateData:
         """Edit one memory record [Cloud-only]
 
-        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
         :param update_input: (required)
         :type update_input: UpdateInput
@@ -3623,7 +4482,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeUpdateData]:
         """Edit one memory record [Cloud-only]
 
-        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
         :param update_input: (required)
         :type update_input: UpdateInput
@@ -3695,7 +4554,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Edit one memory record [Cloud-only]
 
-        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Profile items are edited through /api/v2/memory/edit, not here.
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
         :param update_input: (required)
         :type update_input: UpdateInput

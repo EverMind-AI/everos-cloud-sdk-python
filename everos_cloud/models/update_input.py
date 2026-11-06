@@ -34,8 +34,9 @@ class UpdateInput(BaseModel):
     memory_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The memory's `id` as returned by /api/v2/memory/get or /search.")
     patch: EpisodePatch = Field(description="The fields to rewrite — at least one. Fields left out keep their current value.")
     reason: Optional[Reason] = None
+    user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["memory_type", "memory_id", "patch", "reason"]
+    __properties: ClassVar[List[str]] = ["memory_type", "memory_id", "patch", "reason", "user_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -94,6 +95,11 @@ class UpdateInput(BaseModel):
         if self.reason is None and "reason" in self.model_fields_set:
             _dict['reason'] = None
 
+        # set to None if user_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.user_id is None and "user_id" in self.model_fields_set:
+            _dict['user_id'] = None
+
         return _dict
 
     @classmethod
@@ -109,7 +115,8 @@ class UpdateInput(BaseModel):
             "memory_type": obj.get("memory_type"),
             "memory_id": obj.get("memory_id"),
             "patch": EpisodePatch.from_dict(obj["patch"]) if obj.get("patch") is not None else None,
-            "reason": Reason.from_dict(obj["reason"]) if obj.get("reason") is not None else None
+            "reason": Reason.from_dict(obj["reason"]) if obj.get("reason") is not None else None,
+            "user_id": obj.get("user_id")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

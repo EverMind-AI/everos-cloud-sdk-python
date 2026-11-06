@@ -32,8 +32,9 @@ class DeleteByIdsInput(BaseModel):
     memory_type: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Kind of the memories being deleted. Only \"episode\" is accepted today.")
     memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=50)] = Field(description="1 to 50 memory ids. Every one must be well-formed; duplicates are collapsed.")
     reason: Optional[Reason] = None
+    user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "reason"]
+    __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "reason", "user_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -89,6 +90,11 @@ class DeleteByIdsInput(BaseModel):
         if self.reason is None and "reason" in self.model_fields_set:
             _dict['reason'] = None
 
+        # set to None if user_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.user_id is None and "user_id" in self.model_fields_set:
+            _dict['user_id'] = None
+
         return _dict
 
     @classmethod
@@ -103,7 +109,8 @@ class DeleteByIdsInput(BaseModel):
         _obj = cls.model_validate({
             "memory_type": obj.get("memory_type"),
             "memory_ids": obj.get("memory_ids"),
-            "reason": Reason.from_dict(obj["reason"]) if obj.get("reason") is not None else None
+            "reason": Reason.from_dict(obj["reason"]) if obj.get("reason") is not None else None,
+            "user_id": obj.get("user_id")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

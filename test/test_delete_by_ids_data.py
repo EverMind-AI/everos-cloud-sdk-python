@@ -37,12 +37,14 @@ class TestDeleteByIdsData(unittest.TestCase):
         if include_optional:
             return DeleteByIdsData(
                 memory_type = '',
-                success = True
+                success = True,
+                deleted = 56
             )
         else:
             return DeleteByIdsData(
                 memory_type = '',
                 success = True,
+                deleted = 56,
         )
         """
 

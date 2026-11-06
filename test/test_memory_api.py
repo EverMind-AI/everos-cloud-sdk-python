@@ -41,6 +41,13 @@ class TestMemoryApi(unittest.TestCase):
         """
         pass
 
+    def test_confirm_purge(self) -> None:
+        """Test case for confirm_purge
+
+        Confirm a memory-space purge (step 2 of 2) [Cloud-only]
+        """
+        pass
+
     def test_delete_memories_by_ids(self) -> None:
         """Test case for delete_memories_by_ids
 
@@ -76,10 +83,24 @@ class TestMemoryApi(unittest.TestCase):
         """
         pass
 
+    def test_get_purge_job(self) -> None:
+        """Test case for get_purge_job
+
+        Get a memory-space purge job [Cloud-only]
+        """
+        pass
+
     def test_replace_tags(self) -> None:
         """Test case for replace_tags
 
         Replace tags on memories [Cloud]
+        """
+        pass
+
+    def test_request_purge(self) -> None:
+        """Test case for request_purge
+
+        Request a memory-space purge (step 1 of 2) [Cloud-only]
         """
         pass
 

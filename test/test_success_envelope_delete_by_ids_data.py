@@ -39,14 +39,16 @@ class TestSuccessEnvelopeDeleteByIdsData(unittest.TestCase):
                 request_id = '',
                 data = everos_cloud.models.delete_by_ids_data.DeleteByIdsData(
                     memory_type = '', 
-                    success = True, )
+                    success = True, 
+                    deleted = 56, )
             )
         else:
             return SuccessEnvelopeDeleteByIdsData(
                 request_id = '',
                 data = everos_cloud.models.delete_by_ids_data.DeleteByIdsData(
                     memory_type = '', 
-                    success = True, ),
+                    success = True, 
+                    deleted = 56, ),
         )
         """
 

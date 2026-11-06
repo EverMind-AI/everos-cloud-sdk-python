@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **memory_id** | **str** | The memory&#39;s &#x60;id&#x60; as returned by /api/v2/memory/get or /search. | 
 **patch** | [**EpisodePatch**](EpisodePatch.md) | The fields to rewrite — at least one. Fields left out keep their current value. | 
 **reason** | [**Reason**](Reason.md) |  | [optional] 
+**user_id** | **str** |  | [optional] 
 
 ## Example
 

@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **memory_type** | **str** | The memory type the request named. | 
 **success** | **bool** | Always true on a 200 — the batch was applied. Failures use the error envelope instead. | 
+**deleted** | **int** | Records this request removed. Ids that were absent, already deleted, another tenant&#39;s or (with &#x60;user_id&#x60;) another user&#39;s are skipped and count 0 alike. | 
 
 ## Example
 
