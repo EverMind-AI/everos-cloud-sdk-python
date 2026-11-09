@@ -27,12 +27,11 @@ from typing_extensions import Self
 
 class ContextInput(BaseModel):
     """
-    Request body of `POST /api/v2/memory/context`.  The same fields as the `/search` request, except that `method` is fixed to `\"context\"`, `min_score` is not supported, and `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted.
+    Request body of `POST /api/v2/memory/context`.  The same fields as the `/search` request, except that `user_id` is required and `agent_id` is not accepted (user memories only), `method` is fixed to `\"context\"`, `min_score` is not supported, and `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted.
     """ # noqa: E501
     app_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Scope to search in, defaulting to \"default\". Must match the pair used on write.")
     project_id: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default='default', description="Second half of the scope, defaulting to \"default\".")
-    user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
-    agent_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    user_id: Annotated[str, Field(min_length=1, strict=True, max_length=256)] = Field(description="Required. The user whose memories are searched — matched against the messages' `sender_id`. `agent_id` is not accepted here (422); use /search for agent memories.")
     query: Annotated[str, Field(min_length=1, strict=True)] = Field(description="The question to retrieve for. The loop keeps searching until it judges the evidence sufficient to answer it, so pass the whole question, not keywords.")
     method: Optional[StrictStr] = Field(default='context', description="Fixed to `\"context\"`; may be omitted. Any other value is a 422.")
     top_k: Optional[StrictInt] = Field(default=-1, description="Maximum number of episodes returned. Either -1 (the default, letting the engine decide) or a value from 1 to 100; anything else is rejected with 422.")
@@ -40,7 +39,7 @@ class ContextInput(BaseModel):
     include_profile: Optional[StrictBool] = Field(default=False, description="Also return the user's profile alongside the episodes, as on /search.")
     filters: Optional[FilterNode] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "agent_id", "query", "method", "top_k", "min_score", "include_profile", "filters"]
+    __properties: ClassVar[List[str]] = ["app_id", "project_id", "user_id", "query", "method", "top_k", "min_score", "include_profile", "filters"]
 
     @field_validator('method')
     def method_validate_enum(cls, value):
@@ -101,16 +100,6 @@ class ContextInput(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
-        # set to None if user_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.user_id is None and "user_id" in self.model_fields_set:
-            _dict['user_id'] = None
-
-        # set to None if agent_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.agent_id is None and "agent_id" in self.model_fields_set:
-            _dict['agent_id'] = None
-
         # set to None if min_score (nullable) is None
         # and model_fields_set contains the field
         if self.min_score is None and "min_score" in self.model_fields_set:
@@ -136,7 +125,6 @@ class ContextInput(BaseModel):
             "app_id": obj.get("app_id") if obj.get("app_id") is not None else 'default',
             "project_id": obj.get("project_id") if obj.get("project_id") is not None else 'default',
             "user_id": obj.get("user_id"),
-            "agent_id": obj.get("agent_id"),
             "query": obj.get("query"),
             "method": obj.get("method") if obj.get("method") is not None else 'context',
             "top_k": obj.get("top_k") if obj.get("top_k") is not None else -1,

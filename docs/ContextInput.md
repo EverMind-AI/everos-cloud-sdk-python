@@ -1,6 +1,6 @@
 # ContextInput
 
-Request body of `POST /api/v2/memory/context`.  The same fields as the `/search` request, except that `method` is fixed to `\"context\"`, `min_score` is not supported, and `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted.
+Request body of `POST /api/v2/memory/context`.  The same fields as the `/search` request, except that `user_id` is required and `agent_id` is not accepted (user memories only), `method` is fixed to `\"context\"`, `min_score` is not supported, and `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted.
 
 ## Properties
 
@@ -8,8 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **app_id** | **str** | Scope to search in, defaulting to \&quot;default\&quot;. Must match the pair used on write. | [optional] [default to 'default']
 **project_id** | **str** | Second half of the scope, defaulting to \&quot;default\&quot;. | [optional] [default to 'default']
-**user_id** | **str** |  | [optional] 
-**agent_id** | **str** |  | [optional] 
+**user_id** | **str** | Required. The user whose memories are searched — matched against the messages&#39; &#x60;sender_id&#x60;. &#x60;agent_id&#x60; is not accepted here (422); use /search for agent memories. | 
 **query** | **str** | The question to retrieve for. The loop keeps searching until it judges the evidence sufficient to answer it, so pass the whole question, not keywords. | 
 **method** | **str** | Fixed to &#x60;\&quot;context\&quot;&#x60;; may be omitted. Any other value is a 422. | [optional] [default to 'context']
 **top_k** | **int** | Maximum number of episodes returned. Either -1 (the default, letting the engine decide) or a value from 1 to 100; anything else is rejected with 422. | [optional] [default to -1]
