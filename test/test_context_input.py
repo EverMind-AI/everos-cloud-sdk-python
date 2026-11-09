@@ -39,7 +39,6 @@ class TestContextInput(unittest.TestCase):
                 app_id = 'default',
                 project_id = 'default',
                 user_id = '0',
-                agent_id = '0',
                 query = '0',
                 method = 'context',
                 top_k = 56,
@@ -49,6 +48,7 @@ class TestContextInput(unittest.TestCase):
             )
         else:
             return ContextInput(
+                user_id = '0',
                 query = '0',
         )
         """

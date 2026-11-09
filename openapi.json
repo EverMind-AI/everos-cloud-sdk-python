@@ -113,7 +113,7 @@
           "Memory"
         ],
         "summary": "Context Retrieval [Cloud-only]",
-        "description": "Retrieve memories with a multi-round, LLM-driven search loop.\n\nAn LLM plans and runs several searches over the owner's memories \u2014 keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session \u2014 and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.\n\nUse it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.\n\n**Request** \u2014 the same body as `/search`, except:\n- `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422.\n- `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score.\n- `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.\n\n**Response** \u2014 the same `SearchData` shape as `/search`:\n- The loop returns its memories in `episodes`, for a `user_id` owner only; for an `agent_id` owner `episodes`, `agent_cases` and `agent_skills` are empty. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`.\n- `episodes[].cited` is `true` for memories the model named as the ones its answer rested on.\n- `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01\u20130.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.\n\n**Limits** \u2014 by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.\n\n**Latency** \u2014 several LLM calls per request, so noticeably slower than `/search`.",
+        "description": "Retrieve memories with a multi-round, LLM-driven search loop.\n\nAn LLM plans and runs several searches over the owner's memories \u2014 keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session \u2014 and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.\n\nUse it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.\n\n**Request** \u2014 the same body as `/search`, except:\n- `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories.\n- `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422.\n- `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score.\n- `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.\n\n**Response** \u2014 the same `SearchData` shape as `/search`:\n- The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`.\n- `episodes[].cited` is `true` for memories the model named as the ones its answer rested on.\n- `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01\u20130.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.\n\n**Limits** \u2014 by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.\n\n**Latency** \u2014 several LLM calls per request, so noticeably slower than `/search`.",
         "operationId": "retrieveContext",
         "requestBody": {
           "content": {
@@ -769,7 +769,7 @@
           "Memory"
         ],
         "summary": "Request a memory-space purge (step 1 of 2) [Cloud-only]",
-        "description": "**Permanent \u2014 there is no undo.** Step 1 of 2: asks for a purge and returns a `nonce`. Nothing is deleted yet.\n\n- `scope: \"space\"` purges the whole memory space; `\"app\"` one app (`app_id`); `\"project\"` one project of one app (`app_id` + `project_id`).\n- Confirm with `POST /purge/confirm` before `expires_at` (5 minutes). The nonce is single use and only valid for the same memory space and API key.\n\nWhat is deleted: memories, sessions, messages, memory cells, feedback, events and (space scope only) senders and engine knowledge bases, from every index. Not deleted: files uploaded through `/object/sign`, and data of the separate knowledge-base service.",
+        "description": "**Permanent \u2014 there is no undo.** Step 1 of 2: asks for a purge and returns a `nonce`. Nothing is deleted yet.\n\n- `scope: \"space\"` purges the whole memory space; `\"app\"` one app (`app_id`); `\"project\"` one project of one app (`app_id` + `project_id`).\n- Confirm with `POST /purge/confirm` before `expires_at` (5 minutes). The nonce is single use and only valid for the same memory space and API key.\n\nWhat is deleted: memories, sessions, messages, memory cells, feedback, events and (space scope only) senders and knowledge bases (`/api/v2/knowledge_bases`: categories, documents, topics), from every index. Left in object storage, no longer reachable through the API: files uploaded through `/object/sign`, and (space scope) the stored text of knowledge base topics.",
         "operationId": "requestPurge",
         "requestBody": {
           "content": {
@@ -4398,32 +4398,11 @@
             "description": "Second half of the scope, defaulting to \"default\"."
           },
           "user_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 256,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
             "title": "User Id",
-            "description": "Search one user's memories \u2014 matched against the messages' `sender_id`. Exactly one of `user_id` / `agent_id` is required, and only a user owner gets episodes back."
-          },
-          "agent_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 256,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Agent Id",
-            "description": "Accepted for symmetry with /search, but the loop retrieves user episodes only: with an agent owner every result collection is empty."
+            "description": "Required. The user whose memories are searched \u2014 matched against the messages' `sender_id`. `agent_id` is not accepted here (422); use /search for agent memories."
           },
           "query": {
             "type": "string",
@@ -4479,10 +4458,11 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "user_id",
           "query"
         ],
         "title": "ContextInput",
-        "description": "Request body of `POST /api/v2/memory/context`.\n\nThe same fields as the `/search` request, except that `method` is fixed to\n`\"context\"`, `min_score` is not supported, and `radius`, `enable_llm_rerank` and\n`with_readable_episode` are not accepted."
+        "description": "Request body of `POST /api/v2/memory/context`.\n\nThe same fields as the `/search` request, except that `user_id` is required and\n`agent_id` is not accepted (user memories only), `method` is fixed to `\"context\"`,\n`min_score` is not supported, and `radius`, `enable_llm_rerank` and\n`with_readable_episode` are not accepted."
       },
       "DeleteByIdsData": {
         "properties": {
