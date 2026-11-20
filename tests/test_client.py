@@ -19,6 +19,8 @@ from everos_cloud.models import (
     PurgeConfirmInput,
     PurgeRequestInput,
     Reason,
+    RebuildInput,
+    RebuildStatusInput,
     SearchBody,
     SearchInput,
     TagBindInput,
@@ -1076,3 +1078,120 @@ def test_a_write_during_a_purge_surfaces_its_code():
     with pytest.raises(EverOSAPIError) as ei:
         c.flush("s1")
     assert ei.value.code == "purge_in_progress"
+
+
+# ── app / project guards on update / delete_by_ids (1.3.0) ───────────────────
+def test_update_and_delete_by_ids_send_app_and_project_only_when_given():
+    mem = MagicMock()
+    c = EverOS("sk-test", app_id="my-app", project_id="p1")
+    c.memory = mem
+
+    c.update("m1", subject="t", app_id="a1", project_id="p9")
+    c.delete_by_ids(["m1"], user_id="u1", app_id="a1", project_id="p9")
+    up = mem.update_memory.call_args.args[0]
+    dl = mem.delete_memories_by_ids.call_args.args[0]
+    assert (up.app_id, up.project_id) == ("a1", "p9")
+    assert (dl.app_id, dl.project_id, dl.user_id) == ("a1", "p9", "u1")
+
+
+def test_app_and_project_guards_never_come_from_the_client_scope():
+    """A guard, not a scope: a client built for one app must not quietly stop deleting
+    ids from another app that callers pass today."""
+    mem = MagicMock()
+    c = EverOS("sk-test", app_id="my-app", project_id="p1")
+    c.memory = mem
+
+    c.update("m1", subject="t")
+    c.delete_by_ids(["m1"])
+    for payload in (mem.update_memory.call_args.args[0], mem.delete_memories_by_ids.call_args.args[0]):
+        sent = payload.to_dict()
+        assert "app_id" not in sent and "project_id" not in sent
+
+
+# ── rebuild of stale derived memories (1.3.0) ────────────────────────────────
+def test_rebuild_builds_input_with_the_client_scope():
+    """Unlike the guards, rebuild names an owner IN a scope, like delete()."""
+    mem = MagicMock()
+    mem.rebuild_memory.return_value = SimpleNamespace(data="R")
+    c = EverOS("sk-test", app_id="my-app", project_id="p1")
+    c.memory = mem
+
+    assert c.rebuild(user_id="u1", targets=("profile",), dry_run=True) == "R"
+    payload = mem.rebuild_memory.call_args.args[0]
+    assert isinstance(payload, RebuildInput)
+    assert (payload.user_id, payload.targets, payload.dry_run) == ("u1", ["profile"], True)
+    assert (payload.app_id, payload.project_id) == ("my-app", "p1")
+
+    c.rebuild(agent_id="assistant-1", app_id="a2", project_id="p2")
+    sent = mem.rebuild_memory.call_args.args[0].to_dict()
+    assert sent["agent_id"] == "assistant-1" and (sent["app_id"], sent["project_id"]) == ("a2", "p2")
+    assert "user_id" not in sent and "targets" not in sent   # unset fields stay unset
+
+
+def test_rebuild_status_and_generated_names():
+    mem = MagicMock()
+    mem.get_rebuild_status.return_value = SimpleNamespace(data="S")
+    c = _client(memory=mem)
+
+    assert c.rebuild_status("job-9") == "S"
+    payload = mem.get_rebuild_status.call_args.args[0]
+    assert isinstance(payload, RebuildStatusInput) and payload.job_id == "job-9"
+
+    c2 = EverOS("sk-test")
+    with pytest.raises(AttributeError) as ei:
+        c2.rebuild_memory
+    assert "client.rebuild(" in str(ei.value)
+
+
+def test_rebuild_wait_polls_until_succeeded_and_raises_on_failure():
+    mem = MagicMock()
+    mem.get_rebuild_status.side_effect = [
+        SimpleNamespace(data=SimpleNamespace(status="queued", finished_at=None)),
+        ApiException(status=503, reason="unavailable"),
+        SimpleNamespace(data=SimpleNamespace(status="succeeded", finished_at="2026-11-20T00:00:00Z")),
+    ]
+    c = _client(memory=mem)
+    assert c.rebuild_wait("job-9", interval=0).status == "succeeded"
+    assert mem.get_rebuild_status.call_count == 3
+
+    failed = SimpleNamespace(status="failed", finished_at="2026-11-20T00:00:00Z", error="llm timeout")
+    mem.get_rebuild_status.side_effect = None
+    mem.get_rebuild_status.return_value = SimpleNamespace(data=failed)
+    with pytest.raises(EverOSError) as ei:
+        c.rebuild_wait("job-9", interval=0)
+    assert "llm timeout" in str(ei.value) and ei.value.job is failed
+    assert c.rebuild_wait("job-9", interval=0, raise_on_failure=False) is failed
+
+
+def test_rebuild_wait_times_out_with_the_last_job():
+    mem = MagicMock()
+    mem.get_rebuild_status.return_value = SimpleNamespace(
+        data=SimpleNamespace(status="running", finished_at=None)
+    )
+    c = _client(memory=mem)
+    with pytest.raises(EverOSError) as ei:
+        c.rebuild_wait("job-9", timeout=0, interval=0)
+    assert ei.value.job.status == "running"
+
+
+def test_rebuild_wait_without_a_job_says_why():
+    """nothing_to_do / dry_run return job_id None; waiting on it must explain, not fail
+    deep inside model validation."""
+    mem = MagicMock()
+    c = _client(memory=mem)
+    with pytest.raises(ValueError, match="nothing_to_do"):
+        c.rebuild_wait(None)
+    mem.get_rebuild_status.assert_not_called()
+
+
+def test_rebuild_wait_takes_the_rebuild_result():
+    mem = MagicMock()
+    mem.get_rebuild_status.return_value = SimpleNamespace(
+        data=SimpleNamespace(status="succeeded", finished_at="2026-11-20T00:00:00Z")
+    )
+    c = _client(memory=mem)
+    started = SimpleNamespace(status="queued", job_id="job-7")
+    assert c.rebuild_wait(started, interval=0).status == "succeeded"
+    assert mem.get_rebuild_status.call_args.args[0].job_id == "job-7"
+    with pytest.raises(ValueError, match="nothing_to_do"):
+        c.rebuild_wait(SimpleNamespace(status="nothing_to_do", job_id=None))

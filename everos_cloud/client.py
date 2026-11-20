@@ -61,6 +61,8 @@ from everos_cloud.models import (
     PurgeConfirmInput,
     PurgeRequestData,
     PurgeRequestInput,
+    RebuildInput,
+    RebuildStatusInput,
     Reason,
     SearchBody,
     SearchInput,
@@ -80,6 +82,7 @@ DEFAULT_TASK_TIMEOUT = 300.0  # seconds to wait for an async task before giving 
 DEFAULT_TASK_INTERVAL = 2.0  # seconds before the first task re-poll
 DEFAULT_TASK_MAX_INTERVAL = 15.0  # ceiling for the backoff between task polls
 DEFAULT_PURGE_TIMEOUT = 1800.0  # seconds; a purge of a large memory space takes minutes
+DEFAULT_REBUILD_TIMEOUT = 1800.0  # seconds; a profile rebuild re-reads every remaining episode
 
 # Statuses worth retrying DURING a poll rather than aborting the whole wait. A long
 # ingest polled at a fixed interval is itself a source of 429s, and a wait that dies
@@ -107,6 +110,7 @@ _FACADE_FOR = {
     "get_task_status": "task_get", "list_tasks": "task_list",
     "request_purge": "purge_request", "confirm_purge": "purge_confirm",
     "get_purge_job": "purge_get",
+    "rebuild_memory": "rebuild", "get_rebuild_status": "rebuild_status",
 }
 _API_ATTRS = ("memory", "storage", "knowledge", "tasks")
 
@@ -116,7 +120,8 @@ _API_ATTRS = ("memory", "storage", "knowledge", "tasks")
 # and the contract documents `finished_at` as "absent while the task is not in a
 # terminal state" — so the timestamp, not the enum, is the load-bearing signal.
 _TERMINAL_TASK_STATUS = frozenset({"success", "failed"})
-# Same reasoning for purge jobs, whose terminal statuses are spelled differently.
+# Same reasoning for purge and rebuild jobs, whose terminal statuses are spelled
+# differently.
 _TERMINAL_PURGE_STATUS = frozenset({"succeeded", "failed"})
 
 _OP_CLASSES = {"add": AddOperation, "update": UpdateOperation, "delete": DeleteOperation}
@@ -167,6 +172,13 @@ def _task_finished(item: Any) -> bool:
 
 def _purge_finished(job: Any) -> bool:
     """Has this purge job ended? Same rule as :func:`_task_finished`."""
+    if getattr(job, "finished_at", None) is not None:
+        return True
+    return getattr(job, "status", None) in _TERMINAL_PURGE_STATUS
+
+
+def _rebuild_finished(job: Any) -> bool:
+    """Has this rebuild job ended? Same rule as :func:`_task_finished`."""
     if getattr(job, "finished_at", None) is not None:
         return True
     return getattr(job, "status", None) in _TERMINAL_PURGE_STATUS
@@ -390,7 +402,12 @@ class EverOS:
         app_id: str | None = None,
         project_id: str | None = None,
     ) -> Any:
-        """Add conversation messages to a session. Returns the ``AddData`` result."""
+        """Add conversation messages to a session. Returns the ``AddData`` result.
+
+        By default the write is queued (``async_mode`` unset): the call returns before
+        the messages land. To :meth:`flush` right after, pass ``async_mode=False``, or
+        the flush can run before the queued write and extract nothing.
+        """
         payload = AddInput(
             **_clean(
                 session_id=session_id,
@@ -450,7 +467,8 @@ class EverOS:
         """Context Retrieval: an LLM searches in rounds until the evidence suffices.
 
         Returns ``SearchData``, the same shape as :meth:`search` — memories, not an
-        answer. ``episodes[].cited`` marks the ones the model's answer rested on, and
+        answer (a deployment can enable an answer mode that also fills ``answer``;
+        EverOS Cloud does not). ``episodes[].cited`` marks the ones the model's answer rested on, and
         ``score`` is a rank-fusion score, not comparable with search scores. User owners
         only. The server caps the loop at 45 s and returns what it found so far, which
         fits the client's default 60 s timeout; a client built with a shorter timeout
@@ -499,7 +517,11 @@ class EverOS:
         return self._call(self.memory.get_memory, payload).data
 
     def flush(self, session_id: str, *, app_id: str | None = None, project_id: str | None = None) -> Any:
-        """Force extraction for a session. Returns ``FlushData``."""
+        """Force extraction for a session. Returns ``FlushData``.
+
+        Only extracts what has already landed: after a queued :meth:`add` (the default),
+        a flush can come too early. Add with ``async_mode=False`` before flushing.
+        """
         payload = FlushInput(**_clean(session_id=session_id, **self._scope(app_id, project_id)))
         # Method name is being cleaned up (flush_api_v2_memory_flush_post -> flush_memory);
         # call whichever the installed SDK exposes so the facade survives the rename.
@@ -533,7 +555,14 @@ class EverOS:
         app_id: str | None = None,
         project_id: str | None = None,
     ) -> Any:
-        """Scoped soft-delete of memories. Returns ``DeleteData``."""
+        """Delete memories by owner and/or session. **Permanent.** Returns ``DeleteData``.
+
+        Deleted memories are removed for good. A session-only delete also removes that
+        session's source messages. Memories derived from what was deleted are cleaned up;
+        the ones only an LLM can regenerate (the profile, session summaries, agent
+        skills) are kept and marked stale instead: ``rebuild_required`` and ``targets``
+        on the result say so. Nothing is regenerated until you call :meth:`rebuild`.
+        """
         payload = DeleteInput(
             **_clean(
                 user_id=user_id,
@@ -545,8 +574,10 @@ class EverOS:
         return self._call(self.memory.delete_memory, payload).data
 
     # -- single-memory edits -------------------------------------------------
-    # These target memories by id, so like the tag calls they carry NO app_id /
-    # project_id and `_scope` does not apply. Facade names are the last segment of
+    # These target memories by id, so `_scope` does not apply: the client's app_id /
+    # project_id defaults are never sent. Here app_id / project_id are optional
+    # GUARDS, not a scope: passed explicitly, they refuse a memory outside that app /
+    # project like a missing one; left out, the id alone selects, in any app. Facade names are the last segment of
     # the route: /memory/update -> update, /memory/delete_by_ids -> delete_by_ids,
     # /memory/feedback -> feedback.
     def update(
@@ -558,6 +589,8 @@ class EverOS:
         subject: str | None = None,
         reason: ReasonLike | None = None,
         user_id: str | None = None,
+        app_id: str | None = None,
+        project_id: str | None = None,
         memory_type: str = "episode",
     ) -> Any:
         """Patch one episode's ``episode`` text, ``summary`` and/or ``subject``.
@@ -569,7 +602,10 @@ class EverOS:
         ``user_id`` limits the edit to that user's memory: a memory owned by anyone else
         is a 404, exactly like a missing one. In an agent tool, set it from your own
         session (the signed-in user), never from model output, so a wrong or invented
-        ``memory_id`` cannot reach another user's memory.
+        ``memory_id`` cannot reach another user's memory. ``app_id`` / ``project_id``
+        do the same for an app or project: a memory outside it is a 404. They are NOT
+        filled from the client's defaults; pass them when a caller (an agent tool, a
+        per-app integration) must stay inside one app / project.
 
         Profile items are edited with :meth:`edit`, not here.
         """
@@ -583,6 +619,8 @@ class EverOS:
                 patch=EpisodePatch(**patch),
                 reason=self._to_reason(reason),
                 user_id=user_id,
+                app_id=app_id,
+                project_id=project_id,
             )
         )
         return self._call(self.memory.update_memory, payload).data
@@ -593,16 +631,21 @@ class EverOS:
         *,
         reason: ReasonLike | None = None,
         user_id: str | None = None,
+        app_id: str | None = None,
+        project_id: str | None = None,
         memory_type: str = "episode",
     ) -> Any:
-        """Soft-delete 1-50 memories by id. Returns ``DeleteByIdsData``.
+        """Delete 1-50 memories by id. **Permanent.** Returns ``DeleteByIdsData``.
 
         Ids that do not exist are skipped; one malformed id fails the whole batch (422).
         ``deleted`` on the result counts what this call removed, so a 0 means nothing
         was. ``user_id`` deletes only that user's memories: ids owned by anyone else are
         skipped like missing ones. As with :meth:`update`, set it from your own session,
-        never from model output. To clear a whole user / agent / session, use
-        :meth:`delete`.
+        never from model output; ``app_id`` / ``project_id`` (never taken from the
+        client's defaults) skip ids outside that app / project the same way. As with
+        :meth:`delete`, a stale profile or summary is reported in ``rebuild_required`` /
+        ``targets``, to refresh with :meth:`rebuild`. To clear a whole user / agent /
+        session, use :meth:`delete`.
         """
         payload = DeleteByIdsInput(
             **_clean(
@@ -610,6 +653,8 @@ class EverOS:
                 memory_ids=list(memory_ids),
                 reason=self._to_reason(reason),
                 user_id=user_id,
+                app_id=app_id,
+                project_id=project_id,
             )
         )
         return self._call(self.memory.delete_memories_by_ids, payload).data
@@ -1010,6 +1055,98 @@ class EverOS:
             err.job = job
             raise err
         return job
+
+    # -- rebuild of stale derived memories ---------------------------------------
+    # A delete never spends LLM calls, so what only an LLM can regenerate (the profile,
+    # session summaries, agent skills) is marked stale instead. These calls regenerate
+    # it, when the caller decides to: the rebuild is free, the extraction it runs is
+    # metered like any extraction.
+    def rebuild(
+        self,
+        *,
+        user_id: str | None = None,
+        agent_id: str | None = None,
+        targets: Sequence[str] | None = None,
+        force: bool | None = None,
+        dry_run: bool | None = None,
+        app_id: str | None = None,
+        project_id: str | None = None,
+    ) -> Any:
+        """Regenerate what deletes marked stale, for one owner. Returns ``RebuildData``.
+
+        Pass ``user_id`` (profile, session summaries) or ``agent_id`` (skills).
+        ``targets`` narrows it to some of ``"profile"`` / ``"session_summary"`` /
+        ``"skill"``; by default everything marked stale is rebuilt. ``force`` rebuilds
+        the profile / skills even when nothing is marked (an owner with no profile yet
+        has none to rebuild: the next extraction creates it); ``dry_run`` only reports
+        what would be rebuilt and spends nothing. Batch your deletes first, then call this
+        once.
+
+        The call is free, but the extraction it runs is metered like any extraction (a
+        profile rebuild re-reads every remaining episode: ``estimated_episodes`` on a
+        ``dry_run`` sizes it), and it is refused with a 429 once the account's usage
+        quota is exhausted. As with the delete guards, take the owner from your own
+        session, never from model output.
+
+        ``status`` is ``"queued"`` (follow ``job_id`` with :meth:`rebuild_wait`),
+        ``"already_running"`` (the owner's running job; one at a time),
+        ``"nothing_to_do"`` or ``"dry_run"`` (no job, ``job_id`` is ``None``). While a
+        profile rebuild runs, the profile holds only its manually edited items plus what
+        has been re-extracted so far.
+        """
+        payload = RebuildInput(
+            **_clean(
+                user_id=user_id,
+                agent_id=agent_id,
+                targets=list(targets) if targets is not None else None,
+                force=force,
+                dry_run=dry_run,
+                **self._scope(app_id, project_id),
+            )
+        )
+        return self._call(self.memory.rebuild_memory, payload).data
+
+    def rebuild_status(self, job_id: str) -> Any:
+        """Read a rebuild job. Returns ``RebuildStatusData`` (``status``, ``progress``)."""
+        return self._call(self.memory.get_rebuild_status, RebuildStatusInput(job_id=job_id)).data
+
+    def rebuild_wait(
+        self,
+        job: Any,
+        *,
+        timeout: float = DEFAULT_REBUILD_TIMEOUT,
+        interval: float = DEFAULT_TASK_INTERVAL,
+        max_interval: float = DEFAULT_TASK_MAX_INTERVAL,
+        raise_on_failure: bool = True,
+    ) -> Any:
+        """Poll a rebuild job until it ends and return the terminal ``RebuildStatusData``.
+
+        Pass the result of :meth:`rebuild` (``client.rebuild_wait(client.rebuild(...))``)
+        or its ``job_id``. Same polling as :meth:`task_wait`. Raises ``EverOSError`` if the job fails
+        (unless ``raise_on_failure=False``, which returns it) or is still running at
+        ``timeout``; the last job seen is on the error's ``.job``. Timing out only ends
+        the wait, not the rebuild: call ``rebuild_wait`` again to keep waiting.
+        """
+        job_id = job if isinstance(job, str) or job is None else getattr(job, "job_id", None)
+        if not job_id:
+            raise ValueError(
+                "no rebuild job to wait for: rebuild() starts one only when its status is "
+                "'queued' or 'already_running' ('nothing_to_do' and 'dry_run' have no job_id)"
+            )
+        last = self._poll(
+            lambda: self.rebuild_status(job_id),
+            _rebuild_finished,
+            what=f"rebuild {job_id}",
+            attr="job",
+            timeout=timeout,
+            interval=interval,
+            max_interval=max_interval,
+        )
+        if raise_on_failure and getattr(last, "status", None) == "failed":
+            err = EverOSError(f"rebuild {job_id} failed: {getattr(last, 'error', None) or 'no reason given'}")
+            err.job = last
+            raise err
+        return last
 
     # -- storage -------------------------------------------------------------
     def presign(self, objects: Sequence[Any]) -> Any:
