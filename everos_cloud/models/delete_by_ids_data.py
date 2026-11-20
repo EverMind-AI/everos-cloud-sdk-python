@@ -18,20 +18,33 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
 class DeleteByIdsData(BaseModel):
     """
-    Result of a by-ids soft delete. A 200 means the request was applied; ids that were already gone are a no-op, not a failure, so a re-sent batch is safe.
+    Result of a by-ids delete. A 200 means the request was applied; ids that were already gone are a no-op, not a failure, so a re-sent batch is safe.
     """ # noqa: E501
     memory_type: StrictStr = Field(description="The memory type the request named.")
     success: StrictBool = Field(description="Always true on a 200 — the batch was applied. Failures use the error envelope instead.")
     deleted: StrictInt = Field(description="Records this request removed. Ids that were absent, already deleted, another tenant's or (with `user_id`) another user's are skipped and count 0 alike.")
+    rebuild_required: Optional[StrictBool] = Field(default=False, description="True when derived memories built from the deleted ones were kept and may still contain their content; call /memory/rebuild to regenerate them.")
+    targets: Optional[List[StrictStr]] = Field(default=None, description="What /memory/rebuild would regenerate; empty when nothing.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["memory_type", "success", "deleted"]
+    __properties: ClassVar[List[str]] = ["memory_type", "success", "deleted", "rebuild_required", "targets"]
+
+    @field_validator('targets')
+    def targets_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        for i in value:
+            if i not in set(['profile', 'session_summary', 'skill']):
+                raise ValueError("each list item must be one of ('profile', 'session_summary', 'skill')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -93,7 +106,9 @@ class DeleteByIdsData(BaseModel):
         _obj = cls.model_validate({
             "memory_type": obj.get("memory_type"),
             "success": obj.get("success"),
-            "deleted": obj.get("deleted")
+            "deleted": obj.get("deleted"),
+            "rebuild_required": obj.get("rebuild_required") if obj.get("rebuild_required") is not None else False,
+            "targets": obj.get("targets")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

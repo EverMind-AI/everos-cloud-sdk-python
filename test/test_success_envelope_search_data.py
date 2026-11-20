@@ -77,6 +77,7 @@ class TestSuccessEnvelopeSearchData(unittest.TestCase):
                             profile_data = { }, 
                             created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                             updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                            stale = True, 
                             score = 1.337, )
                         ], 
                     agent_cases = [
@@ -131,7 +132,8 @@ class TestSuccessEnvelopeSearchData(unittest.TestCase):
                                         arguments = '', ), )
                                 ], 
                             tool_call_id = '', )
-                        ], )
+                        ], 
+                    answer = '', )
             )
         else:
             return SuccessEnvelopeSearchData(
@@ -176,6 +178,7 @@ class TestSuccessEnvelopeSearchData(unittest.TestCase):
                             profile_data = { }, 
                             created_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
                             updated_at = datetime.datetime.strptime('2013-10-20 19:20:30.00', '%Y-%m-%d %H:%M:%S.%f'), 
+                            stale = True, 
                             score = 1.337, )
                         ], 
                     agent_cases = [
@@ -230,7 +233,8 @@ class TestSuccessEnvelopeSearchData(unittest.TestCase):
                                         arguments = '', ), )
                                 ], 
                             tool_call_id = '', )
-                        ], ),
+                        ], 
+                    answer = '', ),
         )
         """
 

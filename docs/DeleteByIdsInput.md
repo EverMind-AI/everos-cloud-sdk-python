@@ -1,6 +1,6 @@
 # DeleteByIdsInput
 
-Soft-delete the named memory records [Cloud-only].
+Permanently delete the named memory records [Cloud-only].
 
 ## Properties
 
@@ -10,6 +10,8 @@ Name | Type | Description | Notes
 **memory_ids** | **List[str]** | 1 to 50 memory ids. Every one must be well-formed; duplicates are collapsed. | 
 **reason** | [**Reason**](Reason.md) |  | [optional] 
 **user_id** | **str** |  | [optional] 
+**app_id** | **str** |  | [optional] 
+**project_id** | **str** |  | [optional] 
 
 ## Example
 

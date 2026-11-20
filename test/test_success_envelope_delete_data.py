@@ -41,7 +41,11 @@ class TestSuccessEnvelopeDeleteData(unittest.TestCase):
                     filters = [
                         ''
                         ], 
-                    count = 56, )
+                    count = 56, 
+                    rebuild_required = True, 
+                    targets = [
+                        'profile'
+                        ], )
             )
         else:
             return SuccessEnvelopeDeleteData(
@@ -50,7 +54,11 @@ class TestSuccessEnvelopeDeleteData(unittest.TestCase):
                     filters = [
                         ''
                         ], 
-                    count = 56, ),
+                    count = 56, 
+                    rebuild_required = True, 
+                    targets = [
+                        'profile'
+                        ], ),
         )
         """
 

@@ -38,7 +38,11 @@ class TestDeleteByIdsData(unittest.TestCase):
             return DeleteByIdsData(
                 memory_type = '',
                 success = True,
-                deleted = 56
+                deleted = 56,
+                rebuild_required = True,
+                targets = [
+                    'profile'
+                    ]
             )
         else:
             return DeleteByIdsData(

@@ -113,7 +113,7 @@
           "Memory"
         ],
         "summary": "Context Retrieval [Cloud-only]",
-        "description": "Retrieve memories with a multi-round, LLM-driven search loop.\n\nAn LLM plans and runs several searches over the owner's memories \u2014 keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session \u2014 and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.\n\nUse it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.\n\n**Request** \u2014 the same body as `/search`, except:\n- `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories.\n- `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422.\n- `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score.\n- `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.\n\n**Response** \u2014 the same `SearchData` shape as `/search`:\n- The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`.\n- `episodes[].cited` is `true` for memories the model named as the ones its answer rested on.\n- `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01\u20130.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.\n\n**Limits** \u2014 by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.\n\n**Latency** \u2014 several LLM calls per request, so noticeably slower than `/search`.",
+        "description": "Retrieve memories with a multi-round, LLM-driven search loop.\n\nAn LLM plans and runs several searches over the owner's memories \u2014 keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session \u2014 and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **By default the response contains memories, not an answer**: the model's own answer is discarded. A deployment can enable answer mode, which also returns that answer in `answer`.\n\nUse it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.\n\n**Request** \u2014 the same body as `/search`, except:\n- `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories.\n- `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422.\n- `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score.\n- `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.\n\n**Response** \u2014 the same `SearchData` shape as `/search`:\n- The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`.\n- `episodes[].cited` is `true` for memories the model named as the ones its answer rested on.\n- `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01\u20130.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.\n- In answer mode, `answer` holds the model's answer (\"\" if it gave none), cited memories come first **in the order the model cited them**, and each cited score is above every uncited one. Without answer mode, `answer` is absent.\n\n**Limits** \u2014 by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.\n\n**Latency** \u2014 several LLM calls per request, so noticeably slower than `/search`.",
         "operationId": "retrieveContext",
         "requestBody": {
           "content": {
@@ -276,7 +276,7 @@
         "tags": [
           "Memory"
         ],
-        "summary": "Soft-delete memory records by id [Cloud-only]",
+        "summary": "Delete memory records by id [Cloud-only]",
         "operationId": "deleteMemoriesByIds",
         "requestBody": {
           "content": {
@@ -926,6 +926,89 @@
           }
         },
         "description": "Read a purge job by the `job_id` that /api/v2/memory/purge/confirm returned.\n\n`status` goes `queued` \u2192 `running` \u2192 `succeeded` or `failed`. `steps` lists every store the purge touches (for example `mongo:v2_episodes` or `es:episode`) with its own state and deleted count, and `error` for a store that failed.\n\nWrites to the memory space are rejected with `409 purge_in_progress` until the job has ended, so poll this before writing again."
+      }
+    },
+    "/api/v2/memory/rebuild": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Rebuild derived memories a delete left stale [Cloud-only]",
+        "description": "Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.\n\nWhile a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.",
+        "operationId": "rebuildMemory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RebuildInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_RebuildData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/memory/rebuild/status": {
+      "post": {
+        "tags": [
+          "Memory"
+        ],
+        "summary": "Status of a rebuild job [Cloud-only]",
+        "operationId": "getRebuildStatus",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RebuildStatusInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_RebuildStatusData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v2/memory/search": {
@@ -4480,6 +4563,25 @@
             "type": "integer",
             "title": "Deleted",
             "description": "Records this request removed. Ids that were absent, already deleted, another tenant's or (with `user_id`) another user's are skipped and count 0 alike."
+          },
+          "rebuild_required": {
+            "type": "boolean",
+            "title": "Rebuild Required",
+            "description": "True when derived memories built from the deleted ones were kept and may still contain their content; call /memory/rebuild to regenerate them.",
+            "default": false
+          },
+          "targets": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "session_summary",
+                "skill"
+              ]
+            },
+            "type": "array",
+            "title": "Targets",
+            "description": "What /memory/rebuild would regenerate; empty when nothing."
           }
         },
         "type": "object",
@@ -4489,7 +4591,7 @@
           "deleted"
         ],
         "title": "DeleteByIdsData",
-        "description": "Result of a by-ids soft delete. A 200 means the request was applied; ids that\nwere already gone are a no-op, not a failure, so a re-sent batch is safe."
+        "description": "Result of a by-ids delete. A 200 means the request was applied; ids that\nwere already gone are a no-op, not a failure, so a re-sent batch is safe."
       },
       "DeleteByIdsInput": {
         "properties": {
@@ -4533,6 +4635,34 @@
             ],
             "title": "User Id",
             "description": "Optional owner guard. When set, ids owned by anyone else are skipped like absent ones. Set it from your own session, not from model output."
+          },
+          "app_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Id",
+            "description": "If set, only a record in this app is affected; any other record is treated as not found."
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "If set, only a record in this project is affected; any other record is treated as not found."
           }
         },
         "additionalProperties": false,
@@ -4542,7 +4672,7 @@
           "memory_ids"
         ],
         "title": "DeleteByIdsInput",
-        "description": "Soft-delete the named memory records [Cloud-only].",
+        "description": "Permanently delete the named memory records [Cloud-only].",
         "example": {
           "memory_type": "episode",
           "memory_ids": [
@@ -4568,13 +4698,32 @@
           "count": {
             "type": "integer",
             "title": "Count",
-            "description": "Total memory records soft-deleted",
+            "description": "Total memory records deleted",
             "default": 0
+          },
+          "rebuild_required": {
+            "type": "boolean",
+            "title": "Rebuild Required",
+            "description": "True when derived memories built from the deleted ones were kept and may still contain their content; call /memory/rebuild to regenerate them.",
+            "default": false
+          },
+          "targets": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "session_summary",
+                "skill"
+              ]
+            },
+            "type": "array",
+            "title": "Targets",
+            "description": "What /memory/rebuild would regenerate; empty when nothing."
           }
         },
         "type": "object",
         "title": "DeleteData",
-        "description": "Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were\napplied + how many mongo records were soft-deleted across all memory types."
+        "description": "Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were\napplied + how many mongo records were deleted across all memory types."
       },
       "DeleteInput": {
         "properties": {
@@ -6318,6 +6467,12 @@
             ],
             "title": "Updated At",
             "description": "When it last changed."
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale",
+            "description": "True when memories this profile was built from have been deleted; it may still contain information from them until /memory/rebuild is called. During a rebuild it stays true, and the profile holds only its manually edited items plus what has been re-extracted so far.",
+            "default": false
           }
         },
         "type": "object",
@@ -6731,6 +6886,261 @@
         "title": "Reason",
         "description": "Why the operator made the change. OPTIONAL on both ops: it is recorded on the\naudit event for quality analysis, never used to gate anything. When given, ``code``\nis required and ``note`` is free text."
       },
+      "RebuildData": {
+        "properties": {
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id",
+            "description": "Rebuild job id; null when no job was started (nothing_to_do, dry_run)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "already_running",
+              "nothing_to_do",
+              "dry_run"
+            ],
+            "title": "Status",
+            "description": "queued: a job was started. already_running: the owner's running job is returned instead of starting another. nothing_to_do: nothing is marked stale (and force is false). dry_run: what would be rebuilt."
+          },
+          "targets": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "session_summary",
+                "skill"
+              ]
+            },
+            "type": "array",
+            "title": "Targets",
+            "description": "What the job rebuilds (or would)"
+          },
+          "estimated_episodes": {
+            "type": "integer",
+            "title": "Estimated Episodes",
+            "description": "Episodes a profile rebuild re-reads (a cost hint; 0 without profile)",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "RebuildData"
+      },
+      "RebuildInput": {
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "App Id",
+            "default": "default"
+          },
+          "project_id": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Project Id",
+            "default": "default"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "The user whose profile / session summaries to rebuild"
+          },
+          "agent_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Id",
+            "description": "The agent whose skills to rebuild"
+          },
+          "targets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "profile",
+                    "session_summary",
+                    "skill"
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targets",
+            "description": "Subset to rebuild. Default: everything marked stale for this owner. user_id \u2192 profile, session_summary; agent_id \u2192 skill."
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "Rebuild the profile / every skill cluster even when nothing is marked stale. Session summaries are only rebuilt when marked.",
+            "default": false
+          },
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run",
+            "description": "Report what would be rebuilt; start no job and spend nothing.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RebuildInput"
+      },
+      "RebuildProgress": {
+        "properties": {
+          "units_total": {
+            "type": "integer",
+            "title": "Units Total",
+            "description": "Work items the job fanned out"
+          },
+          "units_done": {
+            "type": "integer",
+            "title": "Units Done",
+            "description": "Work items finished"
+          },
+          "episodes_fed": {
+            "type": "integer",
+            "title": "Episodes Fed",
+            "description": "Episodes the profile rebuild has read so far",
+            "default": 0
+          },
+          "estimated_episodes": {
+            "type": "integer",
+            "title": "Estimated Episodes",
+            "description": "Episodes the profile rebuild reads in total (approx.)",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "units_total",
+          "units_done"
+        ],
+        "title": "RebuildProgress"
+      },
+      "RebuildStatusData": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "targets": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "session_summary",
+                "skill"
+              ]
+            },
+            "type": "array",
+            "title": "Targets"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/RebuildProgress"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Why the job failed (failed jobs only)"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status",
+          "progress"
+        ],
+        "title": "RebuildStatusData"
+      },
+      "RebuildStatusInput": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Job Id",
+            "description": "From /memory/rebuild"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id"
+        ],
+        "title": "RebuildStatusInput"
+      },
       "RelatedTagUsageBody": {
         "properties": {
           "tag_ids": {
@@ -7141,6 +7551,18 @@
             "type": "array",
             "title": "Unprocessed Messages",
             "description": "Raw buffered messages not yet extracted. Returned only when the request filtered on a single `session_id`, so a caller can see what is still in flight."
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer",
+            "description": "`/context` only, when the deployment enables answer mode: the retrieval model's answer to `query`, grounded in the cited `episodes`. An empty string means the loop ended without one. Absent otherwise."
           }
         },
         "type": "object",
@@ -7687,6 +8109,12 @@
             "title": "Updated At",
             "description": "When it last changed."
           },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale",
+            "description": "True when memories this profile was built from have been deleted; it may still contain information from them until /memory/rebuild is called. During a rebuild it stays true, and the profile holds only its manually edited items plus what has been re-extracted so far.",
+            "default": false
+          },
           "score": {
             "anyOf": [
               {
@@ -8107,6 +8535,44 @@
           "data"
         ],
         "title": "SuccessEnvelope[PurgeRequestData]"
+      },
+      "SuccessEnvelope_RebuildData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RebuildData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[RebuildData]"
+      },
+      "SuccessEnvelope_RebuildStatusData_": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Request trace id (peer to data)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RebuildStatusData",
+            "description": "Endpoint-defined business result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "data"
+        ],
+        "title": "SuccessEnvelope[RebuildStatusData]"
       },
       "SuccessEnvelope_RelatedTagUsageListData_": {
         "properties": {
@@ -9381,6 +9847,34 @@
             ],
             "title": "User Id",
             "description": "Optional owner guard. When set, a record owned by anyone else is a 404, like an absent one. Set it from your own session, not from model output."
+          },
+          "app_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Id",
+            "description": "If set, only a record in this app is affected; any other record is treated as not found."
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id",
+            "description": "If set, only a record in this project is affected; any other record is treated as not found."
           }
         },
         "additionalProperties": false,

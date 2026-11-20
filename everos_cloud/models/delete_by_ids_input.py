@@ -27,14 +27,16 @@ from typing_extensions import Self
 
 class DeleteByIdsInput(BaseModel):
     """
-    Soft-delete the named memory records [Cloud-only].
+    Permanently delete the named memory records [Cloud-only].
     """ # noqa: E501
     memory_type: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Kind of the memories being deleted. Only \"episode\" is accepted today.")
     memory_ids: Annotated[List[StrictStr], Field(min_length=1, max_length=50)] = Field(description="1 to 50 memory ids. Every one must be well-formed; duplicates are collapsed.")
     reason: Optional[Reason] = None
     user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    app_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = None
+    project_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "reason", "user_id"]
+    __properties: ClassVar[List[str]] = ["memory_type", "memory_ids", "reason", "user_id", "app_id", "project_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -95,6 +97,16 @@ class DeleteByIdsInput(BaseModel):
         if self.user_id is None and "user_id" in self.model_fields_set:
             _dict['user_id'] = None
 
+        # set to None if app_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.app_id is None and "app_id" in self.model_fields_set:
+            _dict['app_id'] = None
+
+        # set to None if project_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.project_id is None and "project_id" in self.model_fields_set:
+            _dict['project_id'] = None
+
         return _dict
 
     @classmethod
@@ -110,7 +122,9 @@ class DeleteByIdsInput(BaseModel):
             "memory_type": obj.get("memory_type"),
             "memory_ids": obj.get("memory_ids"),
             "reason": Reason.from_dict(obj["reason"]) if obj.get("reason") is not None else None,
-            "user_id": obj.get("user_id")
+            "user_id": obj.get("user_id"),
+            "app_id": obj.get("app_id"),
+            "project_id": obj.get("project_id")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

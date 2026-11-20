@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from everos_cloud.models.search_agent_case_item import SearchAgentCaseItem
 from everos_cloud.models.search_agent_skill_item import SearchAgentSkillItem
@@ -37,8 +37,9 @@ class SearchData(BaseModel):
     agent_cases: Optional[List[SearchAgentCaseItem]] = Field(default=None, description="Matching agent cases, for an agent owner.")
     agent_skills: Optional[List[SearchAgentSkillItem]] = Field(default=None, description="Matching agent skills, for an agent owner.")
     unprocessed_messages: Optional[List[UnprocessedMessageDTO]] = Field(default=None, description="Raw buffered messages not yet extracted. Returned only when the request filtered on a single `session_id`, so a caller can see what is still in flight.")
+    answer: Optional[StrictStr] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["episodes", "profiles", "agent_cases", "agent_skills", "unprocessed_messages"]
+    __properties: ClassVar[List[str]] = ["episodes", "profiles", "agent_cases", "agent_skills", "unprocessed_messages", "answer"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -121,6 +122,11 @@ class SearchData(BaseModel):
             for _key, _value in self.additional_properties.items():
                 _dict[_key] = _value
 
+        # set to None if answer (nullable) is None
+        # and model_fields_set contains the field
+        if self.answer is None and "answer" in self.model_fields_set:
+            _dict['answer'] = None
+
         return _dict
 
     @classmethod
@@ -137,7 +143,8 @@ class SearchData(BaseModel):
             "profiles": [SearchProfileItem.from_dict(_item) for _item in obj["profiles"]] if obj.get("profiles") is not None else None,
             "agent_cases": [SearchAgentCaseItem.from_dict(_item) for _item in obj["agent_cases"]] if obj.get("agent_cases") is not None else None,
             "agent_skills": [SearchAgentSkillItem.from_dict(_item) for _item in obj["agent_skills"]] if obj.get("agent_skills") is not None else None,
-            "unprocessed_messages": [UnprocessedMessageDTO.from_dict(_item) for _item in obj["unprocessed_messages"]] if obj.get("unprocessed_messages") is not None else None
+            "unprocessed_messages": [UnprocessedMessageDTO.from_dict(_item) for _item in obj["unprocessed_messages"]] if obj.get("unprocessed_messages") is not None else None,
+            "answer": obj.get("answer")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

@@ -41,7 +41,9 @@ class TestDeleteByIdsInput(unittest.TestCase):
                     ''
                     ],
                 reason = { },
-                user_id = '0'
+                user_id = '0',
+                app_id = '0',
+                project_id = '0'
             )
         else:
             return DeleteByIdsInput(

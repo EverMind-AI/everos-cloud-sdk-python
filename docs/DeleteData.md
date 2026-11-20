@@ -1,13 +1,15 @@
 # DeleteData
 
-Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were applied + how many mongo records were soft-deleted across all memory types.
+Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were applied + how many mongo records were deleted across all memory types.
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **filters** | **List[str]** | Scope filters used, e.g. [&#39;user_id&#39;] or [&#39;user_id&#39;, &#39;session_id&#39;] | [optional] 
-**count** | **int** | Total memory records soft-deleted | [optional] [default to 0]
+**count** | **int** | Total memory records deleted | [optional] [default to 0]
+**rebuild_required** | **bool** | True when derived memories built from the deleted ones were kept and may still contain their content; call /memory/rebuild to regenerate them. | [optional] [default to False]
+**targets** | **List[str]** | What /memory/rebuild would regenerate; empty when nothing. | [optional] 
 
 ## Example
 

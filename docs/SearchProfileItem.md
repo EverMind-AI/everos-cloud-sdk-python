@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **profile_data** | **Dict[str, object]** | The profile itself — the explicit_info and implicit_traits items maintained by extraction and by /api/v2/memory/edit. Each item&#39;s id is what an edit operation targets. | [optional] 
 **created_at** | **datetime** |  | [optional] 
 **updated_at** | **datetime** |  | [optional] 
+**stale** | **bool** | True when memories this profile was built from have been deleted; it may still contain information from them until /memory/rebuild is called. During a rebuild it stays true, and the profile holds only its manually edited items plus what has been re-extracted so far. | [optional] [default to False]
 **score** | **float** |  | [optional] 
 
 ## Example
