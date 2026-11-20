@@ -402,7 +402,12 @@ class EverOS:
         app_id: str | None = None,
         project_id: str | None = None,
     ) -> Any:
-        """Add conversation messages to a session. Returns the ``AddData`` result."""
+        """Add conversation messages to a session. Returns the ``AddData`` result.
+
+        By default the write is queued (``async_mode`` unset): the call returns before
+        the messages land. To :meth:`flush` right after, pass ``async_mode=False``, or
+        the flush can run before the queued write and extract nothing.
+        """
         payload = AddInput(
             **_clean(
                 session_id=session_id,
@@ -512,7 +517,11 @@ class EverOS:
         return self._call(self.memory.get_memory, payload).data
 
     def flush(self, session_id: str, *, app_id: str | None = None, project_id: str | None = None) -> Any:
-        """Force extraction for a session. Returns ``FlushData``."""
+        """Force extraction for a session. Returns ``FlushData``.
+
+        Only extracts what has already landed: after a queued :meth:`add` (the default),
+        a flush can come too early. Add with ``async_mode=False`` before flushing.
+        """
         payload = FlushInput(**_clean(session_id=session_id, **self._scope(app_id, project_id)))
         # Method name is being cleaned up (flush_api_v2_memory_flush_post -> flush_memory);
         # call whichever the installed SDK exposes so the facade survives the rename.
@@ -1073,6 +1082,12 @@ class EverOS:
         what would be rebuilt and spends nothing. Batch your deletes first, then call this
         once.
 
+        The call is free, but the extraction it runs is metered like any extraction (a
+        profile rebuild re-reads every remaining episode: ``estimated_episodes`` on a
+        ``dry_run`` sizes it), and it is refused with a 429 once the account's usage
+        quota is exhausted. As with the delete guards, take the owner from your own
+        session, never from model output.
+
         ``status`` is ``"queued"`` (follow ``job_id`` with :meth:`rebuild_wait`),
         ``"already_running"`` (the owner's running job; one at a time),
         ``"nothing_to_do"`` or ``"dry_run"`` (no job, ``job_id`` is ``None``). While a
@@ -1097,7 +1112,7 @@ class EverOS:
 
     def rebuild_wait(
         self,
-        job_id: str,
+        job: Any,
         *,
         timeout: float = DEFAULT_REBUILD_TIMEOUT,
         interval: float = DEFAULT_TASK_INTERVAL,
@@ -1106,17 +1121,19 @@ class EverOS:
     ) -> Any:
         """Poll a rebuild job until it ends and return the terminal ``RebuildStatusData``.
 
-        Same polling as :meth:`task_wait`. Raises ``EverOSError`` if the job fails
+        Pass the result of :meth:`rebuild` (``client.rebuild_wait(client.rebuild(...))``)
+        or its ``job_id``. Same polling as :meth:`task_wait`. Raises ``EverOSError`` if the job fails
         (unless ``raise_on_failure=False``, which returns it) or is still running at
         ``timeout``; the last job seen is on the error's ``.job``. Timing out only ends
         the wait, not the rebuild: call ``rebuild_wait`` again to keep waiting.
         """
+        job_id = job if isinstance(job, str) or job is None else getattr(job, "job_id", None)
         if not job_id:
             raise ValueError(
                 "no rebuild job to wait for: rebuild() starts one only when its status is "
                 "'queued' or 'already_running' ('nothing_to_do' and 'dry_run' have no job_id)"
             )
-        job = self._poll(
+        last = self._poll(
             lambda: self.rebuild_status(job_id),
             _rebuild_finished,
             what=f"rebuild {job_id}",
@@ -1125,11 +1142,11 @@ class EverOS:
             interval=interval,
             max_interval=max_interval,
         )
-        if raise_on_failure and getattr(job, "status", None) == "failed":
-            err = EverOSError(f"rebuild {job_id} failed: {getattr(job, 'error', None) or 'no reason given'}")
-            err.job = job
+        if raise_on_failure and getattr(last, "status", None) == "failed":
+            err = EverOSError(f"rebuild {job_id} failed: {getattr(last, 'error', None) or 'no reason given'}")
+            err.job = last
             raise err
-        return job
+        return last
 
     # -- storage -------------------------------------------------------------
     def presign(self, objects: Sequence[Any]) -> Any:

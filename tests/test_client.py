@@ -1182,3 +1182,16 @@ def test_rebuild_wait_without_a_job_says_why():
     with pytest.raises(ValueError, match="nothing_to_do"):
         c.rebuild_wait(None)
     mem.get_rebuild_status.assert_not_called()
+
+
+def test_rebuild_wait_takes_the_rebuild_result():
+    mem = MagicMock()
+    mem.get_rebuild_status.return_value = SimpleNamespace(
+        data=SimpleNamespace(status="succeeded", finished_at="2026-11-20T00:00:00Z")
+    )
+    c = _client(memory=mem)
+    started = SimpleNamespace(status="queued", job_id="job-7")
+    assert c.rebuild_wait(started, interval=0).status == "succeeded"
+    assert mem.get_rebuild_status.call_args.args[0].job_id == "job-7"
+    with pytest.raises(ValueError, match="nothing_to_do"):
+        c.rebuild_wait(SimpleNamespace(status="nothing_to_do", job_id=None))
