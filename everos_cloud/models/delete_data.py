@@ -18,19 +18,32 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
 class DeleteData(BaseModel):
     """
-    Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were applied + how many mongo records were soft-deleted across all memory types.
+    Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were applied + how many mongo records were deleted across all memory types.
     """ # noqa: E501
     filters: Optional[List[StrictStr]] = Field(default=None, description="Scope filters used, e.g. ['user_id'] or ['user_id', 'session_id']")
-    count: Optional[StrictInt] = Field(default=0, description="Total memory records soft-deleted")
+    count: Optional[StrictInt] = Field(default=0, description="Total memory records deleted")
+    rebuild_required: Optional[StrictBool] = Field(default=False, description="True when derived memories built from the deleted ones were kept and may still contain their content; call /memory/rebuild to regenerate them.")
+    targets: Optional[List[StrictStr]] = Field(default=None, description="What /memory/rebuild would regenerate; empty when nothing.")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["filters", "count"]
+    __properties: ClassVar[List[str]] = ["filters", "count", "rebuild_required", "targets"]
+
+    @field_validator('targets')
+    def targets_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        for i in value:
+            if i not in set(['profile', 'session_summary', 'skill']):
+                raise ValueError("each list item must be one of ('profile', 'session_summary', 'skill')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -91,7 +104,9 @@ class DeleteData(BaseModel):
 
         _obj = cls.model_validate({
             "filters": obj.get("filters"),
-            "count": obj.get("count") if obj.get("count") is not None else 0
+            "count": obj.get("count") if obj.get("count") is not None else 0,
+            "rebuild_required": obj.get("rebuild_required") if obj.get("rebuild_required") is not None else False,
+            "targets": obj.get("targets")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

@@ -11,6 +11,8 @@ Name | Type | Description | Notes
 **patch** | [**EpisodePatch**](EpisodePatch.md) | The fields to rewrite — at least one. Fields left out keep their current value. | 
 **reason** | [**Reason**](Reason.md) |  | [optional] 
 **user_id** | **str** |  | [optional] 
+**app_id** | **str** |  | [optional] 
+**project_id** | **str** |  | [optional] 
 
 ## Example
 

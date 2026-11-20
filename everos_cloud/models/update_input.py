@@ -35,8 +35,10 @@ class UpdateInput(BaseModel):
     patch: EpisodePatch = Field(description="The fields to rewrite — at least one. Fields left out keep their current value.")
     reason: Optional[Reason] = None
     user_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = None
+    app_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = None
+    project_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["memory_type", "memory_id", "patch", "reason", "user_id"]
+    __properties: ClassVar[List[str]] = ["memory_type", "memory_id", "patch", "reason", "user_id", "app_id", "project_id"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -100,6 +102,16 @@ class UpdateInput(BaseModel):
         if self.user_id is None and "user_id" in self.model_fields_set:
             _dict['user_id'] = None
 
+        # set to None if app_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.app_id is None and "app_id" in self.model_fields_set:
+            _dict['app_id'] = None
+
+        # set to None if project_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.project_id is None and "project_id" in self.model_fields_set:
+            _dict['project_id'] = None
+
         return _dict
 
     @classmethod
@@ -116,7 +128,9 @@ class UpdateInput(BaseModel):
             "memory_id": obj.get("memory_id"),
             "patch": EpisodePatch.from_dict(obj["patch"]) if obj.get("patch") is not None else None,
             "reason": Reason.from_dict(obj["reason"]) if obj.get("reason") is not None else None,
-            "user_id": obj.get("user_id")
+            "user_id": obj.get("user_id"),
+            "app_id": obj.get("app_id"),
+            "project_id": obj.get("project_id")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

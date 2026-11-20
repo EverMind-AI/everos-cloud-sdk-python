@@ -28,6 +28,8 @@ from everos_cloud.models.flush_input import FlushInput
 from everos_cloud.models.get_input import GetInput
 from everos_cloud.models.purge_confirm_input import PurgeConfirmInput
 from everos_cloud.models.purge_request_input import PurgeRequestInput
+from everos_cloud.models.rebuild_input import RebuildInput
+from everos_cloud.models.rebuild_status_input import RebuildStatusInput
 from everos_cloud.models.search_input import SearchInput
 from everos_cloud.models.success_envelope_add_data import SuccessEnvelopeAddData
 from everos_cloud.models.success_envelope_delete_by_ids_data import SuccessEnvelopeDeleteByIdsData
@@ -38,6 +40,8 @@ from everos_cloud.models.success_envelope_flush_data import SuccessEnvelopeFlush
 from everos_cloud.models.success_envelope_get_data import SuccessEnvelopeGetData
 from everos_cloud.models.success_envelope_purge_job_data import SuccessEnvelopePurgeJobData
 from everos_cloud.models.success_envelope_purge_request_data import SuccessEnvelopePurgeRequestData
+from everos_cloud.models.success_envelope_rebuild_data import SuccessEnvelopeRebuildData
+from everos_cloud.models.success_envelope_rebuild_status_data import SuccessEnvelopeRebuildStatusData
 from everos_cloud.models.success_envelope_search_data import SuccessEnvelopeSearchData
 from everos_cloud.models.success_envelope_tag_bind_data import SuccessEnvelopeTagBindData
 from everos_cloud.models.success_envelope_tag_replace_data import SuccessEnvelopeTagReplaceData
@@ -953,7 +957,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> SuccessEnvelopeDeleteByIdsData:
-        """Soft-delete memory records by id [Cloud-only]
+        """Delete memory records by id [Cloud-only]
 
         Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
@@ -1025,7 +1029,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[SuccessEnvelopeDeleteByIdsData]:
-        """Soft-delete memory records by id [Cloud-only]
+        """Delete memory records by id [Cloud-only]
 
         Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
@@ -1097,7 +1101,7 @@ class MemoryApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Soft-delete memory records by id [Cloud-only]
+        """Delete memory records by id [Cloud-only]
 
         Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
@@ -2658,6 +2662,557 @@ class MemoryApi:
 
 
     @validate_call
+    def get_rebuild_status(
+        self,
+        rebuild_status_input: RebuildStatusInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeRebuildStatusData:
+        """Status of a rebuild job [Cloud-only]
+
+
+        :param rebuild_status_input: (required)
+        :type rebuild_status_input: RebuildStatusInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_rebuild_status_serialize(
+            rebuild_status_input=rebuild_status_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRebuildStatusData",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_rebuild_status_with_http_info(
+        self,
+        rebuild_status_input: RebuildStatusInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeRebuildStatusData]:
+        """Status of a rebuild job [Cloud-only]
+
+
+        :param rebuild_status_input: (required)
+        :type rebuild_status_input: RebuildStatusInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_rebuild_status_serialize(
+            rebuild_status_input=rebuild_status_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRebuildStatusData",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_rebuild_status_without_preload_content(
+        self,
+        rebuild_status_input: RebuildStatusInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Status of a rebuild job [Cloud-only]
+
+
+        :param rebuild_status_input: (required)
+        :type rebuild_status_input: RebuildStatusInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_rebuild_status_serialize(
+            rebuild_status_input=rebuild_status_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRebuildStatusData",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_rebuild_status_serialize(
+        self,
+        rebuild_status_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if rebuild_status_input is not None:
+            _body_params = rebuild_status_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/rebuild/status',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def rebuild_memory(
+        self,
+        rebuild_input: RebuildInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SuccessEnvelopeRebuildData:
+        """Rebuild derived memories a delete left stale [Cloud-only]
+
+        Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+
+        :param rebuild_input: (required)
+        :type rebuild_input: RebuildInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rebuild_memory_serialize(
+            rebuild_input=rebuild_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRebuildData",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def rebuild_memory_with_http_info(
+        self,
+        rebuild_input: RebuildInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SuccessEnvelopeRebuildData]:
+        """Rebuild derived memories a delete left stale [Cloud-only]
+
+        Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+
+        :param rebuild_input: (required)
+        :type rebuild_input: RebuildInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rebuild_memory_serialize(
+            rebuild_input=rebuild_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRebuildData",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def rebuild_memory_without_preload_content(
+        self,
+        rebuild_input: RebuildInput,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Rebuild derived memories a delete left stale [Cloud-only]
+
+        Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+
+        :param rebuild_input: (required)
+        :type rebuild_input: RebuildInput
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rebuild_memory_serialize(
+            rebuild_input=rebuild_input,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SuccessEnvelopeRebuildData",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _rebuild_memory_serialize(
+        self,
+        rebuild_input,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if rebuild_input is not None:
+            _body_params = rebuild_input
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'BearerAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v2/memory/rebuild',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def replace_tags(
         self,
         tag_replace_input: TagReplaceInput,
@@ -3254,7 +3809,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeSearchData:
         """Context Retrieval [Cloud-only]
 
-        Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
+        Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **By default the response contains memories, not an answer**: the model's own answer is discarded. A deployment can enable answer mode, which also returns that answer in `answer`.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores. - In answer mode, `answer` holds the model's answer (\"\" if it gave none), cited memories come first **in the order the model cited them**, and each cited score is above every uncited one. Without answer mode, `answer` is absent.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
 
         :param context_input: (required)
         :type context_input: ContextInput
@@ -3326,7 +3881,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeSearchData]:
         """Context Retrieval [Cloud-only]
 
-        Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
+        Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **By default the response contains memories, not an answer**: the model's own answer is discarded. A deployment can enable answer mode, which also returns that answer in `answer`.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores. - In answer mode, `answer` holds the model's answer (\"\" if it gave none), cited memories come first **in the order the model cited them**, and each cited score is above every uncited one. Without answer mode, `answer` is absent.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
 
         :param context_input: (required)
         :type context_input: ContextInput
@@ -3398,7 +3953,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Context Retrieval [Cloud-only]
 
-        Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
+        Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **By default the response contains memories, not an answer**: the model's own answer is discarded. A deployment can enable answer mode, which also returns that answer in `answer`.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores. - In answer mode, `answer` holds the model's answer (\"\" if it gave none), cited memories come first **in the order the model cited them**, and each cited score is above every uncited one. Without answer mode, `answer` is absent.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
 
         :param context_input: (required)
         :type context_input: ContextInput

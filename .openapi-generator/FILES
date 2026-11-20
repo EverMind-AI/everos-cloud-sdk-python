@@ -70,6 +70,11 @@ docs/PurgeRequestInput.md
 docs/PurgeStepData.md
 docs/PurgeSummary.md
 docs/Reason.md
+docs/RebuildData.md
+docs/RebuildInput.md
+docs/RebuildProgress.md
+docs/RebuildStatusData.md
+docs/RebuildStatusInput.md
 docs/RelatedTagUsageBody.md
 docs/RelatedTagUsageItem.md
 docs/RelatedTagUsageListData.md
@@ -112,6 +117,8 @@ docs/SuccessEnvelopeKbListData.md
 docs/SuccessEnvelopeKbSearchData.md
 docs/SuccessEnvelopePurgeJobData.md
 docs/SuccessEnvelopePurgeRequestData.md
+docs/SuccessEnvelopeRebuildData.md
+docs/SuccessEnvelopeRebuildStatusData.md
 docs/SuccessEnvelopeRelatedTagUsageListData.md
 docs/SuccessEnvelopeSearchData.md
 docs/SuccessEnvelopeTagBindData.md
@@ -233,6 +240,11 @@ everos_cloud/models/purge_request_input.py
 everos_cloud/models/purge_step_data.py
 everos_cloud/models/purge_summary.py
 everos_cloud/models/reason.py
+everos_cloud/models/rebuild_data.py
+everos_cloud/models/rebuild_input.py
+everos_cloud/models/rebuild_progress.py
+everos_cloud/models/rebuild_status_data.py
+everos_cloud/models/rebuild_status_input.py
 everos_cloud/models/related_tag_usage_body.py
 everos_cloud/models/related_tag_usage_item.py
 everos_cloud/models/related_tag_usage_list_data.py
@@ -274,6 +286,8 @@ everos_cloud/models/success_envelope_kb_list_data.py
 everos_cloud/models/success_envelope_kb_search_data.py
 everos_cloud/models/success_envelope_purge_job_data.py
 everos_cloud/models/success_envelope_purge_request_data.py
+everos_cloud/models/success_envelope_rebuild_data.py
+everos_cloud/models/success_envelope_rebuild_status_data.py
 everos_cloud/models/success_envelope_related_tag_usage_list_data.py
 everos_cloud/models/success_envelope_search_data.py
 everos_cloud/models/success_envelope_tag_bind_data.py
@@ -393,6 +407,11 @@ test/test_purge_request_input.py
 test/test_purge_step_data.py
 test/test_purge_summary.py
 test/test_reason.py
+test/test_rebuild_data.py
+test/test_rebuild_input.py
+test/test_rebuild_progress.py
+test/test_rebuild_status_data.py
+test/test_rebuild_status_input.py
 test/test_related_tag_usage_body.py
 test/test_related_tag_usage_item.py
 test/test_related_tag_usage_list_data.py
@@ -435,6 +454,8 @@ test/test_success_envelope_kb_list_data.py
 test/test_success_envelope_kb_search_data.py
 test/test_success_envelope_purge_job_data.py
 test/test_success_envelope_purge_request_data.py
+test/test_success_envelope_rebuild_data.py
+test/test_success_envelope_rebuild_status_data.py
 test/test_success_envelope_related_tag_usage_list_data.py
 test/test_success_envelope_search_data.py
 test/test_success_envelope_tag_bind_data.py

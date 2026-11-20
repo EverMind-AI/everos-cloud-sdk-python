@@ -51,7 +51,7 @@ class TestMemoryApi(unittest.TestCase):
     def test_delete_memories_by_ids(self) -> None:
         """Test case for delete_memories_by_ids
 
-        Soft-delete memory records by id [Cloud-only]
+        Delete memory records by id [Cloud-only]
         """
         pass
 
@@ -87,6 +87,20 @@ class TestMemoryApi(unittest.TestCase):
         """Test case for get_purge_job
 
         Get a memory-space purge job [Cloud-only]
+        """
+        pass
+
+    def test_get_rebuild_status(self) -> None:
+        """Test case for get_rebuild_status
+
+        Status of a rebuild job [Cloud-only]
+        """
+        pass
+
+    def test_rebuild_memory(self) -> None:
+        """Test case for rebuild_memory
+
+        Rebuild derived memories a delete left stale [Cloud-only]
         """
         pass
 

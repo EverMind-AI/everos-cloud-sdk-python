@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **agent_cases** | [**List[SearchAgentCaseItem]**](SearchAgentCaseItem.md) | Matching agent cases, for an agent owner. | [optional] 
 **agent_skills** | [**List[SearchAgentSkillItem]**](SearchAgentSkillItem.md) | Matching agent skills, for an agent owner. | [optional] 
 **unprocessed_messages** | [**List[UnprocessedMessageDTO]**](UnprocessedMessageDTO.md) | Raw buffered messages not yet extracted. Returned only when the request filtered on a single &#x60;session_id&#x60;, so a caller can see what is still in flight. | [optional] 
+**answer** | **str** |  | [optional] 
 
 ## Example
 

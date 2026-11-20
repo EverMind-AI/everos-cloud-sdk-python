@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
@@ -35,9 +35,10 @@ class SearchProfileItem(BaseModel):
     profile_data: Optional[Dict[str, Any]] = Field(default=None, description="The profile itself — the explicit_info and implicit_traits items maintained by extraction and by /api/v2/memory/edit. Each item's id is what an edit operation targets.")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    stale: Optional[StrictBool] = Field(default=False, description="True when memories this profile was built from have been deleted; it may still contain information from them until /memory/rebuild is called. During a rebuild it stays true, and the profile holds only its manually edited items plus what has been re-extracted so far.")
     score: Optional[Union[StrictFloat, StrictInt]] = None
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "profile_data", "created_at", "updated_at", "score"]
+    __properties: ClassVar[List[str]] = ["id", "app_id", "project_id", "user_id", "profile_data", "created_at", "updated_at", "stale", "score"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -119,6 +120,7 @@ class SearchProfileItem(BaseModel):
             "profile_data": obj.get("profile_data"),
             "created_at": obj.get("created_at"),
             "updated_at": obj.get("updated_at"),
+            "stale": obj.get("stale") if obj.get("stale") is not None else False,
             "score": obj.get("score")
         })
         # store additional fields in additional_properties

@@ -7,12 +7,14 @@ Method | HTTP request | Description
 [**add_memory**](MemoryApi.md#add_memory) | **POST** /api/v2/memory/add | Add messages [OSS + Cloud]
 [**bind_tags**](MemoryApi.md#bind_tags) | **POST** /api/v2/memory/tag/bind | Bind tags to memories [Cloud]
 [**confirm_purge**](MemoryApi.md#confirm_purge) | **POST** /api/v2/memory/purge/confirm | Confirm a memory-space purge (step 2 of 2) [Cloud-only]
-[**delete_memories_by_ids**](MemoryApi.md#delete_memories_by_ids) | **POST** /api/v2/memory/delete_by_ids | Soft-delete memory records by id [Cloud-only]
+[**delete_memories_by_ids**](MemoryApi.md#delete_memories_by_ids) | **POST** /api/v2/memory/delete_by_ids | Delete memory records by id [Cloud-only]
 [**delete_memory**](MemoryApi.md#delete_memory) | **POST** /api/v2/memory/delete | Delete memories [Cloud-only]
 [**edit_profile**](MemoryApi.md#edit_profile) | **POST** /api/v2/memory/edit | Edit profile items [Cloud-only]
 [**flush_memory**](MemoryApi.md#flush_memory) | **POST** /api/v2/memory/flush | Force memory extraction [OSS + Cloud]
 [**get_memory**](MemoryApi.md#get_memory) | **POST** /api/v2/memory/get | Get memories [OSS + Cloud]
 [**get_purge_job**](MemoryApi.md#get_purge_job) | **GET** /api/v2/memory/purge/{job_id} | Get a memory-space purge job [Cloud-only]
+[**get_rebuild_status**](MemoryApi.md#get_rebuild_status) | **POST** /api/v2/memory/rebuild/status | Status of a rebuild job [Cloud-only]
+[**rebuild_memory**](MemoryApi.md#rebuild_memory) | **POST** /api/v2/memory/rebuild | Rebuild derived memories a delete left stale [Cloud-only]
 [**replace_tags**](MemoryApi.md#replace_tags) | **POST** /api/v2/memory/tag/replace | Replace tags on memories [Cloud]
 [**request_purge**](MemoryApi.md#request_purge) | **POST** /api/v2/memory/purge | Request a memory-space purge (step 1 of 2) [Cloud-only]
 [**retrieve_context**](MemoryApi.md#retrieve_context) | **POST** /api/v2/memory/context | Context Retrieval [Cloud-only]
@@ -278,7 +280,7 @@ Name | Type | Description  | Notes
 # **delete_memories_by_ids**
 > SuccessEnvelopeDeleteByIdsData delete_memories_by_ids(delete_by_ids_input)
 
-Soft-delete memory records by id [Cloud-only]
+Delete memory records by id [Cloud-only]
 
 Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
@@ -316,7 +318,7 @@ with everos_cloud.ApiClient(configuration) as api_client:
     delete_by_ids_input = everos_cloud.DeleteByIdsInput() # DeleteByIdsInput | 
 
     try:
-        # Soft-delete memory records by id [Cloud-only]
+        # Delete memory records by id [Cloud-only]
         api_response = api_instance.delete_memories_by_ids(delete_by_ids_input)
         print("The response of MemoryApi->delete_memories_by_ids:\n")
         pprint(api_response)
@@ -778,6 +780,164 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_rebuild_status**
+> SuccessEnvelopeRebuildStatusData get_rebuild_status(rebuild_status_input)
+
+Status of a rebuild job [Cloud-only]
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.rebuild_status_input import RebuildStatusInput
+from everos_cloud.models.success_envelope_rebuild_status_data import SuccessEnvelopeRebuildStatusData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.MemoryApi(api_client)
+    rebuild_status_input = everos_cloud.RebuildStatusInput() # RebuildStatusInput | 
+
+    try:
+        # Status of a rebuild job [Cloud-only]
+        api_response = api_instance.get_rebuild_status(rebuild_status_input)
+        print("The response of MemoryApi->get_rebuild_status:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MemoryApi->get_rebuild_status: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **rebuild_status_input** | [**RebuildStatusInput**](RebuildStatusInput.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopeRebuildStatusData**](SuccessEnvelopeRebuildStatusData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **rebuild_memory**
+> SuccessEnvelopeRebuildData rebuild_memory(rebuild_input)
+
+Rebuild derived memories a delete left stale [Cloud-only]
+
+Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+
+### Example
+
+* Bearer Authentication (BearerAuth):
+
+```python
+import everos_cloud
+from everos_cloud.models.rebuild_input import RebuildInput
+from everos_cloud.models.success_envelope_rebuild_data import SuccessEnvelopeRebuildData
+from everos_cloud.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to https://api.evermind.ai
+# See configuration.py for a list of all supported configuration parameters.
+configuration = everos_cloud.Configuration(
+    host = "https://api.evermind.ai"
+)
+
+# The client must configure the authentication and authorization parameters
+# in accordance with the API server security policy.
+# Examples for each auth method are provided below, use the example that
+# satisfies your auth use case.
+
+# Configure Bearer authorization: BearerAuth
+configuration = everos_cloud.Configuration(
+    access_token = os.environ["BEARER_TOKEN"]
+)
+
+# Enter a context with an instance of the API client
+with everos_cloud.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = everos_cloud.MemoryApi(api_client)
+    rebuild_input = everos_cloud.RebuildInput() # RebuildInput | 
+
+    try:
+        # Rebuild derived memories a delete left stale [Cloud-only]
+        api_response = api_instance.rebuild_memory(rebuild_input)
+        print("The response of MemoryApi->rebuild_memory:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling MemoryApi->rebuild_memory: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **rebuild_input** | [**RebuildInput**](RebuildInput.md)|  | 
+
+### Return type
+
+[**SuccessEnvelopeRebuildData**](SuccessEnvelopeRebuildData.md)
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **replace_tags**
 > SuccessEnvelopeTagReplaceData replace_tags(tag_replace_input)
 
@@ -951,7 +1111,7 @@ Name | Type | Description  | Notes
 
 Context Retrieval [Cloud-only]
 
-Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **The response contains memories, not an answer**: the model's own answer is discarded.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
+Retrieve memories with a multi-round, LLM-driven search loop.  An LLM plans and runs several searches over the owner's memories — keyword, semantic, hybrid, topic-cluster, and reading the surrounding conversation or a whole session — and keeps searching until it judges the evidence sufficient to answer `query`. The memories it found are returned. **By default the response contains memories, not an answer**: the model's own answer is discarded. A deployment can enable answer mode, which also returns that answer in `answer`.  Use it for questions a single search answers poorly: multi-hop, temporal, or spread across several conversations. For simple lookups, `/search` is faster and cheaper.  **Request** — the same body as `/search`, except: - `user_id` is required and `agent_id` is not accepted (422): the loop searches a user's memories only. Use `/search` for agent memories. - `method` is fixed to `\"context\"`. It can be omitted; any other value is a 422. - `min_score` is not supported (422): results are ranked by rank fusion, not by a similarity score. - `radius`, `enable_llm_rerank` and `with_readable_episode` are not accepted (422): the loop does not use them.  **Response** — the same `SearchData` shape as `/search`: - The loop returns its memories in `episodes`. `profiles` (`include_profile`) and `unprocessed_messages` (a top-level `session_id` filter) are filled exactly as on `/search`. - `episodes[].cited` is `true` for memories the model named as the ones its answer rested on. - `episodes[].score` is a rank-fusion score, not a similarity: roughly 0.01–0.05, plus 1.0 for a cited memory, so cited memories come first. It is not comparable with `/search` scores. - In answer mode, `answer` holds the model's answer (\"\" if it gave none), cited memories come first **in the order the model cited them**, and each cited score is above every uncited one. Without answer mode, `answer` is absent.  **Limits** — by default at most 5 LLM rounds and 45 seconds per request. Reaching a limit is not an error: the memories found so far are returned.  **Latency** — several LLM calls per request, so noticeably slower than `/search`.
 
 ### Example
 
