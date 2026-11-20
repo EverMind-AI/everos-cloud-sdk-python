@@ -43,9 +43,10 @@ Add a conversation; EverOS turns it into structured, retrievable memory you can 
 - **Knowledge bases** — ingest documents into a searchable topic library alongside
   conversational memory; ingest is async and reports progress through the task API.
 - **Multimodal** — attach images, audio, and documents to any message.
-- **You stay in control** — correct or delete single memories (scoped to one user when an
-  agent acts on their behalf), clear a user or session, or purge a whole memory space in
-  two confirmed steps.
+- **You stay in control** — correct or delete single memories (guarded to one user, app or
+  project when an agent acts on their behalf), clear a user or session, or purge a whole
+  memory space in two confirmed steps. Deletes are permanent; refresh the profile they
+  leave stale with `rebuild` when you choose.
 - **Built for production** — fully managed (no vector DB or extraction pipeline to run),
   with low-latency retrieval and high-concurrency throughput. The engineering guarantees
   you don't get from self-hosting.
