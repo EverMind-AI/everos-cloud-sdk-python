@@ -15,7 +15,7 @@
 """  # noqa: E501
 
 
-__version__ = "1.3.0-rc4"
+__version__ = "1.3.0"
 
 # import apis into sdk package
 from everos_cloud.api.knowledge_api import KnowledgeApi

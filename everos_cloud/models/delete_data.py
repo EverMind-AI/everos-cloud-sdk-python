@@ -25,7 +25,7 @@ from typing_extensions import Self
 
 class DeleteData(BaseModel):
     """
-    Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were applied + how many mongo records were deleted across all memory types.
+    Which scope filters were applied and how many memory records were deleted across all memory types.
     """ # noqa: E501
     filters: Optional[List[StrictStr]] = Field(default=None, description="Scope filters used, e.g. ['user_id'] or ['user_id', 'session_id']")
     count: Optional[StrictInt] = Field(default=0, description="Total memory records deleted")
