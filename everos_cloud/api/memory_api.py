@@ -959,7 +959,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeDeleteByIdsData:
         """Delete memory records by id [Cloud-only]
 
-        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+        Permanently delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id. Pass `app_id` and/or `project_id` the same way to delete only inside that app or project: an id outside it is skipped like a missing one.  A stale profile, session summary or skill left behind is reported in `rebuild_required` / `targets`; /api/v2/memory/rebuild regenerates it.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
         :param delete_by_ids_input: (required)
         :type delete_by_ids_input: DeleteByIdsInput
@@ -1031,7 +1031,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeDeleteByIdsData]:
         """Delete memory records by id [Cloud-only]
 
-        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+        Permanently delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id. Pass `app_id` and/or `project_id` the same way to delete only inside that app or project: an id outside it is skipped like a missing one.  A stale profile, session summary or skill left behind is reported in `rebuild_required` / `targets`; /api/v2/memory/rebuild regenerates it.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
         :param delete_by_ids_input: (required)
         :type delete_by_ids_input: DeleteByIdsInput
@@ -1103,7 +1103,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Delete memory records by id [Cloud-only]
 
-        Soft-delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
+        Permanently delete up to 50 memories chosen by id, together with what was derived from them (extracted facts, cluster membership and search-index copies). Only \"episode\" is supported today.  - Every id must be well-formed; one malformed id rejects the whole request with 422 and nothing is deleted. - Ids that do not exist, are already deleted, or belong to another tenant are skipped — the rest of the batch is still deleted, so re-sending a batch is safe. Duplicates are collapsed. - `deleted` in the response counts the records this request removed. Every skipped id counts 0 alike, so the count does not reveal which ids exist.  Pass `user_id` to delete only that user's memories: an id owned by anyone else is skipped like a missing one. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id. Pass `app_id` and/or `project_id` the same way to delete only inside that app or project: an id outside it is skipped like a missing one.  A stale profile, session summary or skill left behind is reported in `rebuild_required` / `targets`; /api/v2/memory/rebuild regenerates it.  To remove memories by owner or session rather than by id, use /api/v2/memory/delete.
 
         :param delete_by_ids_input: (required)
         :type delete_by_ids_input: DeleteByIdsInput
@@ -1248,7 +1248,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeDeleteData:
         """Delete memories [Cloud-only]
 
-        Soft-delete memories within a scope.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive.  The response echoes which scope filters were applied and how many records were removed across all memory types.
+        Permanently delete memories within a scope. There is no undo.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive. - A delete by `session_id` alone also removes that session's source messages.  The response echoes which scope filters were applied and how many records were removed across all memory types. Derived memories that only an LLM can regenerate (profile, session summaries, agent skills) are kept and marked stale: `rebuild_required` and `targets` say so, and /api/v2/memory/rebuild regenerates them.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -1320,7 +1320,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeDeleteData]:
         """Delete memories [Cloud-only]
 
-        Soft-delete memories within a scope.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive.  The response echoes which scope filters were applied and how many records were removed across all memory types.
+        Permanently delete memories within a scope. There is no undo.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive. - A delete by `session_id` alone also removes that session's source messages.  The response echoes which scope filters were applied and how many records were removed across all memory types. Derived memories that only an LLM can regenerate (profile, session summaries, agent skills) are kept and marked stale: `rebuild_required` and `targets` say so, and /api/v2/memory/rebuild regenerates them.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -1392,7 +1392,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Delete memories [Cloud-only]
 
-        Soft-delete memories within a scope.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive.  The response echoes which scope filters were applied and how many records were removed across all memory types.
+        Permanently delete memories within a scope. There is no undo.  - At least one of `user_id`, `agent_id` or `session_id` is required — an empty body is rejected with 422. - `user_id` and `agent_id` are mutually exclusive. - A delete by `session_id` alone also removes that session's source messages.  The response echoes which scope filters were applied and how many records were removed across all memory types. Derived memories that only an LLM can regenerate (profile, session summaries, agent skills) are kept and marked stale: `rebuild_required` and `targets` say so, and /api/v2/memory/rebuild regenerates them.
 
         :param delete_input: (required)
         :type delete_input: DeleteInput
@@ -2680,6 +2680,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeRebuildStatusData:
         """Status of a rebuild job [Cloud-only]
 
+        Read a rebuild job started by /api/v2/memory/rebuild: its `status` (`queued`, `running`, `succeeded`, `failed`), `progress`, and `error` when it failed. An unknown `job_id` is a 404.
 
         :param rebuild_status_input: (required)
         :type rebuild_status_input: RebuildStatusInput
@@ -2716,6 +2717,11 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeRebuildStatusData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+            '404': "ErrorEnvelope",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2747,6 +2753,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeRebuildStatusData]:
         """Status of a rebuild job [Cloud-only]
 
+        Read a rebuild job started by /api/v2/memory/rebuild: its `status` (`queued`, `running`, `succeeded`, `failed`), `progress`, and `error` when it failed. An unknown `job_id` is a 404.
 
         :param rebuild_status_input: (required)
         :type rebuild_status_input: RebuildStatusInput
@@ -2783,6 +2790,11 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeRebuildStatusData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+            '404': "ErrorEnvelope",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2814,6 +2826,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Status of a rebuild job [Cloud-only]
 
+        Read a rebuild job started by /api/v2/memory/rebuild: its `status` (`queued`, `running`, `succeeded`, `failed`), `progress`, and `error` when it failed. An unknown `job_id` is a 404.
 
         :param rebuild_status_input: (required)
         :type rebuild_status_input: RebuildStatusInput
@@ -2850,6 +2863,11 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeRebuildStatusData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
+            '404': "ErrorEnvelope",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -2954,7 +2972,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeRebuildData:
         """Rebuild derived memories a delete left stale [Cloud-only]
 
-        Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+        Regenerate the derived memories that deletes left stale.  A delete never spends LLM calls. Derived memories that only an LLM can regenerate (the user profile, session summaries, agent skills) are kept and marked stale instead: the delete response has `rebuild_required` and `targets`, and the profile has `stale`. This call starts one background job that regenerates them from the remaining memories. Nothing is regenerated until you call it, so batch your deletes first.  - Pass `user_id` (profile, session summaries) or `agent_id` (skills). `targets` narrows the rebuild; by default everything marked stale is rebuilt. - `dry_run` reports what would be rebuilt (`estimated_episodes` sizes a profile rebuild) and spends nothing. `force` rebuilds the profile or skills even when nothing is marked; an owner with no profile yet has none to rebuild. - One job per owner at a time: a second call returns the running job with `status: already_running`. - The call is free; the extraction it runs is metered like any extraction, so it is refused with 429 once the account's usage quota is exhausted.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far, and `stale` stays `true` until the job finishes. Poll /api/v2/memory/rebuild/status with the returned `job_id`.
 
         :param rebuild_input: (required)
         :type rebuild_input: RebuildInput
@@ -2991,6 +3009,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeRebuildData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3022,7 +3044,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeRebuildData]:
         """Rebuild derived memories a delete left stale [Cloud-only]
 
-        Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+        Regenerate the derived memories that deletes left stale.  A delete never spends LLM calls. Derived memories that only an LLM can regenerate (the user profile, session summaries, agent skills) are kept and marked stale instead: the delete response has `rebuild_required` and `targets`, and the profile has `stale`. This call starts one background job that regenerates them from the remaining memories. Nothing is regenerated until you call it, so batch your deletes first.  - Pass `user_id` (profile, session summaries) or `agent_id` (skills). `targets` narrows the rebuild; by default everything marked stale is rebuilt. - `dry_run` reports what would be rebuilt (`estimated_episodes` sizes a profile rebuild) and spends nothing. `force` rebuilds the profile or skills even when nothing is marked; an owner with no profile yet has none to rebuild. - One job per owner at a time: a second call returns the running job with `status: already_running`. - The call is free; the extraction it runs is metered like any extraction, so it is refused with 429 once the account's usage quota is exhausted.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far, and `stale` stays `true` until the job finishes. Poll /api/v2/memory/rebuild/status with the returned `job_id`.
 
         :param rebuild_input: (required)
         :type rebuild_input: RebuildInput
@@ -3059,6 +3081,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeRebuildData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -3090,7 +3116,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Rebuild derived memories a delete left stale [Cloud-only]
 
-        Deletes never spend LLM calls: a derived memory that can only be regenerated by an LLM (the profile, session summaries, agent skills) is kept and marked stale (`rebuild_required` / `targets` on the delete response, `stale` on the profile). This call starts one background job that regenerates the marked ones from the remaining memories. Free; the extraction it runs is metered like any extraction, so like `add` it is refused with 429 once the account's mcu balance is exhausted. One active job per owner: a second call returns the running job. Poll `/memory/rebuild/status` with the returned `job_id`.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far: the LLM-generated items are cleared when the job starts and come back batch by batch. `stale` stays `true` until the job finishes.
+        Regenerate the derived memories that deletes left stale.  A delete never spends LLM calls. Derived memories that only an LLM can regenerate (the user profile, session summaries, agent skills) are kept and marked stale instead: the delete response has `rebuild_required` and `targets`, and the profile has `stale`. This call starts one background job that regenerates them from the remaining memories. Nothing is regenerated until you call it, so batch your deletes first.  - Pass `user_id` (profile, session summaries) or `agent_id` (skills). `targets` narrows the rebuild; by default everything marked stale is rebuilt. - `dry_run` reports what would be rebuilt (`estimated_episodes` sizes a profile rebuild) and spends nothing. `force` rebuilds the profile or skills even when nothing is marked; an owner with no profile yet has none to rebuild. - One job per owner at a time: a second call returns the running job with `status: already_running`. - The call is free; the extraction it runs is metered like any extraction, so it is refused with 429 once the account's usage quota is exhausted.  While a profile rebuild runs, the profile holds only its manually edited items plus what has been re-extracted so far, and `stale` stays `true` until the job finishes. Poll /api/v2/memory/rebuild/status with the returned `job_id`.
 
         :param rebuild_input: (required)
         :type rebuild_input: RebuildInput
@@ -3127,6 +3153,10 @@ class MemoryApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SuccessEnvelopeRebuildData",
             '422': "HTTPValidationError",
+            '401': "Dict[str, object]",
+            '403': "Dict[str, object]",
+            '429': "Dict[str, object]",
+            '503': "Dict[str, object]",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -4965,7 +4995,7 @@ class MemoryApi:
     ) -> SuccessEnvelopeUpdateData:
         """Edit one memory record [Cloud-only]
 
-        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - `app_id` / `project_id` are optional guards, not a scope: the record already knows its scope. When set, a record in any other app or project is a 404, like a missing one.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
         :param update_input: (required)
         :type update_input: UpdateInput
@@ -5037,7 +5067,7 @@ class MemoryApi:
     ) -> ApiResponse[SuccessEnvelopeUpdateData]:
         """Edit one memory record [Cloud-only]
 
-        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - `app_id` / `project_id` are optional guards, not a scope: the record already knows its scope. When set, a record in any other app or project is a 404, like a missing one.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
         :param update_input: (required)
         :type update_input: UpdateInput
@@ -5109,7 +5139,7 @@ class MemoryApi:
     ) -> RESTResponseType:
         """Edit one memory record [Cloud-only]
 
-        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - No `app_id` / `project_id`: the record already knows its scope.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
+        Rewrite the editable fields of one memory. Only \"episode\" can be edited today.  - `patch` uses the episode's own field names — `episode`, `summary`, `subject` — and needs at least one of them. Fields left out keep their current value. - A patch that changes only `episode` makes the server regenerate `summary` from the new text; `subject` is never regenerated. - `app_id` / `project_id` are optional guards, not a scope: the record already knows its scope. When set, a record in any other app or project is a 404, like a missing one.  There is no version check — the last write wins. Re-sending content equal to what is stored answers 200 with `unchanged: true` and writes nothing. Changing the narrative re-indexes the memory and re-extracts its facts in the background; the response is the edited record itself, with `edited_at` and `reflect_state` set.  A record that does not exist, is already deleted, or belongs to another tenant is rejected with 404.  Pass `user_id` to limit the edit to that user's memory: a record owned by anyone else is rejected with the same 404. Set it from your own session (the signed-in user), never from model output, so that an agent tool cannot touch another user's memory with a wrong or invented id.  Profile items are edited through /api/v2/memory/edit, not here.
 
         :param update_input: (required)
         :type update_input: UpdateInput

@@ -1,6 +1,6 @@
 # DeleteData
 
-Delete result (mirrors v1 ``DeleteMemoriesResult``): which scope filters were applied + how many mongo records were deleted across all memory types.
+Which scope filters were applied and how many memory records were deleted across all memory types.
 
 ## Properties
 
